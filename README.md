@@ -1,5 +1,8 @@
 # Expernet Campus : plateforme unifiée (catalogue + ENT)
 
+MARTIGNY Mathieu
+LAW THIME Kenjy
+
 Projet du titre **Concepteur Développeur d'Applications (CDA)**. Refonte du système d'information d'Expernet Campus : le site WordPress, le portail GALIA et le partage de documents Teams sont réunis en **une seule plateforme API-first**.
 
 | | |
@@ -25,7 +28,7 @@ Projet du titre **Concepteur Développeur d'Applications (CDA)**. Refonte du sys
 - Authentification par session sécurisée + **double authentification TOTP réelle**, obligatoire pour les formateurs et les administrateurs, avec codes de secours
 - **RBAC** : rôles admin, formateur, étudiant ; 13 permissions ; cloisonnement des données par promotion
 - **Émargement numérique** par demi-journée : code à 6 chiffres, signature au doigt, horodatage, empreinte SHA-256 vérifiable, clôture automatique des absents, **attestation PDF**
-- **Tableau de bord formateur** (navigation à motifs de bananes 🍌) : promotions suivies, taux d'assiduité, alertes d'absentéisme
+- **Tableau de bord formateur** (navigation à motifs de bananes ) : promotions suivies, taux d'assiduité, alertes d'absentéisme
 - **Examens** : planification des sessions, composition des jurys (un président), saisie des grilles de compétences
 - Planning, notes avec moyenne pondérée, espace documentaire par promotion avec **aperçu en ligne** (PDF, images, textes)
 - **Messagerie** : conversations privées et groupes ; l'étudiant écrit à sa promotion, à ses formateurs et à l'administration ; le formateur crée des groupes (choix des membres ou toute une promotion) et les gère ; pièces jointes (5 fichiers de 10 Mo) et émoticônes ; compteur de non-lus
