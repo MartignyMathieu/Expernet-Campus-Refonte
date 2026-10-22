@@ -5,6 +5,7 @@ use App\Http\Middleware\EnsurePermission;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -29,4 +30,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+        // Secret MFA chiffré avec une autre APP_KEY (projet déplacé, clé régénérée) : message exploitable plutôt qu'une erreur 500.
+        $exceptions->render(function (DecryptException $e, Request $request) {
+            if ($request->is('api/auth/two-factor-challenge') || $request->is('api/auth/user/*')) {
+                return response()->json([
+                    'code' => 'MFA_ILLISIBLE',
+                    'message' => 'Votre double authentification ne peut plus être vérifiée (clé de chiffrement du serveur modifiée). '
+                        .'Demandez à l\'administration de la réinitialiser, puis réactivez-la.',
+                ], 409);
+            }
+        });
     })->create();
