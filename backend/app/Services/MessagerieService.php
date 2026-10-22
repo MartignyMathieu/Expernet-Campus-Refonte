@@ -113,9 +113,32 @@ class MessagerieService
         return $message;
     }
 
+    public function modifier(Message $message, string $contenu): Message
+    {
+        $message->forceFill(['contenu' => $contenu, 'modifie_at' => now()])->save();
+
+        return $message;
+    }
+
+    /** Suppression « douce » : le message garde sa place dans le fil, son contenu et ses fichiers sont effacés. */
+    public function supprimer(Message $message): Message
+    {
+        DB::transaction(function () use ($message) {
+            $chemins = $message->piecesJointes()->pluck('chemin')->all();
+            $message->piecesJointes()->delete();
+            $message->forceFill(['contenu' => '', 'supprime_at' => now()])->save();
+            Storage::disk('local')->delete($chemins);
+        });
+
+        return $message;
+    }
+
     /** Extrait affiché dans la liste des conversations. */
     public static function extrait(Message $message): string
     {
+        if ($message->supprime_at !== null) {
+            return 'Message supprimé';
+        }
         if ($message->contenu !== '') {
             return mb_strimwidth($message->contenu, 0, 80, '…');
         }
