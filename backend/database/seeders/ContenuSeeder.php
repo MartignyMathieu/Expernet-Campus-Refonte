@@ -4,13 +4,13 @@ namespace Database\Seeders;
 
 use App\Models\Article;
 use App\Models\FaqQuestion;
-use App\Models\FcDomaine;
 use Illuminate\Database\Seeder;
 
 /**
  * Contenus repris de l'ancien site (expernet-campus.re et expernet.re), consultés le 22/10/2026.
  * FAQ : questions d'origine, réponses reformulées. Blog : métadonnées des 12 derniers articles
  * et résumés rédigés pour la refonte ; le texte intégral s'importe avec `php artisan blog:import-wordpress`.
+ * Formation continue : voir FormationContinueSeeder.
  */
 class ContenuSeeder extends Seeder
 {
@@ -51,29 +51,6 @@ class ContenuSeeder extends Seeder
                 'titre' => $titre, 'resume' => $resume, 'categorie' => $cat, 'temps_lecture' => $lecture,
                 'publie_le' => $date, 'image' => '/images/blog/'.$slug.'.webp', 'url_source' => $base.$chemin,
             ]);
-        }
-
-        $domaines = [
-            ['remise-a-niveau-numerique', 'Remise à niveau numérique', 'desktop', ['Initiation à l\'internet', 'Windows 11 – Utilisateurs', 'Initiation à l\'informatique']],
-            ['bureautique', 'Bureautique', 'table', ['Excel initiation', 'Excel base de données & TCD', 'Excel VBA', 'PowerPoint initiation', 'Outils collaboratifs Microsoft 365']],
-            ['analyse-de-donnees', 'Analyse de données', 'chart', ['Power Query', 'Power Pivot', 'Tableau Desktop', 'Power BI Desktop']],
-            ['gestion-de-projets', 'Gestion de projets', 'kanban', ['Méthodes agiles Scrum', 'Conduire un projet informatique', 'ITIL 4 – Les fondamentaux', 'Conduite de projet', 'MS Project']],
-            ['internet-web', 'Internet & Web', 'globe', ['WordPress', 'Webflow', 'Shopify', 'Bootstrap', 'HTML 5 et CSS 3']],
-            ['communication-digitale', 'Communication digitale', 'megaphone', ['Web marketing', 'Référencement naturel (SEO)', 'Google Ads', 'Réseaux sociaux', 'Stratégie de communication']],
-            ['langages-et-developpement', 'Langages & développement', 'code', ['Android', 'iPhone / iPad', 'PHP / MySQL', 'WinDev', 'Visual Studio Code']],
-            ['pao', 'PAO — Publication assistée par ordinateur', 'pen', ['Adobe Photoshop', 'Adobe Illustrator', 'Adobe Premiere', 'InDesign', 'After Effects']],
-            ['cao', 'CAO — Conception assistée par ordinateur', 'cube', ['AutoCAD 2D', 'Revit', 'SolidWorks', 'Blender', 'SketchUp']],
-            ['linux-open-source', 'Linux & open source', 'terminal', ['Linux administration – niveau 1', 'Linux administration – niveau 2', 'GLPI']],
-            ['microsoft-technique', 'Microsoft technique', 'server', ['Administration Microsoft 365', 'Administration Windows', 'Power Apps', 'PowerShell', 'Windows Server']],
-            ['reseaux', 'Réseaux', 'network', ['Cisco', 'Proxmox', 'Veeam', 'Réseaux et TCP/IP', 'VMware']],
-            ['cybersecurite', 'Cybersécurité', 'shield', ['Fortinet FortiGate niveau 1', 'Palo Alto Networks niveau 1', 'SOC Analyst', 'ISO 27005 & EBIOS', 'Investigation numérique']],
-            ['intelligence-artificielle', 'Intelligence artificielle', 'brain', ['Copilot & Microsoft 365', 'IA Copilot & Claude', 'IA : découverte et cas pratiques', 'IA & marketing digital']],
-        ];
-        foreach ($domaines as $i => [$slug, $libelle, $icone, $stages]) {
-            $d = FcDomaine::updateOrCreate(['slug' => $slug], ['libelle' => $libelle, 'icone' => $icone, 'ordre' => $i]);
-            foreach ($stages as $j => $intitule) {
-                $d->stages()->updateOrCreate(['intitule' => $intitule], ['ordre' => $j]);
-            }
         }
     }
 }

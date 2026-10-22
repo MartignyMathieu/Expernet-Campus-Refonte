@@ -11,6 +11,7 @@ import {
   PhKanban, PhMegaphone, PhCode, PhPenNib, PhCube, PhTerminalWindow, PhHardDrives, PhNetwork, PhBrain, PhUserPlus, PhStudent,
   PhChalkboardTeacher, PhBuildings, PhHandshake, PhLaptop, PhArrowUpRight, PhFilePdf, PhInfo, PhCaretRight, PhBookOpenText,
   PhTimer, PhFingerprint, PhIdentificationBadge, PhUsersFour, PhUserCircle,
+  PhCurrencyEur, PhCalendarCheck, PhTarget, PhListChecks, PhFunnel, PhClipboardText, PhTag,
 } from '@phosphor-icons/vue'
 
 const props = withDefaults(defineProps<{ nom: string; taille?: number | string; poids?: 'thin' | 'light' | 'regular' | 'bold' | 'fill' | 'duotone'; libelle?: string }>(), { taille: 20, poids: 'regular' })
@@ -28,6 +29,7 @@ const icones: Record<string, any> = {
   ordinateur: PhLaptop, externe: PhArrowUpRight, pdf: PhFilePdf, info: PhInfo, chevron: PhCaretRight, lecture_article: PhBookOpenText,
   minuteur: PhTimer, empreinte: PhFingerprint, badge: PhIdentificationBadge, groupe: PhUsersFour, assiduite: PhChartLine,
   utilisateur: PhUserCircle,
+  euro: PhCurrencyEur, session: PhCalendarCheck, objectif: PhTarget, prerequis: PhListChecks, filtre: PhFunnel, programme: PhClipboardText, tarif: PhTag,
 }
 const composant = computed(() => icones[props.nom] || PhInfo)
 </script>
