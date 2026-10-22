@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\PieceJointe;
 use App\Models\Promotion;
 use App\Models\Role;
 use App\Models\User;
 use App\Services\MessagerieService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 /** Messagerie de l'ENT : conversations privées, groupes, messages et non-lus. */
@@ -104,7 +106,7 @@ class MessagerieController extends Controller
         abort_unless($conversation->aParticipant($user), 403);
         $apres = (int) $request->query('apres', 0);
 
-        $messages = $conversation->messages()->with('auteur:id,prenom,nom')
+        $messages = $conversation->messages()->with(['auteur:id,prenom,nom', 'piecesJointes'])
             ->when($apres > 0, fn ($q) => $q->where('id', '>', $apres))
             ->orderByDesc('id')->limit(100)->get()->reverse()->values();
 
@@ -119,13 +121,38 @@ class MessagerieController extends Controller
     {
         $user = $request->user();
         abort_unless($conversation->aParticipant($user), 403);
-        $donnees = $request->validate(['contenu' => ['required', 'string', 'max:2000']]);
-        $contenu = trim(strip_tags($donnees['contenu']));
-        abort_if($contenu === '', 422, 'Le message est vide.');
+        $donnees = $request->validate([
+            'contenu' => ['nullable', 'string', 'max:2000'],
+            'fichiers' => ['array', 'max:5'],
+            'fichiers.*' => ['file', 'max:10240', 'mimes:pdf,docx,pptx,xlsx,odt,ods,zip,png,jpg,jpeg,gif,webp,txt,md'],
+        ], [
+            'fichiers.max' => '5 fichiers au maximum par message.',
+            'fichiers.*.max' => 'Chaque fichier doit faire moins de 10 Mo.',
+            'fichiers.*.mimes' => 'Type de fichier non autorisé (PDF, Office, images, texte ou ZIP).',
+        ]);
+        $contenu = trim(strip_tags($donnees['contenu'] ?? ''));
+        $fichiers = $request->file('fichiers', []);
+        abort_if($contenu === '' && ! $fichiers, 422, 'Le message est vide.');
 
-        $message = $this->service->envoyer($conversation, $user, $contenu);
+        $message = $this->service->envoyer($conversation, $user, $contenu, $fichiers);
 
-        return response()->json($this->formatMessage($message->load('auteur:id,prenom,nom'), $user), 201);
+        return response()->json($this->formatMessage($message->load(['auteur:id,prenom,nom', 'piecesJointes']), $user), 201);
+    }
+
+    /** Fichier joint : affiché dans le navigateur s'il s'agit d'une image ou d'un PDF, sinon téléchargé. */
+    public function pieceJointe(Request $request, PieceJointe $pieceJointe)
+    {
+        abort_unless($pieceJointe->message->conversation->aParticipant($request->user()), 403);
+
+        $disque = Storage::disk('local');
+        abort_unless($disque->exists($pieceJointe->chemin), 404);
+        $enLigne = in_array($pieceJointe->mime, PieceJointe::APERCU, true) && ! $request->boolean('telechargement');
+
+        return $enLigne
+            ? $disque->response($pieceJointe->chemin, $pieceJointe->nom_original, [
+                'Content-Type' => $pieceJointe->mime, 'X-Content-Type-Options' => 'nosniff', 'Cache-Control' => 'private, max-age=3600',
+            ])
+            : $disque->download($pieceJointe->chemin, $pieceJointe->nom_original, ['X-Content-Type-Options' => 'nosniff']);
     }
 
     public function nonLus(Request $request)
@@ -146,7 +173,7 @@ class MessagerieController extends Controller
             'membres' => $c->participants->map(fn ($p) => ['id' => $p->id, 'nom' => $p->nomComplet(), 'gestionnaire' => $p->pivot->role === 'gestionnaire'])->values(),
             'gestionnaire' => $moi?->pivot?->role === 'gestionnaire',
             'dernier_message' => $c->relationLoaded('dernierMessage') && $c->dernierMessage ? [
-                'extrait' => mb_strimwidth($c->dernierMessage->contenu, 0, 80, '…'),
+                'extrait' => MessagerieService::extrait($c->dernierMessage),
                 'auteur' => $c->dernierMessage->auteur_id === $user->id ? 'Vous' : $c->dernierMessage->auteur?->prenom,
                 'date' => $c->dernierMessage->created_at->toIso8601String(),
             ] : null,
@@ -162,6 +189,10 @@ class MessagerieController extends Controller
             'auteur' => ['id' => $m->auteur_id, 'nom' => $m->auteur?->nomComplet()],
             'moi' => $m->auteur_id === $user->id,
             'date' => $m->created_at->toIso8601String(),
+            'pieces_jointes' => $m->piecesJointes->map(fn (PieceJointe $p) => [
+                'id' => $p->id, 'nom' => $p->nom_original, 'mime' => $p->mime, 'taille' => $p->taille, 'image' => $p->estImage(),
+                'url' => '/api/messagerie/pieces-jointes/'.$p->id,
+            ])->values(),
         ];
     }
 }
