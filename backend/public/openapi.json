@@ -1904,7 +1904,7 @@
         "tags": [
           "Messagerie"
         ],
-        "summary": "Envoyer un message (texte brut, 2000 caractères max)",
+        "summary": "Envoyer un message : texte (2000 caractères, émoticônes acceptées) et/ou jusqu'à 5 fichiers joints",
         "responses": {
           "201": {
             "description": "Succès"
@@ -1960,7 +1960,28 @@
                 "properties": {
                   "contenu": {
                     "type": "string",
+                    "maxLength": 2000,
+                    "example": "Bonjour 👋"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "contenu": {
+                    "type": "string",
                     "maxLength": 2000
+                  },
+                  "fichiers[]": {
+                    "type": "array",
+                    "maxItems": 5,
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "description": "10 Mo max chacun : PDF, DOCX, PPTX, XLSX, ODT, ODS, ZIP, PNG, JPG, GIF, WEBP, TXT, MD"
                   }
                 }
               }
@@ -1972,6 +1993,55 @@
             "cookieSession": []
           }
         ]
+      }
+    },
+    "/api/messagerie/pieces-jointes/{pieceJointe}": {
+      "get": {
+        "tags": [
+          "Messagerie"
+        ],
+        "summary": "Fichier joint : affiché en ligne (image, PDF) ou téléchargé ; réservé aux participants",
+        "description": "Permission RBAC requise : `messagerie.use`. Paramètre `telechargement=1` pour forcer le téléchargement.",
+        "parameters": [
+          {
+            "name": "pieceJointe",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "telechargement",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fichier"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fichier introuvable"
+          }
+        }
       }
     },
     "/api/messagerie/groupes": {
