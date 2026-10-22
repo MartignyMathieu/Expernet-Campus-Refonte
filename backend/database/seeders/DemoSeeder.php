@@ -120,6 +120,15 @@ class DemoSeeder extends Seeder
             $messagerie->envoyer($groupe, $f1, 'Bonjour à tous, le support du module back-end est disponible dans Documents. Pensez à émarger dès l\'ouverture de la séance.');
             $messagerie->envoyer($groupe, $etudiants[1], 'Merci ! Est-ce qu\'on aura le TP noté vendredi ?');
             $messagerie->envoyer($groupe, $f1, 'Oui, vendredi après-midi, en binôme.');
+            $consignes = $messagerie->envoyer($groupe, $f1, 'Les consignes sont en pièce jointe 📎 Bon courage à tous 💪');
+            $chemin = 'messagerie/'.$groupe->id.'/consignes-tp-note.pdf';
+            Storage::disk('local')->put($chemin, \Barryvdh\DomPDF\Facade\Pdf::loadHTML(
+                '<h1 style="font-family:sans-serif;color:#0D5A8A">TP noté — API REST sécurisée</h1>'
+                .'<p style="font-family:sans-serif">Promotion CDA 2026-2028 · vendredi après-midi · en binôme</p>'
+                .'<ol style="font-family:sans-serif"><li>Exposer une ressource CRUD documentée (OpenAPI).</li><li>Protéger les routes (authentification, rôles).</li>'
+                .'<li>Écrire au moins cinq tests automatisés.</li><li>Déposer le lien du dépôt Git dans la messagerie.</li></ol>'
+            )->output());
+            $consignes->piecesJointes()->create(['chemin' => $chemin, 'nom_original' => 'Consignes TP noté.pdf', 'mime' => 'application/pdf', 'taille' => Storage::disk('local')->size($chemin)]);
             $prive = $messagerie->conversationPrivee($etudiants[0], $f1);
             $messagerie->envoyer($prive, $etudiants[0], 'Bonjour, je serai en retard demain matin (rendez-vous médical), je vous transmets le justificatif.');
             $messagerie->envoyer($prive, $f1, 'Bien noté, merci de prévenir. Transmettez le justificatif à la scolarité.');
