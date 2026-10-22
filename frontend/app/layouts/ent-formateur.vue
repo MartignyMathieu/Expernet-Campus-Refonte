@@ -2,6 +2,7 @@
 <template>
   <EntShell titre="Espace formateur" theme="banane" :menu="[
     { libelle: 'Tableau de bord', to: '/ent/formateur', icone: 'accueil' },
+    { libelle: 'Messages', to: '/ent/formateur/messages', icone: 'messages' },
     { libelle: 'Mes séances', to: '/ent/formateur/planning', icone: 'planning' },
     { libelle: 'Assiduité', to: '/ent/formateur/assiduite', icone: 'assiduite' },
     { libelle: 'Jurys & compétences', to: '/ent/formateur/examens', icone: 'examens' },

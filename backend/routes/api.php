@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\EmargementController;
 use App\Http\Controllers\Api\ExamenController;
 use App\Http\Controllers\Api\MeController;
+use App\Http\Controllers\Api\MessagerieController;
 use App\Http\Controllers\Api\NoteController;
 use App\Http\Controllers\Api\PlanningController;
 use Illuminate\Support\Facades\Route;
@@ -67,6 +68,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/promotions/{promotion}/documents', [DocumentController::class, 'index'])->middleware('permission:documents.view');
         Route::post('/promotions/{promotion}/documents', [DocumentController::class, 'store'])->middleware('permission:documents.upload');
         Route::get('/documents/{document}/telechargement', [DocumentController::class, 'telecharger'])->middleware('permission:documents.view');
+
+        // Messagerie
+        Route::prefix('messagerie')->middleware('permission:messagerie.use')->group(function () {
+            Route::get('/contacts', [MessagerieController::class, 'contacts']);
+            Route::get('/non-lus', [MessagerieController::class, 'nonLus']);
+            Route::get('/conversations', [MessagerieController::class, 'conversations']);
+            Route::post('/conversations', [MessagerieController::class, 'ouvrirPrivee']);
+            Route::get('/conversations/{conversation}/messages', [MessagerieController::class, 'messages']);
+            Route::post('/conversations/{conversation}/messages', [MessagerieController::class, 'envoyer'])->middleware('throttle:messages');
+            Route::post('/groupes', [MessagerieController::class, 'creerGroupe'])->middleware('permission:messagerie.groupes');
+            Route::patch('/groupes/{conversation}/membres', [MessagerieController::class, 'modifierMembres'])->middleware('permission:messagerie.groupes');
+        });
 
         // Administration
         Route::prefix('admin')->middleware('permission:users.manage')->group(function () {

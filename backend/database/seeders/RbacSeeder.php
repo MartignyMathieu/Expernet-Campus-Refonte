@@ -23,14 +23,16 @@ class RbacSeeder extends Seeder
         'examens.manage' => 'Planifier les examens et composer les jurys',
         'competences.evaluate' => 'Saisir les grilles de compétences (membre du jury)',
         'users.manage' => 'Administrer les comptes, séances et candidatures',
+        'messagerie.use' => 'Échanger par messagerie dans son périmètre',
+        'messagerie.groupes' => 'Créer et gérer des groupes de discussion',
     ];
 
     public const MATRICE = [
-        Role::ETUDIANT => ['planning.view', 'emargement.sign', 'attestation.download', 'notes.view_own', 'documents.view'],
+        Role::ETUDIANT => ['planning.view', 'emargement.sign', 'attestation.download', 'notes.view_own', 'documents.view', 'messagerie.use'],
         Role::FORMATEUR => ['planning.view', 'emargement.manage', 'assiduite.view', 'notes.manage', 'documents.view',
-            'documents.upload', 'examens.view', 'competences.evaluate'],
+            'documents.upload', 'examens.view', 'competences.evaluate', 'messagerie.use', 'messagerie.groupes'],
         Role::ADMIN => ['planning.view', 'assiduite.view', 'documents.view', 'documents.upload', 'examens.view',
-            'examens.manage', 'competences.evaluate', 'users.manage'],
+            'examens.manage', 'competences.evaluate', 'users.manage', 'messagerie.use', 'messagerie.groupes'],
     ];
 
     public function run(): void
