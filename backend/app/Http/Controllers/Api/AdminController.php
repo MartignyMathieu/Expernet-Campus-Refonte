@@ -77,6 +77,19 @@ class AdminController extends Controller
         return response()->json(['message' => 'Compte mis à jour.']);
     }
 
+    /**
+     * Réinitialise la double authentification d'un compte (téléphone perdu, clé serveur changée).
+     * L'utilisateur devra la réactiver à sa prochaine connexion si son rôle l'exige.
+     */
+    public function reinitialiserMfa(Request $request, User $user)
+    {
+        abort_if($user->id === $request->user()->id, 422, 'Vous ne pouvez pas réinitialiser votre propre double authentification ici.');
+
+        $user->forceFill(['two_factor_secret' => null, 'two_factor_recovery_codes' => null, 'two_factor_confirmed_at' => null])->save();
+
+        return response()->json(['message' => 'Double authentification réinitialisée : elle sera redemandée à la prochaine connexion.']);
+    }
+
     public function creerSeance(Request $request)
     {
         $donnees = $request->validate([

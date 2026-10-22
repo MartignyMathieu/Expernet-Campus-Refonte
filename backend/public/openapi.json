@@ -1590,6 +1590,52 @@
         ]
       }
     },
+    "/api/admin/utilisateurs/{user}/mfa/reinitialiser": {
+      "post": {
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Réinitialiser la double authentification d'un compte (téléphone perdu, clé serveur changée)",
+        "description": "Permission RBAC requise : `users.manage`.",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MFA réinitialisée, redemandée à la prochaine connexion"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Impossible sur son propre compte"
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
     "/api/admin/seances": {
       "post": {
         "tags": [
