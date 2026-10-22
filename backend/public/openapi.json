@@ -1302,6 +1302,52 @@
         ]
       }
     },
+    "/api/documents/{document}/apercu": {
+      "get": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Aperçu d'un document dans le portail (PDF et images en ligne, textes en texte brut)",
+        "responses": {
+          "200": {
+            "description": "Contenu du document affiché en ligne"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Format sans aperçu (Office, ZIP) : utiliser le téléchargement"
+          }
+        },
+        "description": "Permission RBAC requise : `documents.view`.",
+        "parameters": [
+          {
+            "name": "document",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant du document",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
     "/api/admin/tableau-de-bord": {
       "get": {
         "tags": [
@@ -1657,10 +1703,39 @@
         "tags": [
           "Contenus"
         ],
-        "summary": "Offre de formation continue : chiffres clés, domaines et stages",
+        "summary": "Catalogue de formation continue : organisme, formats, domaines et résumé des 149 stages",
         "responses": {
           "200": {
             "description": "Succès"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/formation-continue/{stage}": {
+      "get": {
+        "tags": [
+          "Contenus"
+        ],
+        "summary": "Fiche complète d'un stage (objectifs, prérequis, programme, modalités, tarifs)",
+        "parameters": [
+          {
+            "name": "stage",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant (slug) du stage",
+            "schema": {
+              "type": "string"
+            },
+            "example": "administration-windows-11"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "404": {
+            "description": "Stage inconnu"
           }
         },
         "security": []
@@ -1875,7 +1950,7 @@
         "tags": [
           "Messagerie"
         ],
-        "summary": "Envoyer un message (texte brut, 2000 caractères max)",
+        "summary": "Envoyer un message : texte (2000 caractères, émoticônes acceptées) et/ou jusqu'à 5 fichiers joints",
         "responses": {
           "201": {
             "description": "Succès"
@@ -1931,7 +2006,28 @@
                 "properties": {
                   "contenu": {
                     "type": "string",
+                    "maxLength": 2000,
+                    "example": "Bonjour 👋"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "contenu": {
+                    "type": "string",
                     "maxLength": 2000
+                  },
+                  "fichiers[]": {
+                    "type": "array",
+                    "maxItems": 5,
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "description": "10 Mo max chacun : PDF, DOCX, PPTX, XLSX, ODT, ODS, ZIP, PNG, JPG, GIF, WEBP, TXT, MD"
                   }
                 }
               }
@@ -1943,6 +2039,55 @@
             "cookieSession": []
           }
         ]
+      }
+    },
+    "/api/messagerie/pieces-jointes/{pieceJointe}": {
+      "get": {
+        "tags": [
+          "Messagerie"
+        ],
+        "summary": "Fichier joint : affiché en ligne (image, PDF) ou téléchargé ; réservé aux participants",
+        "description": "Permission RBAC requise : `messagerie.use`. Paramètre `telechargement=1` pour forcer le téléchargement.",
+        "parameters": [
+          {
+            "name": "pieceJointe",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "telechargement",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fichier"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Fichier introuvable"
+          }
+        }
       }
     },
     "/api/messagerie/groupes": {

@@ -1,6 +1,7 @@
 <!--
   Messagerie de l'ENT : conversations privées et groupes.
   Rafraîchissement par interrogation périodique (4 s pour le fil ouvert, 10 s pour la liste).
+  Pièces jointes (5 fichiers de 10 Mo max : bouton, glisser-déposer ou collage) et émoticônes.
   Évolution prévue : WebSocket (Laravel Reverb) pour le temps réel strict.
 -->
 <script setup lang="ts">
@@ -18,13 +19,62 @@ const erreur = ref('')
 const fil = ref<HTMLElement | null>(null)
 const zoneSaisie = ref<HTMLTextAreaElement | null>(null)
 
+// ----- Pièces jointes et émoticônes -----
+const TYPES_ACCEPTES = '.pdf,.docx,.pptx,.xlsx,.odt,.ods,.zip,.png,.jpg,.jpeg,.gif,.webp,.txt,.md'
+const MAX_FICHIERS = 5
+const MAX_OCTETS = 10 * 1024 * 1024
+const fichiers = ref<File[]>([])
+const selecteurFichiers = ref<HTMLInputElement | null>(null)
+const emojiOuvert = ref(false)
+const survol = ref(false)
+function ajouterFichiers(liste: FileList | File[] | null | undefined) {
+  if (!liste) return
+  erreur.value = ''
+  for (const f of Array.from(liste)) {
+    if (fichiers.value.length >= MAX_FICHIERS) { erreur.value = `${MAX_FICHIERS} fichiers au maximum par message.`; break }
+    if (f.size > MAX_OCTETS) { erreur.value = `« ${f.name} » dépasse 10 Mo.`; continue }
+    fichiers.value.push(f)
+  }
+  if (selecteurFichiers.value) selecteurFichiers.value.value = ''
+  zoneSaisie.value?.focus()
+}
+function coller(e: ClipboardEvent) {
+  const f = Array.from(e.clipboardData?.files || [])
+  if (f.length) { e.preventDefault(); ajouterFichiers(f) }
+}
+function deposer(e: DragEvent) { survol.value = false; if (active.value) ajouterFichiers(e.dataTransfer?.files) }
+function insererEmoji(e: string) {
+  const z = zoneSaisie.value
+  const debut = z?.selectionStart ?? saisie.value.length
+  const fin = z?.selectionEnd ?? debut
+  saisie.value = saisie.value.slice(0, debut) + e + saisie.value.slice(fin)
+  nextTick(() => { z?.focus(); const p = debut + e.length; z?.setSelectionRange(p, p); ajuster() })
+}
+const taille = (o: number) => o >= 1e6 ? (o / 1e6).toFixed(1).replace('.', ',') + ' Mo' : Math.max(1, Math.round(o / 1e3)) + ' Ko'
+const vignettes = new WeakMap<File, string>()
+function apercuLocal(f: File) {
+  if (!vignettes.has(f)) vignettes.set(f, URL.createObjectURL(f))
+  return vignettes.get(f)!
+}
+// Aperçu des images et PDF reçus, dans la même fenêtre que l'espace documentaire
+const piecesVisibles = computed(() => messages.value.flatMap((m: any) => (m.pieces_jointes || [])
+  .filter((p: any) => p.image || p.mime === 'application/pdf')
+  .map((p: any) => ({ id: p.id, titre: p.nom, nom: `${m.auteur.nom} · ${new Date(m.date).toLocaleDateString('fr-FR')}`, apercu: p.image ? 'image' : 'pdf', url: p.url, telechargement: `${p.url}?telechargement=1`, meta: taille(p.taille) }))))
+const pieceOuverte = ref<number | null>(null)
+function voir(p: any) { pieceOuverte.value = piecesVisibles.value.findIndex((x: any) => x.id === p.id) }
+// Un message composé uniquement de 1 à 3 émoticônes est affiché en grand.
+const emojiSeul = (t: string) => /^(?:\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*\s*){1,3}$/u.test(t.trim())
+
 async function chargerConversations() {
   conversations.value = await api<any[]>('/api/messagerie/conversations')
   if (active.value) active.value = conversations.value.find((c) => c.id === active.value.id) || active.value
 }
+// Les messages arrivés après l'ouverture du fil sont animés (les anciens s'affichent directement).
+const dernierAffiche = ref(0)
 async function ouvrir(c: any) {
-  active.value = c; messages.value = []; erreur.value = ''
+  active.value = c; messages.value = []; erreur.value = ''; fichiers.value = []
   messages.value = await api<any[]>(`/api/messagerie/conversations/${c.id}/messages`)
+  dernierAffiche.value = messages.value.at(-1)?.id || 0
   c.non_lus = 0
   await nextTick(); defiler(); zoneSaisie.value?.focus()
 }
@@ -36,15 +86,24 @@ async function nouveaux() {
 }
 async function envoyer() {
   const texte = saisie.value.trim()
-  if (!texte || !active.value || envoi.value) return
-  envoi.value = true; erreur.value = ''
+  if ((!texte && !fichiers.value.length) || !active.value || envoi.value) return
+  envoi.value = true; erreur.value = ''; emojiOuvert.value = false
   try {
     await csrf()
-    const m = await api(`/api/messagerie/conversations/${active.value.id}/messages`, { method: 'POST', body: { contenu: texte } })
-    messages.value.push(m); saisie.value = ''
+    let corps: FormData | { contenu: string } = { contenu: texte }
+    if (fichiers.value.length) {
+      corps = new FormData()
+      corps.append('contenu', texte)
+      fichiers.value.forEach((f) => (corps as FormData).append('fichiers[]', f))
+    }
+    const m = await api(`/api/messagerie/conversations/${active.value.id}/messages`, { method: 'POST', body: corps })
+    messages.value.push(m); saisie.value = ''; fichiers.value = []
     await nextTick(); defiler(); ajuster(); chargerConversations()
-  } catch (e: any) { erreur.value = e?.status === 429 ? 'Trop de messages envoyés, patientez un instant.' : 'Message non envoyé.' }
-  finally { envoi.value = false }
+  } catch (e: any) {
+    erreur.value = e?.status === 429 ? 'Trop de messages envoyés, patientez un instant.'
+      : e?.status === 413 ? 'Fichiers trop volumineux.'
+      : Object.values(erreursValidation(e))[0] || e?.data?.message || 'Message non envoyé.'
+  } finally { envoi.value = false }
 }
 function touche(e: KeyboardEvent) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); envoyer() } }
 function ajuster() { const z = zoneSaisie.value; if (z) { z.style.height = 'auto'; z.style.height = Math.min(z.scrollHeight, 160) + 'px' } }
@@ -135,7 +194,7 @@ async function retirer(id: number) {
             <span class="conv-texte">
               <span class="conv-ligne"><strong>{{ c.titre }}</strong><small v-if="c.dernier_message">{{ heure(c.dernier_message.date) }}</small></span>
               <span class="conv-ligne"><span class="extrait">{{ c.dernier_message ? `${c.dernier_message.auteur} : ${c.dernier_message.extrait}` : 'Nouvelle conversation' }}</span>
-                <span v-if="c.non_lus" class="badge" :aria-label="`${c.non_lus} non lu(s)`">{{ c.non_lus }}</span></span>
+                <span v-if="c.non_lus" :key="c.non_lus" class="badge" :aria-label="`${c.non_lus} non lu(s)`">{{ c.non_lus }}</span></span>
             </span>
           </button>
         </li>
@@ -154,13 +213,29 @@ async function retirer(id: number) {
           </div>
           <button v-if="active.type === 'groupe'" class="btn btn-secondaire petit" @click="ouvrirDialogue('membres')"><Icone nom="utilisateurs" :taille="18" /><span class="libelle-membres">Membres</span></button>
         </header>
-        <div ref="fil" class="fil">
+        <div :key="active.id" ref="fil" class="fil" @dragover.prevent="survol = true" @dragleave.self="survol = false" @drop.prevent="deposer">
+          <div v-if="survol" class="depot" aria-hidden="true"><Icone nom="trombone" :taille="32" />Déposez vos fichiers ici</div>
           <template v-for="(m, i) in messages" :key="m.id">
             <p v-if="i === 0 || jour(m.date) !== jour(messages[i - 1].date)" class="separateur"><span>{{ jour(m.date) }}</span></p>
-            <div class="bulle-ligne" :class="{ moi: m.moi }">
+            <div class="bulle-ligne" :class="{ moi: m.moi, arrivee: m.id > dernierAffiche }">
               <div class="bulle">
                 <span v-if="!m.moi && active.type === 'groupe'" class="auteur">{{ m.auteur.nom }}</span>
-                <p>{{ m.contenu }}</p>
+                <p v-if="m.contenu" :class="{ 'emoji-seul': emojiSeul(m.contenu) }">{{ m.contenu }}</p>
+                <div v-if="m.pieces_jointes?.length" class="pj">
+                  <template v-for="p in m.pieces_jointes" :key="p.id">
+                    <button v-if="p.image" type="button" class="pj-image" :aria-label="`Aperçu : ${p.nom}`" @click="voir(p)"><img :src="p.url" :alt="p.nom" loading="lazy"></button>
+                    <button v-else-if="p.mime === 'application/pdf'" type="button" class="pj-fichier" @click="voir(p)">
+                      <span class="pj-icone"><Icone nom="pdf" :taille="22" /></span>
+                      <span class="pj-texte"><strong>{{ p.nom }}</strong><small>{{ taille(p.taille) }} · aperçu</small></span>
+                      <Icone nom="oeil" :taille="18" />
+                    </button>
+                    <a v-else :href="`${p.url}?telechargement=1`" class="pj-fichier">
+                      <span class="pj-icone"><Icone :nom="p.mime === 'application/pdf' ? 'pdf' : 'fichier'" :taille="22" /></span>
+                      <span class="pj-texte"><strong>{{ p.nom }}</strong><small>{{ taille(p.taille) }}</small></span>
+                      <Icone nom="telecharger" :taille="18" />
+                    </a>
+                  </template>
+                </div>
                 <time :datetime="m.date">{{ new Date(m.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }}</time>
               </div>
             </div>
@@ -168,10 +243,24 @@ async function retirer(id: number) {
         </div>
         <form class="saisie" @submit.prevent="envoyer">
           <p v-if="erreur" class="erreur" role="alert">{{ erreur }}</p>
+          <ul v-if="fichiers.length" class="en-attente" aria-label="Fichiers à envoyer">
+            <li v-for="(f, i) in fichiers" :key="i + f.name">
+              <img v-if="f.type.startsWith('image/')" :src="apercuLocal(f)" alt="">
+              <Icone v-else :nom="f.type === 'application/pdf' ? 'pdf' : 'fichier'" :taille="20" />
+              <span class="nom-fichier">{{ f.name }}<small>{{ taille(f.size) }}</small></span>
+              <button type="button" class="retirer" :aria-label="`Retirer ${f.name}`" @click="fichiers.splice(i, 1)"><Icone nom="fermer" :taille="14" /></button>
+            </li>
+          </ul>
+          <div class="outils-saisie">
+            <button type="button" class="bouton-icone" :class="{ actif: emojiOuvert }" aria-label="Émoticônes" :aria-expanded="emojiOuvert" @click.stop="emojiOuvert = !emojiOuvert"><Icone nom="emoji" :taille="22" /></button>
+            <button type="button" class="bouton-icone" aria-label="Joindre des fichiers" title="Joindre des fichiers (5 max, 10 Mo chacun)" @click="selecteurFichiers?.click()"><Icone nom="trombone" :taille="22" /></button>
+            <input ref="selecteurFichiers" type="file" multiple :accept="TYPES_ACCEPTES" class="sr-only" tabindex="-1" aria-hidden="true" @change="ajouterFichiers(($event.target as HTMLInputElement).files)">
+            <SelecteurEmoji v-if="emojiOuvert" @choisir="insererEmoji" @fermer="emojiOuvert = false" />
+          </div>
           <label for="message" class="sr-only">Votre message</label>
-          <textarea id="message" ref="zoneSaisie" v-model="saisie" rows="1" maxlength="2000" placeholder="Écrire un message…" aria-describedby="aide-saisie" @keydown="touche" @input="ajuster" />
+          <textarea id="message" ref="zoneSaisie" v-model="saisie" rows="1" maxlength="2000" placeholder="Écrire un message…" aria-describedby="aide-saisie" @keydown="touche" @input="ajuster" @paste="coller" />
           <span id="aide-saisie" class="sr-only">Entrée pour envoyer, Maj + Entrée pour aller à la ligne</span>
-          <button class="envoyer" :disabled="!saisie.trim() || envoi" aria-label="Envoyer"><Icone nom="envoyer" :taille="20" poids="fill" /></button>
+          <button class="envoyer" :disabled="(!saisie.trim() && !fichiers.length) || envoi" aria-label="Envoyer"><Icone nom="envoyer" :taille="20" poids="fill" /></button>
         </form>
       </template>
       <div v-else class="accueil-fil">
@@ -181,6 +270,8 @@ async function retirer(id: number) {
         <button class="btn btn-bleu" @click="ouvrirDialogue('message')"><Icone nom="ajouter" :taille="18" poids="bold" />Nouveau message</button>
       </div>
     </section>
+
+    <ApercuDocument v-model:index="pieceOuverte" :documents="piecesVisibles" />
 
     <!-- Dialogue : nouveau message / groupe / membres -->
     <dialog ref="dialogue" class="dialogue" aria-labelledby="titre-dialogue">
@@ -247,8 +338,8 @@ async function retirer(id: number) {
 .extrait { color: var(--texte-doux); font-size: .86rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .nonlu .extrait { color: var(--encre); font-weight: 500; }
 .badge { background: var(--orange); color: var(--encre); font-weight: 700; font-size: .72rem; border-radius: 999px; min-width: 20px; height: 20px; display: grid; place-items: center; padding: 0 6px; flex-shrink: 0; }
-.avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, var(--primaire), var(--primaire-fonce)); color: #fff; font-weight: 700; font-size: .85rem; flex-shrink: 0; }
-.avatar.groupe { border-radius: 14px; background: linear-gradient(135deg, var(--orange), #F5B544); color: var(--encre); }
+.avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--primaire-fonce); color: #fff; font-weight: 700; font-size: .85rem; flex-shrink: 0; }
+.avatar.groupe { border-radius: 14px; background: var(--orange); color: var(--encre); }
 .avatar.petit { width: 34px; height: 34px; font-size: .75rem; }
 .discussion { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: linear-gradient(180deg, #F8FBFD, #F2F6F9); }
 .fil-tete { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: #fff; border-bottom: 1px solid var(--gris-bord); }
@@ -261,6 +352,12 @@ async function retirer(id: number) {
 .separateur { text-align: center; margin: 14px 0 8px; }
 .separateur span { background: #fff; border: 1px solid var(--gris-bord); color: var(--texte-doux); font-size: .76rem; padding: 3px 12px; border-radius: 999px; text-transform: capitalize; }
 .bulle-ligne { display: flex; }
+.fil { animation: fondu .25s ease; }
+.arrivee .bulle { animation: bulle .32s cubic-bezier(.2,.8,.3,1.2) both; transform-origin: bottom left; }
+.arrivee.moi .bulle { transform-origin: bottom right; }
+@keyframes bulle { from { opacity: 0; transform: translateY(10px) scale(.94); } to { opacity: 1; transform: none; } }
+.conv { transition: background .15s; }
+.badge { animation: pulsation .45s ease; }
 .bulle-ligne.moi { justify-content: flex-end; }
 .bulle { max-width: min(72%, 560px); background: #fff; border: 1px solid var(--gris-bord); border-radius: 16px 16px 16px 4px; padding: 10px 14px 6px; box-shadow: 0 1px 2px rgba(11,46,74,.05); }
 .moi .bulle { background: var(--primaire-fonce); border-color: var(--primaire-fonce); color: #fff; border-radius: 16px 16px 4px 16px; }
@@ -269,8 +366,34 @@ async function retirer(id: number) {
 .bulle time { display: block; text-align: right; font-size: .7rem; opacity: .65; margin-top: 2px; }
 .saisie { display: flex; gap: 10px; align-items: flex-end; padding: 12px 16px; background: #fff; border-top: 1px solid var(--gris-bord); flex-wrap: wrap; }
 .saisie .erreur { width: 100%; margin: 0; }
+.outils-saisie { position: relative; display: flex; gap: 4px; }
+.outils-saisie .bouton-icone { border: 0; color: var(--texte-doux); width: 42px; height: 48px; }
+.outils-saisie .bouton-icone:hover, .outils-saisie .bouton-icone.actif { color: var(--primaire-fonce); background: #E1F3FB; }
+.en-attente { width: 100%; list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.en-attente li { display: flex; align-items: center; gap: 8px; max-width: 260px; padding: 6px 6px 6px 8px; background: var(--gris-fond); border: 1px solid var(--gris-bord); border-radius: 12px; color: var(--primaire-fonce); }
+.en-attente img { width: 34px; height: 34px; object-fit: cover; border-radius: 6px; }
+.nom-fichier { display: grid; min-width: 0; font-size: .84rem; color: var(--encre); }
+.nom-fichier, .nom-fichier small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nom-fichier small { color: var(--texte-doux); font-size: .74rem; }
+.retirer { width: 26px; height: 26px; flex-shrink: 0; border-radius: 50%; border: 0; background: #fff; color: var(--texte-doux); display: grid; place-items: center; cursor: pointer; }
+.retirer:hover { color: var(--alerte); }
+.fil { position: relative; }
+.depot { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 120px; margin-bottom: 8px; border: 2px dashed var(--primaire); border-radius: 16px; background: rgba(225,243,251,.92); color: var(--primaire-fonce); font-weight: 700; pointer-events: none; }
+.emoji-seul { font-size: 2.4rem; line-height: 1.2; }
+.pj { display: grid; gap: 6px; margin: 6px 0 2px; }
+.pj-image { padding: 0; border: 0; background: none; cursor: zoom-in; border-radius: 10px; overflow: hidden; display: block; }
+.pj-image img { transition: transform .25s; }
+.pj-image:hover img { transform: scale(1.03); }
+button.pj-fichier { border: 0; font: inherit; cursor: pointer; text-align: left; width: 100%; }
+.pj-image img { max-width: min(280px, 100%); max-height: 240px; border-radius: 10px; object-fit: cover; display: block; }
+.pj-fichier { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; min-width: min(240px, 100%); padding: 8px 10px; border-radius: 10px; background: var(--gris-fond); color: var(--encre); text-decoration: none; }
+.moi .pj-fichier { background: rgba(255,255,255,.14); color: #fff; }
+.pj-icone { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; background: #fff; color: var(--primaire-fonce); }
+.pj-texte { display: grid; min-width: 0; font-size: .86rem; }
+.pj-texte strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pj-texte small { opacity: .75; }
 .saisie textarea { flex: 1; resize: none; font: inherit; border: 1.5px solid #C6CFD8; border-radius: 14px; padding: 11px 14px; max-height: 160px; min-width: 0; }
-.saisie textarea:focus { outline: none; border-color: var(--primaire); box-shadow: 0 0 0 4px rgba(0,155,221,.14); }
+.saisie textarea:focus { outline: none; border-color: var(--primaire); box-shadow: inset 0 0 0 1px var(--primaire); }
 .envoyer { width: 48px; height: 48px; border-radius: 14px; border: 0; background: var(--orange); color: var(--encre); display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
 .envoyer:disabled { opacity: .45; cursor: not-allowed; }
 .accueil-fil { margin: auto; text-align: center; max-width: 420px; padding: 24px; display: grid; justify-items: center; gap: 10px; }
@@ -278,7 +401,7 @@ async function retirer(id: number) {
 .accueil-fil p { margin: 0 0 8px; color: var(--texte-doux); }
 .grande-icone { width: 84px; height: 84px; border-radius: 24px; display: grid; place-items: center; background: #E1F3FB; color: var(--primaire-fonce); }
 .dialogue { border: 0; border-radius: 18px; padding: 0 22px 0; width: min(480px, calc(100vw - 32px)); max-height: min(640px, calc(100vh - 40px)); box-shadow: var(--ombre-forte); }
-.dialogue::backdrop { background: rgba(8,32,52,.45); backdrop-filter: blur(2px); }
+.dialogue::backdrop { background: rgba(8,32,52,.45); }
 .dialogue-tete { display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: #fff; padding: 18px 0 12px; z-index: 1; }
 .dialogue-tete h2 { margin: 0; font-size: 1.2rem; }
 .dialogue .recherche { margin: 0 0 10px; }

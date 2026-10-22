@@ -4,11 +4,14 @@ namespace App\Services;
 
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\PieceJointe;
 use App\Models\Promotion;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Règles de la messagerie :
@@ -80,13 +83,45 @@ class MessagerieService
         });
     }
 
-    public function envoyer(Conversation $conversation, User $auteur, string $contenu): Message
+    /** @param  array<UploadedFile>  $fichiers */
+    public function envoyer(Conversation $conversation, User $auteur, string $contenu, array $fichiers = []): Message
     {
-        $message = Message::create(['conversation_id' => $conversation->id, 'auteur_id' => $auteur->id, 'contenu' => $contenu]);
+        $chemins = [];
+        try {
+            $message = DB::transaction(function () use ($conversation, $auteur, $contenu, $fichiers, &$chemins) {
+                $message = Message::create(['conversation_id' => $conversation->id, 'auteur_id' => $auteur->id, 'contenu' => $contenu]);
+                foreach ($fichiers as $fichier) {
+                    $chemins[] = $chemin = $fichier->store('messagerie/'.$conversation->id, 'local');
+                    $message->piecesJointes()->create([
+                        'chemin' => $chemin,
+                        'nom_original' => mb_substr($fichier->getClientOriginalName(), 0, 255),
+                        'mime' => $fichier->getMimeType() ?? 'application/octet-stream',
+                        'taille' => $fichier->getSize(),
+                    ]);
+                }
+
+                return $message;
+            });
+        } catch (\Throwable $e) {
+            Storage::disk('local')->delete($chemins); // pas de fichier orphelin si l'enregistrement échoue
+            throw $e;
+        }
+
         $conversation->forceFill(['dernier_message_at' => $message->created_at])->save();
         $this->marquerLu($conversation, $auteur, $message->id);
 
         return $message;
+    }
+
+    /** Extrait affiché dans la liste des conversations. */
+    public static function extrait(Message $message): string
+    {
+        if ($message->contenu !== '') {
+            return mb_strimwidth($message->contenu, 0, 80, '…');
+        }
+        $n = $message->piecesJointes()->count();
+
+        return $n > 1 ? "📎 $n fichiers" : '📎 '.($message->piecesJointes()->value('nom_original') ?? 'Fichier');
     }
 
     public function marquerLu(Conversation $conversation, User $user, ?int $jusqua = null): void

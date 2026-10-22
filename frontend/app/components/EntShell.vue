@@ -33,7 +33,7 @@ watch(() => route.fullPath, majNonLus)
               <IconsIconBanane v-if="theme === 'banane'" :variante="e.icone as any" :taille="30" />
               <Icone v-else :nom="e.icone" :taille="22" :poids="actif(e.to) ? 'fill' : 'regular'" />
               <span>{{ e.libelle }}</span>
-              <span v-if="e.icone === 'messages' && nonLus" class="badge-nav" :aria-label="`${nonLus} message(s) non lu(s)`">{{ nonLus > 99 ? '99+' : nonLus }}</span>
+              <span v-if="e.icone === 'messages' && nonLus" :key="nonLus" class="badge-nav" :aria-label="`${nonLus} message(s) non lu(s)`">{{ nonLus > 99 ? '99+' : nonLus }}</span>
             </NuxtLink>
           </li>
         </ul>
@@ -80,6 +80,22 @@ ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .entree:hover { background: var(--gris-fond); }
 .entree { position: relative; }
 .badge-nav { margin-left: auto; background: var(--orange); color: var(--encre); font-size: .72rem; font-weight: 700; border-radius: 999px; min-width: 22px; height: 22px; display: grid; place-items: center; padding: 0 6px; }
+.badge-nav { animation: pulsation .45s ease; }
+.entree :deep(.icone), .entree :deep(.banane) { transition: transform .2s ease; }
+.entree:hover :deep(.icone) { transform: translateX(2px) scale(1.06); }
+.entree { transition: background .2s, color .2s, box-shadow .2s; }
+/* Contenu de l'espace : blocs échelonnés à chaque changement de page */
+.contenu > :deep(div) > * { animation: monter .5s cubic-bezier(.2,.7,.2,1) both; }
+.contenu > :deep(div) > :nth-child(2) { animation-delay: .06s; }
+.contenu > :deep(div) > :nth-child(3) { animation-delay: .12s; }
+.contenu > :deep(div) > :nth-child(4) { animation-delay: .18s; }
+.contenu > :deep(div) > :nth-child(n+5) { animation-delay: .24s; }
+.contenu :deep(.grille > .carte) { animation: monter .5s cubic-bezier(.2,.7,.2,1) both; }
+.contenu :deep(.grille > .carte:nth-child(2)) { animation-delay: .1s; }
+.contenu :deep(.grille > .carte:nth-child(3)) { animation-delay: .16s; }
+.contenu :deep(.grille > .carte:nth-child(n+4)) { animation-delay: .22s; }
+.menu-profil { transform-origin: top right; animation: deroule .16s ease-out; }
+@keyframes deroule { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: none; } }
 .entree.actif { background: #E1F3FB; color: var(--primaire-fonce); font-weight: 700; box-shadow: inset 4px 0 0 var(--primaire); }
 .theme-banane .entree:hover :deep(.banane) { transform: rotate(-14deg) scale(1.08); }
 .theme-banane .entree.actif { background: #FFEFC2; color: #5A4100; box-shadow: inset 4px 0 0 var(--jaune); }
@@ -87,12 +103,12 @@ ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .aide-bloc p { margin: 0; }
 .aide-icone { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: #E1F3FB; color: var(--primaire-fonce); }
 .cadre { min-width: 0; display: flex; flex-direction: column; }
-.haut { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 40px; background: rgba(255,255,255,.85); backdrop-filter: blur(8px); border-bottom: 1px solid var(--gris-bord); position: sticky; top: 0; z-index: 20; }
+.haut { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 40px; background: #fff; border-bottom: 1px solid var(--gris-bord); position: sticky; top: 0; z-index: 20; }
 .date { margin: 0; color: var(--texte-doux); text-transform: capitalize; font-size: .9rem; }
 .profil { position: relative; }
 .chip { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--gris-bord); border-radius: 999px; padding: 5px 14px 5px 5px; cursor: pointer; font: inherit; color: var(--encre); }
-.avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, var(--primaire), var(--primaire-fonce)); color: #fff; font-weight: 700; font-size: .85rem; }
-.theme-banane .avatar { background: linear-gradient(135deg, var(--jaune), var(--orange)); color: var(--encre); }
+.avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--primaire-fonce); color: #fff; font-weight: 700; font-size: .85rem; }
+.theme-banane .avatar { background: var(--jaune); color: var(--encre); }
 .nom { display: grid; text-align: left; line-height: 1.2; }
 .nom small { color: var(--texte-doux); }
 .menu-profil { position: absolute; right: 0; top: calc(100% + 8px); background: #fff; border: 1px solid var(--gris-bord); border-radius: 12px; box-shadow: var(--ombre-forte); padding: 6px; display: grid; min-width: 220px; z-index: 30; }

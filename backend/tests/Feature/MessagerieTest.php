@@ -6,6 +6,8 @@ use App\Models\Conversation;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\Concerns\ScenarioScolaire;
 use Tests\TestCase;
 
@@ -115,6 +117,61 @@ class MessagerieTest extends TestCase
         $this->actingAs($this->formateur)->patchJson("/api/messagerie/groupes/$id/membres", ['ajouter' => [$this->autreEtudiant->id], 'retirer' => [$this->etudiant->id]])
             ->assertOk()->assertJsonCount(2, 'membres');
         $this->actingAs($this->etudiant)->getJson("/api/messagerie/conversations/$id/messages")->assertForbidden();
+    }
+
+    public function test_un_message_peut_porter_des_pieces_jointes_et_des_emoticones(): void
+    {
+        Storage::fake('local');
+        $id = $this->ouvrir($this->etudiant, $this->formateur)->json('id');
+
+        $r = $this->actingAs($this->etudiant)->post("/api/messagerie/conversations/$id/messages", [
+            'contenu' => 'Voici mon rapport 📄👍',
+            'fichiers' => [UploadedFile::fake()->create('rapport.pdf', 120, 'application/pdf'), UploadedFile::fake()->image('schema.png', 300, 200)],
+        ], ['Accept' => 'application/json'])->assertCreated()
+            ->assertJsonPath('contenu', 'Voici mon rapport 📄👍')
+            ->assertJsonCount(2, 'pieces_jointes')
+            ->assertJsonPath('pieces_jointes.0.nom', 'rapport.pdf')
+            ->assertJsonPath('pieces_jointes.1.image', true);
+
+        $url = $r->json('pieces_jointes.0.url');
+        $this->assertArrayNotHasKey('chemin', $r->json('pieces_jointes.0'), 'Le chemin de stockage n\'est jamais exposé.');
+
+        // Le destinataire l'ouvre en ligne (PDF) ou le télécharge
+        $this->actingAs($this->formateur)->get($url)->assertOk()->assertHeader('Content-Type', 'application/pdf')->assertHeader('X-Content-Type-Options', 'nosniff');
+        $this->assertStringContainsString('attachment', $this->actingAs($this->formateur)->get($url.'?telechargement=1')->headers->get('Content-Disposition'));
+    }
+
+    public function test_un_message_peut_ne_contenir_qu_un_fichier_et_l_extrait_l_indique(): void
+    {
+        Storage::fake('local');
+        $id = $this->ouvrir($this->etudiant, $this->formateur)->json('id');
+        $this->actingAs($this->etudiant)->post("/api/messagerie/conversations/$id/messages", ['fichiers' => [UploadedFile::fake()->create('notes.txt', 2, 'text/plain')]], ['Accept' => 'application/json'])
+            ->assertCreated()->assertJsonPath('contenu', '');
+
+        $this->actingAs($this->formateur)->getJson('/api/messagerie/conversations')->assertJsonPath('0.dernier_message.extrait', '📎 notes.txt');
+    }
+
+    public function test_seuls_les_participants_accedent_aux_pieces_jointes(): void
+    {
+        Storage::fake('local');
+        $id = $this->ouvrir($this->etudiant, $this->formateur)->json('id');
+        $url = $this->actingAs($this->etudiant)->post("/api/messagerie/conversations/$id/messages", ['fichiers' => [UploadedFile::fake()->create('perso.pdf', 10, 'application/pdf')]], ['Accept' => 'application/json'])
+            ->json('pieces_jointes.0.url');
+
+        $this->actingAs($this->autreEtudiant)->get($url)->assertForbidden();
+    }
+
+    public function test_les_fichiers_sont_controles(): void
+    {
+        Storage::fake('local');
+        $id = $this->ouvrir($this->etudiant, $this->formateur)->json('id');
+        $envoyer = fn (array $donnees) => $this->actingAs($this->etudiant)->post("/api/messagerie/conversations/$id/messages", $donnees, ['Accept' => 'application/json']);
+
+        $envoyer(['fichiers' => [UploadedFile::fake()->create('virus.exe', 10, 'application/x-msdownload')]])->assertStatus(422)->assertJsonValidationErrors('fichiers.0');
+        $envoyer(['fichiers' => [UploadedFile::fake()->create('lourd.pdf', 11000, 'application/pdf')]])->assertStatus(422);
+        $envoyer(['fichiers' => array_map(fn ($i) => UploadedFile::fake()->create("f$i.txt", 1, 'text/plain'), range(1, 6))])->assertStatus(422)->assertJsonValidationErrors('fichiers');
+        $envoyer(['contenu' => '   '])->assertStatus(422);
+        $this->assertDatabaseCount('message_pieces_jointes', 0);
     }
 
     public function test_la_messagerie_exige_une_session(): void

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Campus;
 use App\Models\Competence;
+use App\Models\Document;
 use App\Models\Emargement;
 use App\Models\Formation;
 use App\Models\Module;
@@ -107,6 +108,9 @@ class DemoSeeder extends Seeder
             }
         }
 
+        // Documents de la promotion (aperçu dans le portail : PDF, image, texte)
+        $this->documentsDemo($promo, $f1, $modules);
+
         // Session d'examen + jury
         $examen = SessionExamen::updateOrCreate(['promotion_id' => $promo->id, 'intitule' => 'Évaluation intermédiaire — AT1'], [
             'debut' => Carbon::today()->addWeeks(3)->setTime(8, 30), 'fin' => Carbon::today()->addWeeks(3)->setTime(12, 0), 'lieu' => 'Le Port — Salle 528',
@@ -125,10 +129,76 @@ class DemoSeeder extends Seeder
             $messagerie->envoyer($prive, $f1, 'Bien noté, merci de prévenir. Transmettez le justificatif à la scolarité.');
         }
 
+        // Pièce jointe de démonstration (ajoutée aussi sur une base déjà peuplée)
+        $groupe = \App\Models\Conversation::where('nom', 'CDA 2026-2028 · Infos promo')->first();
+        if ($groupe && ! \App\Models\PieceJointe::exists()) {
+            $messagerie = app(\App\Services\MessagerieService::class);
+            $consignes = $messagerie->envoyer($groupe, $f1, 'Les consignes sont en pièce jointe 📎 Bon courage à tous 💪');
+            $chemin = 'messagerie/'.$groupe->id.'/consignes-tp-note.pdf';
+            Storage::disk('local')->put($chemin, \Barryvdh\DomPDF\Facade\Pdf::loadHTML(
+                '<html><head><meta charset="utf-8"><title>Consignes TP noté</title></head><body>'
+                .'<h1 style="font-family:sans-serif;color:#0D5A8A">TP noté — API REST sécurisée</h1>'
+                .'<p style="font-family:sans-serif">Promotion CDA 2026-2028 · vendredi après-midi · en binôme</p>'
+                .'<ol style="font-family:sans-serif"><li>Exposer une ressource CRUD documentée (OpenAPI).</li><li>Protéger les routes (authentification, rôles).</li>'
+                .'<li>Écrire au moins cinq tests automatisés.</li><li>Déposer le lien du dépôt Git dans la messagerie.</li></ol></body></html>'
+            )->output());
+            $consignes->piecesJointes()->create(['chemin' => $chemin, 'nom_original' => 'Consignes TP noté.pdf', 'mime' => 'application/pdf', 'taille' => Storage::disk('local')->size($chemin)]);
+        }
+
         $this->command?->getOutput()->writeln('');
         $this->command?->warn('Comptes de démonstration : admin@ / formateur@ / formatrice@ / etudiant@expernet.test');
         if (! env('DEMO_PASSWORD')) {
             $this->command?->warn('Mot de passe généré (DEMO_PASSWORD vide) : '.$motDePasse);
         }
+    }
+
+    /** Supports de cours générés à la volée (PDF, schéma PNG, mémo texte) : une seule fois par promotion. */
+    private function documentsDemo(Promotion $promo, User $auteur, $modules): void
+    {
+        if (Document::where('promotion_id', $promo->id)->exists()) {
+            return;
+        }
+        $disque = Storage::disk('local');
+        $ajouter = function (string $titre, string $nom, string $mime, string $contenu, ?Module $module) use ($disque, $promo, $auteur) {
+            $chemin = 'documents/'.$promo->id.'/'.Str::uuid().'.'.pathinfo($nom, PATHINFO_EXTENSION);
+            $disque->put($chemin, $contenu);
+            Document::create([
+                'promotion_id' => $promo->id, 'module_id' => $module?->id, 'auteur_id' => $auteur->id, 'titre' => $titre,
+                'chemin' => $chemin, 'nom_original' => $nom, 'mime' => $mime, 'taille' => strlen($contenu),
+            ]);
+        };
+
+        $css = 'font-family:Helvetica,sans-serif;color:#14202B'; // police standard PDF : fichier léger
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML(
+            '<html><head><meta charset="utf-8"><title>Support — API REST sécurisée</title></head><body>'
+            ."<div style=\"$css\"><p style=\"color:#009BDD;font-weight:bold;letter-spacing:2px\">EXPERNET CAMPUS · CDA 2026-2028</p>"
+            .'<h1 style="color:#0D5A8A">Développement web back-end</h1><h2>Séance 3 — Concevoir une API REST sécurisée</h2>'
+            .'<h3>1. Principes REST</h3><ul><li>Ressources identifiées par des URI, verbes HTTP explicites (GET, POST, PATCH, DELETE).</li><li>Codes de statut : 200, 201, 204, 401, 403, 404, 422.</li><li>Représentations JSON, pagination et filtres par paramètres.</li></ul>'
+            .'<h3>2. Sécurité</h3><ul><li>Authentification par session (Sanctum) et protection CSRF.</li><li>Autorisations par permissions (RBAC) vérifiées côté serveur.</li><li>Validation systématique des entrées, limitation de débit.</li></ul>'
+            .'<h3>3. Exercice</h3><p>Exposer la ressource <b>/api/projets</b> (CRUD), documenter le contrat OpenAPI et écrire les tests de bout en bout.</p></div></body></html>'
+        )->output();
+        $ajouter('Support — API REST sécurisée', 'support-api-rest.pdf', 'application/pdf', $pdf, $modules[2] ?? null);
+
+        if (function_exists('imagecreatetruecolor')) {
+            $img = imagecreatetruecolor(900, 420);
+            $blanc = imagecolorallocate($img, 255, 255, 255); $bleu = imagecolorallocate($img, 13, 90, 138); $clair = imagecolorallocate($img, 225, 243, 251); $orange = imagecolorallocate($img, 237, 143, 0);
+            imagefill($img, 0, 0, $blanc);
+            foreach ([[60, 'PROMOTION', ['id', 'libelle', 'date_debut']], [350, 'INSCRIPTION', ['user_id', 'promotion_id', 'date']], [640, 'UTILISATEUR', ['id', 'nom', 'email']]] as [$x, $titre, $champs]) {
+                imagefilledrectangle($img, $x, 120, $x + 200, 300, $clair); imagerectangle($img, $x, 120, $x + 200, 300, $bleu);
+                imagefilledrectangle($img, $x, 120, $x + 200, 160, $bleu); imagestring($img, 5, $x + 14, 132, $titre, $blanc);
+                foreach ($champs as $k => $c) { imagestring($img, 4, $x + 16, 180 + $k * 32, $c, $bleu); }
+            }
+            imagesetthickness($img, 3); imageline($img, 260, 210, 350, 210, $orange); imageline($img, 550, 210, 640, 210, $orange);
+            imagestring($img, 5, 60, 40, 'MCD simplifie - inscriptions (1,n) - (0,n)', $bleu);
+            ob_start(); imagepng($img); $png = ob_get_clean(); imagedestroy($img);
+            $ajouter('Schéma MCD — inscriptions', 'schema-mcd-inscriptions.png', 'image/png', $png, $modules[1] ?? null);
+        }
+
+        $ajouter('Mémo — commandes Git du binôme', 'memo-git.md', 'text/plain', "# Mémo Git\n\n"
+            ."git switch develop && git pull          # partir de develop à jour\n"
+            ."git switch -c feat/ma-fonctionnalite    # une branche par fonctionnalité\n"
+            ."git add -p && git commit                # commits courts et explicites\n"
+            ."git push -u origin feat/ma-fonctionnalite\n\n"
+            ."Puis : Pull Request vers develop, relecture par le binôme, fusion.\n", $modules[0] ?? null);
     }
 }

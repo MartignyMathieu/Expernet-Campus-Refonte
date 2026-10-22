@@ -47,7 +47,7 @@ img { max-width: 100%; display: block; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 10px 22px; border-radius: 999px; border: 2px solid transparent; font: inherit; font-weight: 700; font-size: .95rem; cursor: pointer; text-decoration: none; transition: background .15s, transform .15s, box-shadow .15s; white-space: nowrap; }
 .btn:hover { transform: translateY(-1px); }
 .btn:active { transform: translateY(0); }
-.btn-primaire { background: var(--orange); color: var(--encre); box-shadow: 0 6px 18px rgba(237,143,0,.32); }
+.btn-primaire { background: var(--orange); color: var(--encre); }
 .btn-primaire:hover { background: #F7A11F; }
 .btn-secondaire { background: var(--blanc); color: var(--primaire-fonce); border-color: var(--primaire-fonce); }
 .btn-secondaire:hover { background: #EAF6FC; }
@@ -69,16 +69,17 @@ img { max-width: 100%; display: block; }
 .pastille-rouge { background: #FBE4E5; color: var(--alerte); }
 
 /* Formulaires */
-.champ { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; margin-bottom: var(--esp-3); }
+.champ { display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 6px; margin-bottom: var(--esp-3); }
 .champ label { font-weight: 500; color: var(--encre); }
 .champ input, .champ select, .champ textarea { font: inherit; padding: 11px 14px; border: 1.5px solid #C6CFD8; border-radius: var(--rayon-s); background: #fff; min-height: 46px; transition: border-color .15s, box-shadow .15s; }
-.champ input:focus, .champ select:focus, .champ textarea:focus { border-color: var(--primaire); outline: none; box-shadow: 0 0 0 4px rgba(0,155,221,.16); }
+.champ input:focus, .champ select:focus, .champ textarea:focus { border-color: var(--primaire); outline: none; box-shadow: inset 0 0 0 1px var(--primaire); }
 .champ [aria-invalid="true"] { border-color: var(--alerte); }
 .erreur { color: var(--alerte); font-size: .875rem; }
 .succes { color: var(--succes); }
 .aide { color: var(--texte-doux); font-size: .875rem; }
 .case { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
-.case input { width: 20px; height: 20px; margin-top: 3px; accent-color: var(--primaire); }
+.case { line-height: 1.5; }
+.case input, .champ .case input { flex-shrink: 0; width: 20px; height: 20px; min-height: 0; padding: 0; margin: 2px 0 0; border: 0; box-shadow: none; accent-color: var(--primaire); }
 .message { padding: 12px 16px; border-radius: var(--rayon-s); margin-bottom: var(--esp-3); }
 .message-succes { background: #E2F3E8; color: var(--succes); }
 .message-erreur { background: #FBE4E5; color: var(--alerte); }
@@ -112,3 +113,20 @@ input[type="file"] { width: 100%; font-size: .9rem; }
   .btn { white-space: normal; text-align: center; line-height: 1.3; }
   .carte { padding: 18px; }
 }
+
+/* ===== Animations (désactivées par « réduire les animations », voir plus haut) ===== */
+/* Transition entre les pages */
+.page-enter-active, .page-leave-active { transition: opacity .22s ease, transform .22s ease; }
+.page-enter-from { opacity: 0; transform: translateY(10px); }
+.page-leave-to { opacity: 0; transform: translateY(-6px); }
+/* Apparition au défilement (directive v-apparition) */
+.apparition { opacity: 0; transform: translateY(22px); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.7,.2,1); transition-delay: var(--apparition-delai, 0ms); }
+.apparition.apparition-visible { opacity: 1; transform: none; }
+/* Animations réutilisables */
+@keyframes monter { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes fondu { from { opacity: 0; } to { opacity: 1; } }
+@keyframes secouer { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+@keyframes pulsation { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
+@keyframes tourner { to { transform: rotate(360deg); } }
+.message-erreur[role="alert"] { animation: secouer .4s ease; }
+.chargement { width: 18px; height: 18px; border: 2.5px solid currentColor; border-right-color: transparent; border-radius: 50%; display: inline-block; animation: tourner .7s linear infinite; }

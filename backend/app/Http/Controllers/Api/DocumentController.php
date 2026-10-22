@@ -52,4 +52,24 @@ class DocumentController extends Controller
 
         return Storage::disk('local')->download($document->chemin, $document->nom_original);
     }
+
+    /**
+     * Aperçu dans le portail : PDF et images servis « en ligne », textes en text/plain (jamais interprétés).
+     * Les autres formats (Office, ZIP) n'ont pas d'aperçu : 415, le client propose le téléchargement.
+     */
+    public function apercu(Request $request, Document $document)
+    {
+        abort_unless($request->user()->peutVoirPromotion(Promotion::findOrFail($document->promotion_id)), 403);
+        abort_if($document->apercu === null, 415, 'Aperçu indisponible pour ce format : téléchargez le document.');
+
+        $disque = Storage::disk('local');
+        abort_unless($disque->exists($document->chemin), 404);
+        $type = $document->apercu === 'texte' ? 'text/plain; charset=UTF-8' : $document->mime;
+
+        return $disque->response($document->chemin, $document->nom_original, [
+            'Content-Type' => $type,
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control' => 'private, max-age=300',
+        ]);
+    }
 }

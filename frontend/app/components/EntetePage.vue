@@ -18,6 +18,12 @@ defineProps<{ titre: string; surTitre?: string; texte?: string; image: string }>
 .entete-page > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .entete-page::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, rgba(8,32,52,.95), rgba(13,90,138,.82) 60%, rgba(0,155,221,.45)); }
 .contenu { position: relative; z-index: 1; }
+.contenu > * { animation: monter .6s cubic-bezier(.2,.7,.2,1) both; }
+.contenu > :nth-child(2) { animation-delay: .07s; }
+.contenu > :nth-child(3) { animation-delay: .14s; }
+.contenu > :nth-child(4) { animation-delay: .21s; }
+.entete-page > img { animation: zoom 8s ease-out both; }
+@keyframes zoom { from { transform: scale(1.06); } to { transform: scale(1); } }
 h1 { color: #fff; margin-bottom: 10px; max-width: 24ch; }
 .texte { margin: 0; color: #DCEAF4; max-width: 62ch; font-size: 1.08rem; }
 .sur-titre.clair { color: #9FDCF5; }

@@ -47,6 +47,8 @@ async function soumettre() {
     <main class="panneau">
       <form class="formulaire" @submit.prevent="soumettre">
         <NuxtLink to="/" class="logo-mobile"><img src="/images/brand/logo-expernet.png" alt="Expernet Campus — retour au site" width="900" height="241"></NuxtLink>
+        <Transition name="etape" mode="out-in">
+        <div :key="etape" class="etape">
         <p class="sur-titre">{{ etape === 'identifiants' ? 'Espace numérique de travail' : 'Sécurité renforcée' }}</p>
         <h1>{{ etape === 'identifiants' ? 'Connexion' : 'Vérification en deux étapes' }}</h1>
         <p class="aide intro">{{ etape === 'identifiants' ? 'Apprenants, formateurs et équipe administrative.' : 'Une étape de plus pour protéger vos données.' }}</p>
@@ -63,9 +65,11 @@ async function soumettre() {
           </div>
           <button type="button" class="lien" @click="secours = !secours; code = ''">{{ secours ? 'Utiliser l\'application' : 'Utiliser un code de secours' }}</button>
         </template>
-        <button class="btn btn-bleu plein" :disabled="enCours">{{ enCours ? 'Vérification…' : 'Se connecter' }}</button>
+        <button class="btn btn-bleu plein" :disabled="enCours"><span v-if="enCours" class="chargement" aria-hidden="true" />{{ enCours ? 'Vérification…' : etape === 'mfa' ? 'Valider le code' : 'Se connecter' }}</button>
         <p class="securite"><Icone nom="cadenas" :taille="15" /> Connexion chiffrée · double authentification pour les comptes formateur et administrateur</p>
         <NuxtLink to="/" class="retour"><Icone nom="retour" :taille="15" /> Retour au site Expernet</NuxtLink>
+        </div>
+        </Transition>
       </form>
     </main>
   </div>
@@ -74,7 +78,24 @@ async function soumettre() {
 <style scoped>
 .connexion { display: grid; grid-template-columns: 1.1fr 1fr; min-height: 100vh; }
 .visuel { position: relative; overflow: hidden; color: #fff; }
-.photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: lent-zoom 14s ease-out both; }
+@keyframes lent-zoom { from { transform: scale(1.1); } to { transform: scale(1); } }
+@keyframes glisser { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
+.visuel-contenu > * { animation: glisser .7s cubic-bezier(.2,.7,.2,1) both; }
+.visuel-contenu > :nth-child(2) { animation-delay: .12s; }
+.visuel-contenu > :nth-child(3) { animation-delay: .5s; }
+.atouts li { animation: glisser .6s cubic-bezier(.2,.7,.2,1) both; }
+.atouts li:nth-child(1) { animation-delay: .25s; } .atouts li:nth-child(2) { animation-delay: .33s; }
+.atouts li:nth-child(3) { animation-delay: .41s; } .atouts li:nth-child(4) { animation-delay: .49s; }
+/* Formulaire : apparition échelonnée, puis transition entre identifiants et code MFA */
+.etape > * { animation: monter .5s cubic-bezier(.2,.7,.2,1) both; }
+.etape > :nth-child(2) { animation-delay: .05s; } .etape > :nth-child(3) { animation-delay: .1s; }
+.etape > :nth-child(4) { animation-delay: .15s; } .etape > :nth-child(5) { animation-delay: .2s; }
+.etape > :nth-child(6) { animation-delay: .25s; } .etape > :nth-child(n+7) { animation-delay: .3s; }
+.etape-leave-active { transition: opacity .18s ease, transform .18s ease; }
+.etape-leave-to { opacity: 0; transform: translateX(-16px); }
+.plein .chargement { margin-right: 4px; }
+.etape > .message-erreur { animation: secouer .4s ease; }
 .voile { position: absolute; inset: 0; background: linear-gradient(160deg, rgba(0,155,221,.88) 0%, rgba(13,90,138,.9) 45%, rgba(8,32,52,.96) 100%); }
 .visuel-contenu { position: relative; z-index: 1; height: 100%; padding: 48px; display: flex; flex-direction: column; justify-content: space-between; }
 .cartouche { display: inline-block; background: #fff; padding: 12px 18px; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.2); }
@@ -82,7 +103,8 @@ async function soumettre() {
 .slogan { font-family: var(--police-titre); font-size: clamp(1.8rem, 3vw, 2.6rem); line-height: 1.2; margin: 0 0 28px; }
 .slogan strong { color: var(--jaune); }
 .atouts { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
-.atouts li { display: flex; gap: 12px; align-items: center; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); backdrop-filter: blur(6px); padding: 12px 16px; border-radius: 12px; max-width: 380px; }
+.atouts li { display: flex; gap: 14px; align-items: center; padding: 6px 0; max-width: 380px; }
+.atouts :deep(.icone) { color: var(--jaune); }
 .pied-visuel { font-size: .85rem; opacity: .8; margin: 0; }
 .panneau { display: grid; place-items: center; padding: var(--esp-5) var(--esp-3); background: #fff; min-width: 0; }
 .formulaire { width: 100%; max-width: 420px; min-width: 0; }

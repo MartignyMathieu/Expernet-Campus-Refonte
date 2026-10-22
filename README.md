@@ -15,9 +15,10 @@ Projet du titre **Concepteur Développeur d'Applications (CDA)**. Refonte du sys
 - Catalogue des 8 titres RNCP réels d'Expernet, recherche à facettes : filière, niveau RNCP, financement CPF
 - Fiches détaillées : objectifs, prérequis, modalités d'accès, débouchés ; données structurées schema.org
 - Formulaires de candidature et de contact avec validation côté client et côté serveur, consentement RGPD, pot de miel anti-robots, limitation de débit
-- **Contenus repris de l'ancien site** : FAQ (9 questions), blog (12 derniers articles, images d'origine), offre de formation continue (14 domaines, ~70 stages, chiffres clés)
+- **Contenus repris de l'ancien site** : FAQ (9 questions), blog (12 derniers articles, images d'origine), offre de formation continue reprise intégralement de expernet.re (149 formations, 14 domaines) : catalogue filtrable, fiches détaillées (objectifs, programme, tarifs, prochaines sessions)
 - **Migration du blog** : commande `php artisan blog:import-wordpress https://expernet-campus.re` (API REST WordPress, HTML assaini contre les injections)
 - Accessibilité (RGAA) : lien d'évitement, focus visible, libellés, erreurs reliées aux champs, contrastes AA, navigation au clavier, carrousel avec pause
+- Animations sobres (apparition au défilement, compteurs, transitions de page), désactivées si le système demande de réduire les animations
 - **Responsive vérifié automatiquement** sur 25 pages × 8 largeurs d'écran (320 à 1440 px)
 
 **Module ENT**
@@ -26,8 +27,8 @@ Projet du titre **Concepteur Développeur d'Applications (CDA)**. Refonte du sys
 - **Émargement numérique** par demi-journée : code à 6 chiffres, signature au doigt, horodatage, empreinte SHA-256 vérifiable, clôture automatique des absents, **attestation PDF**
 - **Tableau de bord formateur** (navigation à motifs de bananes 🍌) : promotions suivies, taux d'assiduité, alertes d'absentéisme
 - **Examens** : planification des sessions, composition des jurys (un président), saisie des grilles de compétences
-- Planning, notes avec moyenne pondérée, espace documentaire par promotion
-- **Messagerie** : conversations privées et groupes ; l'étudiant écrit à sa promotion, à ses formateurs et à l'administration ; le formateur crée des groupes (choix des membres ou toute une promotion) et les gère ; compteur de non-lus
+- Planning, notes avec moyenne pondérée, espace documentaire par promotion avec **aperçu en ligne** (PDF, images, textes)
+- **Messagerie** : conversations privées et groupes ; l'étudiant écrit à sa promotion, à ses formateurs et à l'administration ; le formateur crée des groupes (choix des membres ou toute une promotion) et les gère ; pièces jointes (5 fichiers de 10 Mo) et émoticônes ; compteur de non-lus
 - Administration : comptes, rôles, activation, candidatures, indicateurs
 
 ## Prérequis

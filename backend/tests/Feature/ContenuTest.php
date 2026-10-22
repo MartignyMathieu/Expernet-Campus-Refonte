@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Article;
 use App\Support\HtmlAssainisseur;
 use Database\Seeders\ContenuSeeder;
+use Database\Seeders\FormationContinueSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -16,7 +17,7 @@ class ContenuTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(ContenuSeeder::class);
+        $this->seed([ContenuSeeder::class, FormationContinueSeeder::class]);
     }
 
     public function test_la_faq_publique_est_servie(): void
@@ -43,10 +44,49 @@ class ContenuTest extends TestCase
         $this->getJson('/api/articles/inexistant')->assertNotFound();
     }
 
-    public function test_l_offre_de_formation_continue(): void
+    public function test_l_offre_de_formation_continue_reprend_tout_le_catalogue(): void
     {
-        $this->getJson('/api/formation-continue')->assertOk()->assertJsonCount(14, 'domaines')->assertJsonCount(4, 'chiffres')
-            ->assertJsonStructure(['domaines' => [['slug', 'libelle', 'icone', 'stages']]]);
+        $r = $this->getJson('/api/formation-continue')->assertOk()->assertJsonCount(14, 'domaines')->assertJsonCount(4, 'chiffres')
+            ->assertJsonCount(3, 'formats')->assertJsonCount(3, 'locaux')
+            ->assertJsonPath('contact.email', 'formation@expernet.re')
+            ->assertJsonStructure(['domaines' => [['slug', 'libelle', 'icone', 'stages' => [['slug', 'intitule', 'duree', 'tarifs', 'prochaine_session']]]]]);
+
+        $this->assertSame(149, collect($r->json('domaines'))->sum(fn ($d) => count($d['stages'])));
+        // Le résumé du catalogue ne transporte pas les programmes complets
+        $this->assertArrayNotHasKey('programme', $r->json('domaines.0.stages.0'));
+    }
+
+    public function test_la_fiche_d_un_stage_est_complete(): void
+    {
+        $this->getJson('/api/formation-continue/administration-windows-11')->assertOk()
+            ->assertJsonPath('stage.intitule', 'Administration Windows 11')
+            ->assertJsonPath('stage.domaine.slug', 'microsoft-technique')
+            ->assertJsonPath('stage.duree', '5 jours')
+            ->assertJsonPath('stage.tarifs.intra', 6500)
+            ->assertJsonPath('stage.programme.0', '## Présentation et installation de Windows 11')
+            ->assertJsonCount(5, 'stage.objectifs')
+            ->assertJsonCount(3, 'similaires');
+    }
+
+    public function test_les_modalites_standard_completent_une_fiche_qui_n_en_precise_pas(): void
+    {
+        $standard = config('expernet.formation_continue.modalites.moyens');
+        $this->getJson('/api/formation-continue/administration-windows-11')->assertJsonPath('stage.moyens', $standard);
+
+        // Une fiche aux modalités spécifiques les conserve
+        $vmware = $this->getJson('/api/formation-continue/vmware-vsphere-niveau-1')->json('stage.moyens');
+        $this->assertNotSame($standard, $vmware);
+    }
+
+    public function test_un_stage_inconnu_renvoie_404(): void
+    {
+        $this->getJson('/api/formation-continue/inexistant')->assertNotFound();
+    }
+
+    public function test_le_seeder_de_formation_continue_est_rejouable(): void
+    {
+        $this->seed(FormationContinueSeeder::class);
+        $this->assertSame(149, \App\Models\FcStage::count());
     }
 
     public function test_l_assainisseur_supprime_scripts_attributs_et_liens_dangereux(): void

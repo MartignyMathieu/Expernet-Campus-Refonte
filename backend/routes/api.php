@@ -27,6 +27,7 @@ Route::get('/faq', [ContenuController::class, 'faq']);
 Route::get('/articles', [ContenuController::class, 'articles']);
 Route::get('/articles/{article}', [ContenuController::class, 'article']);
 Route::get('/formation-continue', [ContenuController::class, 'formationContinue']);
+Route::get('/formation-continue/{stage}', [ContenuController::class, 'stageFormationContinue']);
 Route::middleware('throttle:public-forms')->group(function () {
     Route::post('/candidatures', [CandidatureController::class, 'store']);
     Route::post('/contact', [CandidatureController::class, 'contact']);
@@ -68,6 +69,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/promotions/{promotion}/documents', [DocumentController::class, 'index'])->middleware('permission:documents.view');
         Route::post('/promotions/{promotion}/documents', [DocumentController::class, 'store'])->middleware('permission:documents.upload');
         Route::get('/documents/{document}/telechargement', [DocumentController::class, 'telecharger'])->middleware('permission:documents.view');
+        Route::get('/documents/{document}/apercu', [DocumentController::class, 'apercu'])->middleware('permission:documents.view');
 
         // Messagerie
         Route::prefix('messagerie')->middleware('permission:messagerie.use')->group(function () {
@@ -77,6 +79,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('/conversations', [MessagerieController::class, 'ouvrirPrivee']);
             Route::get('/conversations/{conversation}/messages', [MessagerieController::class, 'messages']);
             Route::post('/conversations/{conversation}/messages', [MessagerieController::class, 'envoyer'])->middleware('throttle:messages');
+            Route::get('/pieces-jointes/{pieceJointe}', [MessagerieController::class, 'pieceJointe']);
             Route::post('/groupes', [MessagerieController::class, 'creerGroupe'])->middleware('permission:messagerie.groupes');
             Route::patch('/groupes/{conversation}/membres', [MessagerieController::class, 'modifierMembres'])->middleware('permission:messagerie.groupes');
         });
