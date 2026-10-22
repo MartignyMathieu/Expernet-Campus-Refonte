@@ -174,6 +174,72 @@ class MessagerieTest extends TestCase
         $this->assertDatabaseCount('message_pieces_jointes', 0);
     }
 
+    private function envoyerMessage(User $de, int $conversation, string $contenu): int
+    {
+        return $this->actingAs($de)->postJson("/api/messagerie/conversations/$conversation/messages", ['contenu' => $contenu])->assertCreated()->json('id');
+    }
+
+    public function test_l_auteur_modifie_son_message_et_le_destinataire_voit_la_correction(): void
+    {
+        $id = $this->ouvrir($this->etudiant, $this->formateur)->json('id');
+        $m = $this->envoyerMessage($this->etudiant, $id, 'Bonjuor');
+
+        $this->actingAs($this->etudiant)->patchJson("/api/messagerie/messages/$m", ['contenu' => 'Bonjour 👋'])->assertOk()
+            ->assertJsonPath('contenu', 'Bonjour 👋')->assertJsonPath('modifie', true);
+
+        // Synchronisation : le formateur récupère la correction lors de son interrogation périodique
+        $avant = now()->subMinute()->toIso8601String();
+        $r = $this->actingAs($this->formateur)->getJson("/api/messagerie/conversations/$id/messages?apres=$m&maj_depuis=".urlencode($avant))->assertOk();
+        $this->assertSame('Bonjour 👋', $r->json('0.contenu'));
+        $this->assertTrue($r->json('0.modifie'));
+    }
+
+    public function test_seul_l_auteur_modifie_et_pas_au_dela_de_24_heures(): void
+    {
+        $id = $this->ouvrir($this->etudiant, $this->formateur)->json('id');
+        $m = $this->envoyerMessage($this->etudiant, $id, 'Message initial');
+
+        $this->actingAs($this->formateur)->patchJson("/api/messagerie/messages/$m", ['contenu' => 'Piraté'])->assertForbidden();
+        $this->actingAs($this->autreEtudiant)->patchJson("/api/messagerie/messages/$m", ['contenu' => 'Piraté'])->assertForbidden();
+
+        $this->travelTo(now()->addHours(25));
+        $this->actingAs($this->etudiant)->patchJson("/api/messagerie/messages/$m", ['contenu' => 'Trop tard'])->assertStatus(422);
+        $this->assertDatabaseHas('messages', ['id' => $m, 'contenu' => 'Message initial']);
+    }
+
+    public function test_l_auteur_supprime_son_message_et_ses_fichiers(): void
+    {
+        Storage::fake('local');
+        $id = $this->ouvrir($this->etudiant, $this->formateur)->json('id');
+        $r = $this->actingAs($this->etudiant)->post("/api/messagerie/conversations/$id/messages", [
+            'contenu' => 'Mon justificatif', 'fichiers' => [UploadedFile::fake()->create('justificatif.pdf', 20, 'application/pdf')],
+        ], ['Accept' => 'application/json'])->assertCreated();
+        $m = $r->json('id');
+        $url = $r->json('pieces_jointes.0.url');
+
+        $this->actingAs($this->formateur)->deleteJson("/api/messagerie/messages/$m")->assertForbidden();
+        $this->actingAs($this->etudiant)->deleteJson("/api/messagerie/messages/$m")->assertOk()
+            ->assertJsonPath('supprime', true)->assertJsonPath('contenu', '')->assertJsonCount(0, 'pieces_jointes');
+
+        $this->assertDatabaseCount('message_pieces_jointes', 0);
+        $this->assertSame([], Storage::disk('local')->allFiles('messagerie'));
+        $this->actingAs($this->formateur)->get($url)->assertNotFound();
+        $this->actingAs($this->formateur)->getJson('/api/messagerie/conversations')->assertJsonPath('0.dernier_message.extrait', 'Message supprimé');
+        $this->actingAs($this->etudiant)->patchJson("/api/messagerie/messages/$m", ['contenu' => 'Retour'])->assertStatus(422);
+    }
+
+    public function test_le_gestionnaire_d_un_groupe_peut_moderer(): void
+    {
+        $groupe = $this->actingAs($this->formateur)->postJson('/api/messagerie/groupes', ['nom' => 'Promo', 'membres' => [$this->etudiant->id, $this->autreEtudiant->id]])->json('id');
+        $m = $this->envoyerMessage($this->etudiant, $groupe, 'Message hors sujet');
+
+        $this->actingAs($this->autreEtudiant)->deleteJson("/api/messagerie/messages/$m")->assertForbidden();
+        $liste = $this->actingAs($this->formateur)->getJson("/api/messagerie/conversations/$groupe/messages")->json();
+        $this->assertTrue(collect($liste)->firstWhere('id', $m)['peut_supprimer']);
+        $this->assertFalse(collect($liste)->firstWhere('id', $m)['peut_modifier'], 'La modération ne permet pas de réécrire le message d\'un autre.');
+        $this->actingAs($this->formateur)->deleteJson("/api/messagerie/messages/$m")->assertOk();
+    }
+
     public function test_la_messagerie_exige_une_session(): void
     {
         $this->getJson('/api/messagerie/conversations')->assertUnauthorized();

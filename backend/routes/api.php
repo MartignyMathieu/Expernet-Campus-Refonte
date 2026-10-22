@@ -80,6 +80,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/conversations/{conversation}/messages', [MessagerieController::class, 'messages']);
             Route::post('/conversations/{conversation}/messages', [MessagerieController::class, 'envoyer'])->middleware('throttle:messages');
             Route::get('/pieces-jointes/{pieceJointe}', [MessagerieController::class, 'pieceJointe']);
+            Route::patch('/messages/{message}', [MessagerieController::class, 'modifier'])->middleware('throttle:messages');
+            Route::delete('/messages/{message}', [MessagerieController::class, 'supprimer']);
             Route::post('/groupes', [MessagerieController::class, 'creerGroupe'])->middleware('permission:messagerie.groupes');
             Route::patch('/groupes/{conversation}/membres', [MessagerieController::class, 'modifierMembres'])->middleware('permission:messagerie.groupes');
         });
