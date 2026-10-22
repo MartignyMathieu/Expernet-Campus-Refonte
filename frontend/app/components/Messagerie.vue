@@ -2,6 +2,8 @@
   Messagerie de l'ENT : conversations privées et groupes.
   Rafraîchissement par interrogation périodique (4 s pour le fil ouvert, 10 s pour la liste).
   Pièces jointes (5 fichiers de 10 Mo max : bouton, glisser-déposer ou collage) et émoticônes.
+  L'auteur modifie (24 h) ou supprime ses messages ; le gestionnaire d'un groupe peut supprimer (modération).
+  Les modifications des autres participants sont récupérées à chaque interrogation (paramètre maj_depuis).
   Évolution prévue : WebSocket (Laravel Reverb) pour le temps réel strict.
 -->
 <script setup lang="ts">
@@ -72,18 +74,76 @@ async function chargerConversations() {
 // Les messages arrivés après l'ouverture du fil sont animés (les anciens s'affichent directement).
 const dernierAffiche = ref(0)
 async function ouvrir(c: any) {
-  active.value = c; messages.value = []; erreur.value = ''; fichiers.value = []
+  active.value = c; messages.value = []; erreur.value = ''; fichiers.value = []; edition.value = null; aSupprimer.value = null
   messages.value = await api<any[]>(`/api/messagerie/conversations/${c.id}/messages`)
   dernierAffiche.value = messages.value.at(-1)?.id || 0
   c.non_lus = 0
   await nextTick(); defiler(); zoneSaisie.value?.focus()
 }
+// Date de la dernière modification connue : sert à récupérer les messages corrigés ou supprimés par les autres
+const derniereMaj = computed(() => messages.value.reduce((max: string, m: any) => (m.maj > max ? m.maj : max), ''))
+function integrer(m: any) {
+  const i = messages.value.findIndex((x: any) => x.id === m.id)
+  if (i === -1) messages.value.push(m)
+  else messages.value[i] = m
+}
 async function nouveaux() {
   if (!active.value) return
   const dernier = messages.value.at(-1)?.id || 0
-  const n = await api<any[]>(`/api/messagerie/conversations/${active.value.id}/messages`, { query: { apres: dernier } })
-  if (n.length) { const enBas = estEnBas(); messages.value.push(...n); if (enBas) { await nextTick(); defiler() } }
+  const n = await api<any[]>(`/api/messagerie/conversations/${active.value.id}/messages`, { query: { apres: dernier, ...(derniereMaj.value ? { maj_depuis: derniereMaj.value } : {}) } })
+  if (n.length) {
+    const enBas = estEnBas(); const avant = messages.value.length
+    n.forEach(integrer)
+    if (enBas && messages.value.length > avant) { await nextTick(); defiler() }
+  }
 }
+
+// ----- Modifier / supprimer un message -----
+const menuOuvert = ref<number | null>(null)
+const menuVersLeHaut = ref(false)
+function basculerMenu(m: any, e: MouseEvent) {
+  if (menuOuvert.value === m.id) { menuOuvert.value = null; return }
+  // Près du bas du fil, le menu s'ouvre vers le haut pour rester visible
+  const r = (e.currentTarget as HTMLElement).getBoundingClientRect(); const f = fil.value?.getBoundingClientRect()
+  menuVersLeHaut.value = !!f && r.top > f.top + f.height / 2
+  menuOuvert.value = m.id
+}
+const edition = ref<{ id: number; texte: string } | null>(null)
+const aSupprimer = ref<number | null>(null)
+const zoneEdition = ref<HTMLTextAreaElement[] | null>(null)
+function commencerEdition(m: any) {
+  menuOuvert.value = null; aSupprimer.value = null
+  edition.value = { id: m.id, texte: m.contenu }
+  nextTick(() => {
+    const z = zoneEdition.value?.[0]; z?.focus(); z?.setSelectionRange(z.value.length, z.value.length)
+    z?.closest('.bulle')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  })
+}
+async function enregistrerEdition() {
+  if (!edition.value) return
+  const texte = edition.value.texte.trim()
+  const original = messages.value.find((x: any) => x.id === edition.value!.id)
+  if (!texte || texte === original?.contenu) { edition.value = null; return }
+  try {
+    await csrf()
+    integrer(await api(`/api/messagerie/messages/${edition.value.id}`, { method: 'PATCH', body: { contenu: texte } }))
+    edition.value = null; chargerConversations()
+  } catch (e: any) { erreur.value = e?.data?.message || 'Modification impossible.' }
+}
+function toucheEdition(e: KeyboardEvent) {
+  if (e.key === 'Escape') { e.preventDefault(); edition.value = null; zoneSaisie.value?.focus() }
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enregistrerEdition() }
+}
+async function confirmerSuppression(id: number) {
+  try {
+    await csrf()
+    integrer(await api(`/api/messagerie/messages/${id}`, { method: 'DELETE' }))
+    aSupprimer.value = null; chargerConversations()
+  } catch (e: any) { erreur.value = e?.data?.message || 'Suppression impossible.' }
+}
+function fermerMenu(e: MouseEvent) { if (!(e.target as HTMLElement).closest('.actions-message')) menuOuvert.value = null }
+onMounted(() => document.addEventListener('click', fermerMenu))
+onBeforeUnmount(() => document.removeEventListener('click', fermerMenu))
 async function envoyer() {
   const texte = saisie.value.trim()
   if ((!texte && !fichiers.value.length) || !active.value || envoi.value) return
@@ -105,7 +165,14 @@ async function envoyer() {
       : Object.values(erreursValidation(e))[0] || e?.data?.message || 'Message non envoyé.'
   } finally { envoi.value = false }
 }
-function touche(e: KeyboardEvent) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); envoyer() } }
+function touche(e: KeyboardEvent) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); envoyer() }
+  // Flèche haut dans une zone vide : corriger son dernier message (comme dans les messageries courantes)
+  if (e.key === 'ArrowUp' && !saisie.value) {
+    const dernier = [...messages.value].reverse().find((m: any) => m.peut_modifier)
+    if (dernier) { e.preventDefault(); commencerEdition(dernier) }
+  }
+}
 function ajuster() { const z = zoneSaisie.value; if (z) { z.style.height = 'auto'; z.style.height = Math.min(z.scrollHeight, 160) + 'px' } }
 function defiler() { if (fil.value) fil.value.scrollTop = fil.value.scrollHeight }
 function estEnBas() { const f = fil.value; return !f || f.scrollHeight - f.scrollTop - f.clientHeight < 80 }
@@ -218,9 +285,29 @@ async function retirer(id: number) {
           <template v-for="(m, i) in messages" :key="m.id">
             <p v-if="i === 0 || jour(m.date) !== jour(messages[i - 1].date)" class="separateur"><span>{{ jour(m.date) }}</span></p>
             <div class="bulle-ligne" :class="{ moi: m.moi, arrivee: m.id > dernierAffiche }">
-              <div class="bulle">
+              <div v-if="(m.peut_modifier || m.peut_supprimer) && edition?.id !== m.id" class="actions-message">
+                <button type="button" class="bouton-options" :aria-label="`Actions sur le message de ${new Date(m.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`" :aria-expanded="menuOuvert === m.id" @click="basculerMenu(m, $event)"><Icone nom="options" :taille="18" poids="bold" /></button>
+                <div v-if="menuOuvert === m.id" class="menu-message" :class="{ haut: menuVersLeHaut }" role="menu">
+                  <button v-if="m.peut_modifier" type="button" role="menuitem" @click="commencerEdition(m)"><Icone nom="modifier" :taille="16" />Modifier</button>
+                  <button v-if="m.peut_supprimer" type="button" role="menuitem" class="danger" @click="menuOuvert = null; aSupprimer = m.id"><Icone nom="supprimer" :taille="16" />Supprimer</button>
+                </div>
+              </div>
+              <div class="bulle" :class="{ supprime: m.supprime, edition: edition?.id === m.id }">
                 <span v-if="!m.moi && active.type === 'groupe'" class="auteur">{{ m.auteur.nom }}</span>
-                <p v-if="m.contenu" :class="{ 'emoji-seul': emojiSeul(m.contenu) }">{{ m.contenu }}</p>
+                <p v-if="m.supprime" class="texte-supprime"><Icone nom="interdit" :taille="15" />Message supprimé</p>
+                <form v-else-if="edition?.id === m.id" class="form-edition" @submit.prevent="enregistrerEdition">
+                  <label :for="`edit-${m.id}`" class="sr-only">Modifier le message</label>
+                  <textarea :id="`edit-${m.id}`" ref="zoneEdition" v-model="edition.texte" rows="2" maxlength="2000" @keydown="toucheEdition" />
+                  <span class="boutons-edition"><small>Échap pour annuler · Entrée pour enregistrer</small>
+                    <button type="button" class="btn-mini" @click="edition = null">Annuler</button>
+                    <button class="btn-mini plein-mini" :disabled="!edition.texte.trim()">Enregistrer</button></span>
+                </form>
+                <p v-else-if="m.contenu" :class="{ 'emoji-seul': emojiSeul(m.contenu) }">{{ m.contenu }}</p>
+                <div v-if="aSupprimer === m.id" class="confirmation-suppression" role="alertdialog" :aria-label="'Confirmer la suppression'">
+                  <span>{{ m.moi ? 'Supprimer ce message ?' : 'Supprimer ce message (modération) ?' }}</span>
+                  <button type="button" class="btn-mini" @click="aSupprimer = null">Annuler</button>
+                  <button type="button" class="btn-mini danger-mini" @click="confirmerSuppression(m.id)">Supprimer</button>
+                </div>
                 <div v-if="m.pieces_jointes?.length" class="pj">
                   <template v-for="p in m.pieces_jointes" :key="p.id">
                     <button v-if="p.image" type="button" class="pj-image" :aria-label="`Aperçu : ${p.nom}`" @click="voir(p)"><img :src="p.url" :alt="p.nom" loading="lazy"></button>
@@ -236,7 +323,7 @@ async function retirer(id: number) {
                     </a>
                   </template>
                 </div>
-                <time :datetime="m.date">{{ new Date(m.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }}</time>
+                <time :datetime="m.date"><span v-if="m.modifie && !m.supprime" class="modifie">modifié · </span>{{ new Date(m.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) }}</time>
               </div>
             </div>
           </template>
@@ -351,14 +438,41 @@ async function retirer(id: number) {
 .fil { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 6px; }
 .separateur { text-align: center; margin: 14px 0 8px; }
 .separateur span { background: #fff; border: 1px solid var(--gris-bord); color: var(--texte-doux); font-size: .76rem; padding: 3px 12px; border-radius: 999px; text-transform: capitalize; }
-.bulle-ligne { display: flex; }
+/* Le bouton d'actions se place à côté de la bulle, côté intérieur du fil */
+.bulle-ligne { display: flex; flex-direction: row-reverse; justify-content: flex-end; align-items: center; gap: 4px; }
+.bulle-ligne.moi { flex-direction: row; }
+.actions-message { position: relative; opacity: 0; transition: opacity .15s; }
+.bulle-ligne:hover .actions-message, .actions-message:focus-within { opacity: 1; }
+@media (hover: none) { .actions-message { opacity: 1; } }
+.bouton-options { width: 30px; height: 30px; border-radius: 50%; border: 0; background: transparent; color: var(--texte-doux); display: grid; place-items: center; cursor: pointer; }
+.bouton-options:hover, .bouton-options[aria-expanded="true"] { background: #fff; color: var(--encre); box-shadow: var(--ombre); }
+.menu-message { position: absolute; z-index: 6; top: calc(100% + 4px); right: 0; min-width: 150px; background: #fff; border: 1px solid var(--gris-bord); border-radius: 12px; box-shadow: var(--ombre-forte); padding: 4px; display: grid; animation: fondu .12s ease; }
+.bulle-ligne:not(.moi) .menu-message { right: auto; left: 0; }
+.menu-message.haut { top: auto; bottom: calc(100% + 4px); }
+.menu-message button { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 0; background: none; border-radius: 8px; font: inherit; font-size: .9rem; cursor: pointer; color: var(--texte); text-align: left; }
+.menu-message button:hover { background: var(--gris-fond); }
+.menu-message .danger { color: var(--alerte); }
+.bulle.supprime { background: transparent; border: 1px dashed var(--gris-bord); box-shadow: none; }
+.moi .bulle.supprime { background: transparent; border-color: #9DB7CB; color: var(--texte-doux); }
+.texte-supprime { display: flex; align-items: center; gap: 6px; font-style: italic; color: var(--texte-doux); }
+.bulle.edition { min-width: min(420px, 100%); }
+.form-edition textarea { width: 100%; font: inherit; color: var(--encre); border: 0; border-radius: 10px; padding: 8px 10px; resize: vertical; min-height: 60px; }
+.form-edition textarea:focus { outline: 2px solid var(--jaune); }
+.boutons-edition { display: flex; align-items: center; justify-content: flex-end; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.boutons-edition small { margin-right: auto; opacity: .8; font-size: .72rem; }
+.btn-mini { border: 1px solid currentColor; background: transparent; color: inherit; border-radius: 999px; padding: 4px 12px; font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; }
+.plein-mini { background: var(--orange); border-color: var(--orange); color: var(--encre); }
+.btn-mini:disabled { opacity: .5; cursor: not-allowed; }
+.danger-mini { background: var(--alerte); border-color: var(--alerte); color: #fff; }
+.confirmation-suppression { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(127,127,127,.3); font-size: .86rem; animation: fondu .15s ease; }
+.confirmation-suppression span { margin-right: auto; font-weight: 500; }
+.modifie { font-style: italic; }
 .fil { animation: fondu .25s ease; }
 .arrivee .bulle { animation: bulle .32s cubic-bezier(.2,.8,.3,1.2) both; transform-origin: bottom left; }
 .arrivee.moi .bulle { transform-origin: bottom right; }
 @keyframes bulle { from { opacity: 0; transform: translateY(10px) scale(.94); } to { opacity: 1; transform: none; } }
 .conv { transition: background .15s; }
 .badge { animation: pulsation .45s ease; }
-.bulle-ligne.moi { justify-content: flex-end; }
 .bulle { max-width: min(72%, 560px); background: #fff; border: 1px solid var(--gris-bord); border-radius: 16px 16px 16px 4px; padding: 10px 14px 6px; box-shadow: 0 1px 2px rgba(11,46,74,.05); }
 .moi .bulle { background: var(--primaire-fonce); border-color: var(--primaire-fonce); color: #fff; border-radius: 16px 16px 4px 16px; }
 .bulle p { margin: 0; white-space: pre-wrap; word-break: break-word; }
