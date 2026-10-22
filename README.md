@@ -27,7 +27,7 @@ Projet du titre **Concepteur Développeur d'Applications (CDA)**. Refonte du sys
 - **Tableau de bord formateur** (navigation à motifs de bananes 🍌) : promotions suivies, taux d'assiduité, alertes d'absentéisme
 - **Examens** : planification des sessions, composition des jurys (un président), saisie des grilles de compétences
 - Planning, notes avec moyenne pondérée, espace documentaire par promotion
-- **Messagerie** : conversations privées et groupes ; l'étudiant écrit à sa promotion, à ses formateurs et à l'administration ; le formateur crée des groupes (choix des membres ou toute une promotion) et les gère ; compteur de non-lus
+- **Messagerie** : conversations privées et groupes ; l'étudiant écrit à sa promotion, à ses formateurs et à l'administration ; le formateur crée des groupes (choix des membres ou toute une promotion) et les gère ; pièces jointes (5 fichiers de 10 Mo) et émoticônes ; compteur de non-lus
 - Administration : comptes, rôles, activation, candidatures, indicateurs
 
 ## Prérequis
