@@ -105,16 +105,22 @@ class MessagerieController extends Controller
         $user = $request->user();
         abort_unless($conversation->aParticipant($user), 403);
         $apres = (int) $request->query('apres', 0);
+        // Synchronisation : messages modifiés ou supprimés depuis la dernière interrogation
+        $majDepuis = $request->date('maj_depuis');
 
         $messages = $conversation->messages()->with(['auteur:id,prenom,nom', 'piecesJointes'])
-            ->when($apres > 0, fn ($q) => $q->where('id', '>', $apres))
+            ->when($apres > 0, fn ($q) => $q->where(fn ($w) => $w->where('id', '>', $apres)
+                ->when($majDepuis, fn ($o) => $o->orWhere('updated_at', '>', $majDepuis))))
             ->orderByDesc('id')->limit(100)->get()->reverse()->values();
 
-        if ($messages->isNotEmpty()) {
-            $this->service->marquerLu($conversation, $user, $messages->last()->id);
+        $dernier = $messages->max('id');
+        if ($dernier && $dernier > $apres) {
+            $this->service->marquerLu($conversation, $user, $dernier);
         }
+        $gestionnaire = $conversation->type === Conversation::GROUPE && $conversation->estGeree($user);
+        $messages->each->setRelation('conversation', $conversation);
 
-        return response()->json($messages->map(fn (Message $m) => $this->formatMessage($m, $user)));
+        return response()->json($messages->map(fn (Message $m) => $this->formatMessage($m, $user, $gestionnaire)));
     }
 
     public function envoyer(Request $request, Conversation $conversation)
@@ -137,6 +143,38 @@ class MessagerieController extends Controller
         $message = $this->service->envoyer($conversation, $user, $contenu, $fichiers);
 
         return response()->json($this->formatMessage($message->load(['auteur:id,prenom,nom', 'piecesJointes']), $user), 201);
+    }
+
+    /** Correction d'un message par son auteur (24 h après l'envoi au plus). */
+    public function modifier(Request $request, Message $message)
+    {
+        $user = $request->user();
+        abort_unless($message->conversation->aParticipant($user), 403);
+        abort_unless($message->auteur_id === $user->id, 403, 'Seul l\'auteur peut modifier ce message.');
+        abort_unless($message->peutEtreModifiePar($user), 422, 'Ce message ne peut plus être modifié.');
+
+        $donnees = $request->validate(['contenu' => ['required', 'string', 'max:2000']]);
+        $contenu = trim(strip_tags($donnees['contenu']));
+        abort_if($contenu === '', 422, 'Le message est vide.');
+
+        $this->service->modifier($message, $contenu);
+
+        return response()->json($this->formatMessage($message->load(['auteur:id,prenom,nom', 'piecesJointes']), $user));
+    }
+
+    /** Suppression par l'auteur, ou par un gestionnaire du groupe (modération). */
+    public function supprimer(Request $request, Message $message)
+    {
+        $user = $request->user();
+        $conversation = $message->conversation;
+        abort_unless($conversation->aParticipant($user), 403);
+        $moderation = $conversation->type === Conversation::GROUPE && $conversation->estGeree($user);
+        abort_unless($message->auteur_id === $user->id || $moderation, 403, 'Vous ne pouvez supprimer que vos propres messages.');
+        abort_if($message->estSupprime(), 422, 'Ce message est déjà supprimé.');
+
+        $this->service->supprimer($message);
+
+        return response()->json($this->formatMessage($message->load(['auteur:id,prenom,nom', 'piecesJointes']), $user));
     }
 
     /** Fichier joint : affiché dans le navigateur s'il s'agit d'une image ou d'un PDF, sinon téléchargé. */
@@ -181,14 +219,21 @@ class MessagerieController extends Controller
         ];
     }
 
-    private function formatMessage(Message $m, User $user): array
+    private function formatMessage(Message $m, User $user, ?bool $gestionnaire = null): array
     {
+        $gestionnaire ??= $m->auteur_id !== $user->id && $m->conversation->type === Conversation::GROUPE && $m->conversation->estGeree($user);
+
         return [
             'id' => $m->id,
             'contenu' => $m->contenu,
             'auteur' => ['id' => $m->auteur_id, 'nom' => $m->auteur?->nomComplet()],
             'moi' => $m->auteur_id === $user->id,
             'date' => $m->created_at->toIso8601String(),
+            'maj' => $m->updated_at->toIso8601String(),
+            'modifie' => $m->modifie_at !== null,
+            'supprime' => $m->estSupprime(),
+            'peut_modifier' => $m->peutEtreModifiePar($user),
+            'peut_supprimer' => ! $m->estSupprime() && ($m->auteur_id === $user->id || $gestionnaire),
             'pieces_jointes' => $m->piecesJointes->map(fn (PieceJointe $p) => [
                 'id' => $p->id, 'nom' => $p->nom_original, 'mime' => $p->mime, 'taille' => $p->taille, 'image' => $p->estImage(),
                 'url' => '/api/messagerie/pieces-jointes/'.$p->id,
