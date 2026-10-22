@@ -1,0 +1,11 @@
+# Fins de ligne normalisées : indispensable pour un dépôt travaillé sous Windows et exécuté sous Linux (Docker).
+* text=auto
+*.sh text eol=lf
+*.conf text eol=lf
+Dockerfile text eol=lf
+docker-compose.yml text eol=lf
+*.php text eol=lf
+*.json text eol=lf
+*.png binary
+*.ico binary
+*.pdf binary

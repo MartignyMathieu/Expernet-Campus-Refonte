@@ -1,0 +1,41 @@
+# Secrets et environnement
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Dépendances
+backend/vendor/
+frontend/node_modules/
+
+# Builds et caches
+frontend/.nuxt/
+frontend/.output/
+frontend/.data/
+backend/bootstrap/cache/*.php
+backend/storage/*.key
+backend/storage/app/private/*
+backend/storage/app/public/*
+backend/storage/framework/cache/data/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/storage/logs/*
+backend/public/storage
+backend/public/hot
+backend/.phpunit.result.cache
+backend/.phpunit.cache/
+
+# Bases locales et données
+*.sqlite
+*.sqlite-journal
+*.sql
+*.dump
+
+# Système / éditeurs
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
