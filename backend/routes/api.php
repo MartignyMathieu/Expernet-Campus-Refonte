@@ -69,6 +69,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/promotions/{promotion}/documents', [DocumentController::class, 'index'])->middleware('permission:documents.view');
         Route::post('/promotions/{promotion}/documents', [DocumentController::class, 'store'])->middleware('permission:documents.upload');
         Route::get('/documents/{document}/telechargement', [DocumentController::class, 'telecharger'])->middleware('permission:documents.view');
+        Route::get('/documents/{document}/apercu', [DocumentController::class, 'apercu'])->middleware('permission:documents.view');
 
         // Messagerie
         Route::prefix('messagerie')->middleware('permission:messagerie.use')->group(function () {

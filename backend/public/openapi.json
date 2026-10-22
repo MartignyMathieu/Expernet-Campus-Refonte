@@ -1302,6 +1302,52 @@
         ]
       }
     },
+    "/api/documents/{document}/apercu": {
+      "get": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Aperçu d'un document dans le portail (PDF et images en ligne, textes en texte brut)",
+        "responses": {
+          "200": {
+            "description": "Contenu du document affiché en ligne"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Format sans aperçu (Office, ZIP) : utiliser le téléchargement"
+          }
+        },
+        "description": "Permission RBAC requise : `documents.view`.",
+        "parameters": [
+          {
+            "name": "document",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant du document",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
     "/api/admin/tableau-de-bord": {
       "get": {
         "tags": [

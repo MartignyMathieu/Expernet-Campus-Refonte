@@ -33,7 +33,7 @@ watch(() => route.fullPath, majNonLus)
               <IconsIconBanane v-if="theme === 'banane'" :variante="e.icone as any" :taille="30" />
               <Icone v-else :nom="e.icone" :taille="22" :poids="actif(e.to) ? 'fill' : 'regular'" />
               <span>{{ e.libelle }}</span>
-              <span v-if="e.icone === 'messages' && nonLus" class="badge-nav" :aria-label="`${nonLus} message(s) non lu(s)`">{{ nonLus > 99 ? '99+' : nonLus }}</span>
+              <span v-if="e.icone === 'messages' && nonLus" :key="nonLus" class="badge-nav" :aria-label="`${nonLus} message(s) non lu(s)`">{{ nonLus > 99 ? '99+' : nonLus }}</span>
             </NuxtLink>
           </li>
         </ul>
@@ -80,6 +80,22 @@ ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .entree:hover { background: var(--gris-fond); }
 .entree { position: relative; }
 .badge-nav { margin-left: auto; background: var(--orange); color: var(--encre); font-size: .72rem; font-weight: 700; border-radius: 999px; min-width: 22px; height: 22px; display: grid; place-items: center; padding: 0 6px; }
+.badge-nav { animation: pulsation .45s ease; }
+.entree :deep(.icone), .entree :deep(.banane) { transition: transform .2s ease; }
+.entree:hover :deep(.icone) { transform: translateX(2px) scale(1.06); }
+.entree { transition: background .2s, color .2s, box-shadow .2s; }
+/* Contenu de l'espace : blocs échelonnés à chaque changement de page */
+.contenu > :deep(div) > * { animation: monter .5s cubic-bezier(.2,.7,.2,1) both; }
+.contenu > :deep(div) > :nth-child(2) { animation-delay: .06s; }
+.contenu > :deep(div) > :nth-child(3) { animation-delay: .12s; }
+.contenu > :deep(div) > :nth-child(4) { animation-delay: .18s; }
+.contenu > :deep(div) > :nth-child(n+5) { animation-delay: .24s; }
+.contenu :deep(.grille > .carte) { animation: monter .5s cubic-bezier(.2,.7,.2,1) both; }
+.contenu :deep(.grille > .carte:nth-child(2)) { animation-delay: .1s; }
+.contenu :deep(.grille > .carte:nth-child(3)) { animation-delay: .16s; }
+.contenu :deep(.grille > .carte:nth-child(n+4)) { animation-delay: .22s; }
+.menu-profil { transform-origin: top right; animation: deroule .16s ease-out; }
+@keyframes deroule { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: none; } }
 .entree.actif { background: #E1F3FB; color: var(--primaire-fonce); font-weight: 700; box-shadow: inset 4px 0 0 var(--primaire); }
 .theme-banane .entree:hover :deep(.banane) { transform: rotate(-14deg) scale(1.08); }
 .theme-banane .entree.actif { background: #FFEFC2; color: #5A4100; box-shadow: inset 4px 0 0 var(--jaune); }

@@ -56,6 +56,12 @@ function apercuLocal(f: File) {
   if (!vignettes.has(f)) vignettes.set(f, URL.createObjectURL(f))
   return vignettes.get(f)!
 }
+// Aperçu des images et PDF reçus, dans la même fenêtre que l'espace documentaire
+const piecesVisibles = computed(() => messages.value.flatMap((m: any) => (m.pieces_jointes || [])
+  .filter((p: any) => p.image || p.mime === 'application/pdf')
+  .map((p: any) => ({ id: p.id, titre: p.nom, nom: `${m.auteur.nom} · ${new Date(m.date).toLocaleDateString('fr-FR')}`, apercu: p.image ? 'image' : 'pdf', url: p.url, telechargement: `${p.url}?telechargement=1`, meta: taille(p.taille) }))))
+const pieceOuverte = ref<number | null>(null)
+function voir(p: any) { pieceOuverte.value = piecesVisibles.value.findIndex((x: any) => x.id === p.id) }
 // Un message composé uniquement de 1 à 3 émoticônes est affiché en grand.
 const emojiSeul = (t: string) => /^(?:\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*\s*){1,3}$/u.test(t.trim())
 
@@ -63,9 +69,12 @@ async function chargerConversations() {
   conversations.value = await api<any[]>('/api/messagerie/conversations')
   if (active.value) active.value = conversations.value.find((c) => c.id === active.value.id) || active.value
 }
+// Les messages arrivés après l'ouverture du fil sont animés (les anciens s'affichent directement).
+const dernierAffiche = ref(0)
 async function ouvrir(c: any) {
   active.value = c; messages.value = []; erreur.value = ''; fichiers.value = []
   messages.value = await api<any[]>(`/api/messagerie/conversations/${c.id}/messages`)
+  dernierAffiche.value = messages.value.at(-1)?.id || 0
   c.non_lus = 0
   await nextTick(); defiler(); zoneSaisie.value?.focus()
 }
@@ -185,7 +194,7 @@ async function retirer(id: number) {
             <span class="conv-texte">
               <span class="conv-ligne"><strong>{{ c.titre }}</strong><small v-if="c.dernier_message">{{ heure(c.dernier_message.date) }}</small></span>
               <span class="conv-ligne"><span class="extrait">{{ c.dernier_message ? `${c.dernier_message.auteur} : ${c.dernier_message.extrait}` : 'Nouvelle conversation' }}</span>
-                <span v-if="c.non_lus" class="badge" :aria-label="`${c.non_lus} non lu(s)`">{{ c.non_lus }}</span></span>
+                <span v-if="c.non_lus" :key="c.non_lus" class="badge" :aria-label="`${c.non_lus} non lu(s)`">{{ c.non_lus }}</span></span>
             </span>
           </button>
         </li>
@@ -204,18 +213,23 @@ async function retirer(id: number) {
           </div>
           <button v-if="active.type === 'groupe'" class="btn btn-secondaire petit" @click="ouvrirDialogue('membres')"><Icone nom="utilisateurs" :taille="18" /><span class="libelle-membres">Membres</span></button>
         </header>
-        <div ref="fil" class="fil" @dragover.prevent="survol = true" @dragleave.self="survol = false" @drop.prevent="deposer">
+        <div :key="active.id" ref="fil" class="fil" @dragover.prevent="survol = true" @dragleave.self="survol = false" @drop.prevent="deposer">
           <div v-if="survol" class="depot" aria-hidden="true"><Icone nom="trombone" :taille="32" />Déposez vos fichiers ici</div>
           <template v-for="(m, i) in messages" :key="m.id">
             <p v-if="i === 0 || jour(m.date) !== jour(messages[i - 1].date)" class="separateur"><span>{{ jour(m.date) }}</span></p>
-            <div class="bulle-ligne" :class="{ moi: m.moi }">
+            <div class="bulle-ligne" :class="{ moi: m.moi, arrivee: m.id > dernierAffiche }">
               <div class="bulle">
                 <span v-if="!m.moi && active.type === 'groupe'" class="auteur">{{ m.auteur.nom }}</span>
                 <p v-if="m.contenu" :class="{ 'emoji-seul': emojiSeul(m.contenu) }">{{ m.contenu }}</p>
                 <div v-if="m.pieces_jointes?.length" class="pj">
                   <template v-for="p in m.pieces_jointes" :key="p.id">
-                    <a v-if="p.image" :href="p.url" target="_blank" rel="noopener" class="pj-image" :title="`Ouvrir ${p.nom}`"><img :src="p.url" :alt="p.nom" loading="lazy"></a>
-                    <a v-else :href="p.mime === 'application/pdf' ? p.url : `${p.url}?telechargement=1`" target="_blank" rel="noopener" class="pj-fichier">
+                    <button v-if="p.image" type="button" class="pj-image" :aria-label="`Aperçu : ${p.nom}`" @click="voir(p)"><img :src="p.url" :alt="p.nom" loading="lazy"></button>
+                    <button v-else-if="p.mime === 'application/pdf'" type="button" class="pj-fichier" @click="voir(p)">
+                      <span class="pj-icone"><Icone nom="pdf" :taille="22" /></span>
+                      <span class="pj-texte"><strong>{{ p.nom }}</strong><small>{{ taille(p.taille) }} · aperçu</small></span>
+                      <Icone nom="oeil" :taille="18" />
+                    </button>
+                    <a v-else :href="`${p.url}?telechargement=1`" class="pj-fichier">
                       <span class="pj-icone"><Icone :nom="p.mime === 'application/pdf' ? 'pdf' : 'fichier'" :taille="22" /></span>
                       <span class="pj-texte"><strong>{{ p.nom }}</strong><small>{{ taille(p.taille) }}</small></span>
                       <Icone nom="telecharger" :taille="18" />
@@ -256,6 +270,8 @@ async function retirer(id: number) {
         <button class="btn btn-bleu" @click="ouvrirDialogue('message')"><Icone nom="ajouter" :taille="18" poids="bold" />Nouveau message</button>
       </div>
     </section>
+
+    <ApercuDocument v-model:index="pieceOuverte" :documents="piecesVisibles" />
 
     <!-- Dialogue : nouveau message / groupe / membres -->
     <dialog ref="dialogue" class="dialogue" aria-labelledby="titre-dialogue">
@@ -336,6 +352,12 @@ async function retirer(id: number) {
 .separateur { text-align: center; margin: 14px 0 8px; }
 .separateur span { background: #fff; border: 1px solid var(--gris-bord); color: var(--texte-doux); font-size: .76rem; padding: 3px 12px; border-radius: 999px; text-transform: capitalize; }
 .bulle-ligne { display: flex; }
+.fil { animation: fondu .25s ease; }
+.arrivee .bulle { animation: bulle .32s cubic-bezier(.2,.8,.3,1.2) both; transform-origin: bottom left; }
+.arrivee.moi .bulle { transform-origin: bottom right; }
+@keyframes bulle { from { opacity: 0; transform: translateY(10px) scale(.94); } to { opacity: 1; transform: none; } }
+.conv { transition: background .15s; }
+.badge { animation: pulsation .45s ease; }
 .bulle-ligne.moi { justify-content: flex-end; }
 .bulle { max-width: min(72%, 560px); background: #fff; border: 1px solid var(--gris-bord); border-radius: 16px 16px 16px 4px; padding: 10px 14px 6px; box-shadow: 0 1px 2px rgba(11,46,74,.05); }
 .moi .bulle { background: var(--primaire-fonce); border-color: var(--primaire-fonce); color: #fff; border-radius: 16px 16px 4px 16px; }
@@ -359,6 +381,10 @@ async function retirer(id: number) {
 .depot { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 120px; margin-bottom: 8px; border: 2px dashed var(--primaire); border-radius: 16px; background: rgba(225,243,251,.92); color: var(--primaire-fonce); font-weight: 700; pointer-events: none; }
 .emoji-seul { font-size: 2.4rem; line-height: 1.2; }
 .pj { display: grid; gap: 6px; margin: 6px 0 2px; }
+.pj-image { padding: 0; border: 0; background: none; cursor: zoom-in; border-radius: 10px; overflow: hidden; display: block; }
+.pj-image img { transition: transform .25s; }
+.pj-image:hover img { transform: scale(1.03); }
+button.pj-fichier { border: 0; font: inherit; cursor: pointer; text-align: left; width: 100%; }
 .pj-image img { max-width: min(280px, 100%); max-height: 240px; border-radius: 10px; object-fit: cover; display: block; }
 .pj-fichier { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; min-width: min(240px, 100%); padding: 8px 10px; border-radius: 10px; background: var(--gris-fond); color: var(--encre); text-decoration: none; }
 .moi .pj-fichier { background: rgba(255,255,255,.14); color: #fff; }

@@ -47,14 +47,14 @@ function choisirDomaine(slug: string) {
     </EntetePage>
 
     <section class="conteneur chiffres" aria-label="Expernet formation continue en chiffres">
-      <div v-for="c in data.chiffres" :key="c.libelle"><span class="chiffre">{{ c.valeur.toLocaleString('fr-FR') }}{{ c.suffixe || '' }}</span><span class="libelle-chiffre">{{ c.libelle }}</span></div>
+      <div v-for="c in data.chiffres" :key="c.libelle"><Compteur :valeur="c.valeur" :suffixe="c.suffixe || ''" /><span class="libelle-chiffre">{{ c.libelle }}</span></div>
     </section>
 
     <section class="conteneur bloc" aria-labelledby="t-parcours">
       <p class="sur-titre">Votre parcours de formation</p>
       <h2 id="t-parcours">Trois formats, selon votre besoin</h2>
       <div class="grille grille-3">
-        <div v-for="p in data.formats" :key="p.titre" class="carte format">
+        <div v-for="(p, i) in data.formats" :key="p.titre" v-apparition="i" class="carte format">
           <span class="format-icone"><Icone :nom="p.icone" :taille="28" poids="duotone" /></span>
           <h3>{{ p.titre }}</h3>
           <p>{{ p.texte }}</p>
@@ -66,7 +66,7 @@ function choisirDomaine(slug: string) {
       <p class="sur-titre">Inter-entreprises</p>
       <h2 id="t-sessions">Prochaines sessions</h2>
       <ul class="sessions">
-        <li v-for="s in prochaines" :key="s.slug">
+        <li v-for="(s, i) in prochaines" :key="s.slug" v-apparition="i % 3">
           <NuxtLink :to="`/formation-continue/${s.slug}`" class="session">
             <span class="date"><strong>{{ new Date(s.prochaine_session + 'T00:00:00').getDate() }}</strong>{{ new Date(s.prochaine_session + 'T00:00:00').toLocaleDateString('fr-FR', { month: 'short' }) }}</span>
             <span class="session-texte"><strong>{{ s.intitule }}</strong><small>{{ s.duree }} · {{ resumeTarif(s.tarifs) }}</small></span>
@@ -112,19 +112,19 @@ function choisirDomaine(slug: string) {
     </section>
 
     <section class="conteneur bloc infos" aria-label="Informations pratiques">
-      <div class="carte info">
+      <div v-apparition class="carte info">
         <span class="info-icone"><Icone nom="certification" :taille="26" /></span>
         <h3>Certifié Qualiopi</h3>
         <p>La certification qualité a été délivrée au titre des actions de formation et des actions de formation par apprentissage.</p>
         <p class="liens"><a :href="data.liens.certificat_qualiopi" target="_blank" rel="noopener">Certificat Qualiopi <Icone nom="externe" :taille="14" /></a>
           <a :href="data.liens.livret_accueil" target="_blank" rel="noopener">Livret d'accueil <Icone nom="externe" :taille="14" /></a></p>
       </div>
-      <div class="carte info">
+      <div v-apparition="1" class="carte info">
         <span class="info-icone"><Icone nom="adresse" :taille="26" /></span>
         <h3>Nos locaux</h3>
         <ul><li v-for="l in data.locaux" :key="l.ville"><strong>{{ l.ville }}</strong> — {{ l.adresse }}</li></ul>
       </div>
-      <div class="carte info">
+      <div v-apparition="2" class="carte info">
         <span class="info-icone"><Icone nom="accessibilite" :taille="26" /></span>
         <h3>Accessibilité et contact</h3>
         <p>{{ data.accessibilite }}</p>
@@ -137,7 +137,7 @@ function choisirDomaine(slug: string) {
 
 <style scoped>
 .cta-entete { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
-.chiffres { position: relative; z-index: 2; margin-top: -36px; display: grid; grid-template-columns: repeat(4, 1fr); background: #fff; border-radius: var(--rayon); box-shadow: var(--ombre-forte); overflow: hidden; }
+.chiffres { animation: monter .7s .2s cubic-bezier(.2,.7,.2,1) both; position: relative; z-index: 2; margin-top: -36px; display: grid; grid-template-columns: repeat(4, 1fr); background: #fff; border-radius: var(--rayon); box-shadow: var(--ombre-forte); overflow: hidden; }
 .chiffres > div { padding: 24px; display: grid; gap: 6px; border-right: 1px solid var(--gris-bord); }
 .chiffres > div:last-child { border-right: 0; }
 .chiffres .chiffre { color: var(--primaire-fonce); }
