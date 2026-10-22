@@ -15,7 +15,12 @@ mv .env.tmp .env
 [ -f vendor/autoload.php ] || composer install --no-interaction --prefer-dist
 
 # 3. Clé de chiffrement (une seule fois, conservée ensuite dans backend/.env)
-[ -n "$CLE" ] || php artisan key:generate --force
+if [ -z "$CLE" ]; then
+  php artisan key:generate --force
+  echo "ATTENTION : nouvelle APP_KEY générée. Si cette base contient déjà des comptes avec double authentification"
+  echo "(projet déplacé dans un autre dossier), recopiez l'ancienne ligne APP_KEY dans backend/.env, ou réinitialisez :"
+  echo "  docker compose exec backend php artisan mfa:reinitialiser <email>"
+fi
 
 # 4. Schéma et données
 php artisan migrate --force

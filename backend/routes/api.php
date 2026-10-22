@@ -39,6 +39,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::middleware('mfa')->group(function () {
         Route::get('/planning', [PlanningController::class, 'index'])->middleware('permission:planning.view');
+        Route::get('/planning/ics', [PlanningController::class, 'ics'])->middleware('permission:planning.view');
 
         // Émargement
         Route::post('/seances/{seance}/emargement/ouvrir', [EmargementController::class, 'ouvrir'])->middleware('permission:emargement.manage');
@@ -80,6 +81,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/conversations/{conversation}/messages', [MessagerieController::class, 'messages']);
             Route::post('/conversations/{conversation}/messages', [MessagerieController::class, 'envoyer'])->middleware('throttle:messages');
             Route::get('/pieces-jointes/{pieceJointe}', [MessagerieController::class, 'pieceJointe']);
+            Route::patch('/messages/{message}', [MessagerieController::class, 'modifier'])->middleware('throttle:messages');
+            Route::delete('/messages/{message}', [MessagerieController::class, 'supprimer']);
             Route::post('/groupes', [MessagerieController::class, 'creerGroupe'])->middleware('permission:messagerie.groupes');
             Route::patch('/groupes/{conversation}/membres', [MessagerieController::class, 'modifierMembres'])->middleware('permission:messagerie.groupes');
         });
@@ -90,6 +93,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/utilisateurs', [AdminController::class, 'utilisateurs']);
             Route::post('/utilisateurs', [AdminController::class, 'creerUtilisateur']);
             Route::patch('/utilisateurs/{user}', [AdminController::class, 'modifierUtilisateur']);
+            Route::post('/utilisateurs/{user}/mfa/reinitialiser', [AdminController::class, 'reinitialiserMfa']);
             Route::post('/seances', [AdminController::class, 'creerSeance']);
             Route::get('/candidatures', [CandidatureController::class, 'index']);
         });

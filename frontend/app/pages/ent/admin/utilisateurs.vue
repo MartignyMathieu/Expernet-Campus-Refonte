@@ -13,10 +13,18 @@ async function creer() {
 }
 async function basculer(u: any) { await csrf(); await api(`/api/admin/utilisateurs/${u.id}`, { method: 'PATCH', body: { actif: !u.actif } }); await refresh() }
 async function changerRole(u: any, role: string) { await csrf(); await api(`/api/admin/utilisateurs/${u.id}`, { method: 'PATCH', body: { role } }); await refresh() }
+// Réinitialisation de la MFA en deux clics (le premier demande confirmation)
+const aReinitialiser = ref<number | null>(null)
+async function reinitialiserMfa(u: any) {
+  if (aReinitialiser.value !== u.id) { aReinitialiser.value = u.id; return }
+  await csrf(); const r: any = await api(`/api/admin/utilisateurs/${u.id}/mfa/reinitialiser`, { method: 'POST' })
+  aReinitialiser.value = null; ok.value = `${u.prenom} ${u.nom} : ${r.message}`; await refresh()
+}
 </script>
 <template>
   <div>
     <h1>Utilisateurs & rôles</h1>
+    <p v-if="ok && ok !== 'Compte créé.'" class="message message-succes" role="status">{{ ok }}</p>
     <div class="grille deux">
       <div class="carte tableau-scroll">
         <table class="tableau">
@@ -31,7 +39,10 @@ async function changerRole(u: any, role: string) { await csrf(); await api(`/api
                   <option value="etudiant">Étudiant</option><option value="formateur">Formateur</option><option value="admin">Admin</option>
                 </select>
               </td>
-              <td><span class="pastille" :class="u.mfa ? 'pastille-verte' : ''">{{ u.mfa ? 'Active' : 'Inactive' }}</span></td>
+              <td class="mfa">
+                <span class="pastille" :class="u.mfa ? 'pastille-verte' : ''">{{ u.mfa ? 'Active' : 'Inactive' }}</span>
+                <button v-if="u.mfa && u.id !== moi?.id" class="lien-mfa" :class="{ confirmer: aReinitialiser === u.id }" :title="`Réinitialiser la double authentification de ${u.prenom}`" @click="reinitialiserMfa(u)">{{ aReinitialiser === u.id ? 'Confirmer ?' : 'Réinitialiser' }}</button>
+              </td>
               <td><button class="btn btn-secondaire petit" :disabled="u.id === moi?.id" @click="basculer(u)">{{ u.actif ? 'Désactiver' : 'Réactiver' }}</button></td>
             </tr>
           </tbody>
@@ -39,7 +50,7 @@ async function changerRole(u: any, role: string) { await csrf(); await api(`/api
       </div>
       <form class="carte" @submit.prevent="creer">
         <h2>Nouveau compte</h2>
-        <p v-if="ok" class="message message-succes" role="status">{{ ok }}</p>
+        <p v-if="ok === 'Compte créé.'" class="message message-succes" role="status">{{ ok }}</p>
         <div v-for="c in ['prenom', 'nom', 'email']" :key="c" class="champ">
           <label :for="'n-' + c">{{ { prenom: 'Prénom', nom: 'Nom', email: 'E-mail' }[c] }}</label>
           <input :id="'n-' + c" v-model="(form as any)[c]" :type="c === 'email' ? 'email' : 'text'" required :aria-invalid="!!erreurs[c]">
@@ -59,6 +70,9 @@ async function changerRole(u: any, role: string) { await csrf(); await api(`/api
 <style scoped>
 .deux { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); align-items: start; }
 .petit { min-height: 36px; padding: 6px 12px; }
+.mfa { white-space: nowrap; }
+.lien-mfa { margin-left: 6px; background: none; border: 0; padding: 0; font: inherit; font-size: .82rem; color: var(--primaire-texte); text-decoration: underline; cursor: pointer; }
+.lien-mfa.confirmer { color: var(--alerte); font-weight: 700; }
 select { font: inherit; padding: 6px; border-radius: 6px; }
 @media (max-width: 1240px) { .deux { grid-template-columns: minmax(0, 1fr); } }
 </style>

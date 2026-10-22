@@ -30,8 +30,8 @@ Projet du titre **Concepteur Développeur d'Applications (CDA)**. Refonte du sys
 - **Émargement numérique** par demi-journée : code à 6 chiffres, signature au doigt, horodatage, empreinte SHA-256 vérifiable, clôture automatique des absents, **attestation PDF**
 - **Tableau de bord formateur** (navigation à motifs de bananes ) : promotions suivies, taux d'assiduité, alertes d'absentéisme
 - **Examens** : planification des sessions, composition des jurys (un président), saisie des grilles de compétences
-- Planning, notes avec moyenne pondérée, espace documentaire par promotion avec **aperçu en ligne** (PDF, images, textes)
-- **Messagerie** : conversations privées et groupes ; l'étudiant écrit à sa promotion, à ses formateurs et à l'administration ; le formateur crée des groupes (choix des membres ou toute une promotion) et les gère ; pièces jointes (5 fichiers de 10 Mo) et émoticônes ; compteur de non-lus
+- **Planning** en vue agenda (semaine, mois, liste) avec export `.ics` vers Outlook ou Google Agenda ; notes avec moyenne pondérée, espace documentaire par promotion avec **aperçu en ligne** (PDF, images, textes)
+- **Messagerie** : conversations privées et groupes ; l'étudiant écrit à sa promotion, à ses formateurs et à l'administration ; le formateur crée des groupes (choix des membres ou toute une promotion) et les gère ; pièces jointes (5 fichiers de 10 Mo) et émoticônes ; modification (24 h) et suppression de ses messages, modération par le gestionnaire du groupe ; compteur de non-lus
 - Administration : comptes, rôles, activation, candidatures, indicateurs
 
 ## Prérequis
@@ -61,7 +61,7 @@ Le premier démarrage installe les dépendances, génère la clé, applique les 
 | http://localhost:8080/openapi.json | Spécification OpenAPI 3.0 |
 | http://localhost:8025 | Boîte mail de développement (Mailpit) |
 
-**Comptes de démonstration** (personnes fictives, mot de passe = `DEMO_PASSWORD`) : `admin@expernet.test`, `formateur@expernet.test`, `formatrice@expernet.test`, `etudiant@expernet.test`. À la première connexion d'un formateur ou d'un administrateur, l'activation de la MFA est demandée : scanner le QR code avec Google Authenticator ou Microsoft Authenticator.
+**Comptes de démonstration** (personnes fictives, mot de passe = `DEMO_PASSWORD`) : `admin@expernet.test`, `formateur@expernet.test`, `formatrice@expernet.test`, `etudiant@expernet.test`. À la première connexion d'un formateur ou d'un administrateur, l'activation de la MFA est demandée : scanner le QR code avec Google Authenticator ou Microsoft Authenticator. Tous les parcours (codes de secours, réinitialisation) : [docs/07](docs/07-connexions.md).
 
 ## Tests
 
@@ -124,6 +124,7 @@ npm run dev                  # http://localhost:3000 (relaie /api vers :8000)
 4. [Organisation du binôme et workflow Git](docs/04-organisation-binome.md)
 5. [Charte graphique](docs/05-charte-graphique.md)
 6. [Scénario de démonstration](docs/06-scenario-demo.md)
+7. [Types de connexion et double authentification](docs/07-connexions.md)
 
 ## Hypothèses à valider avec Expernet
 

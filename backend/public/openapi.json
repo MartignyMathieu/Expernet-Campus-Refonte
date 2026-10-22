@@ -338,6 +338,58 @@
         ]
       }
     },
+    "/api/planning/ics": {
+      "get": {
+        "tags": [
+          "Planning"
+        ],
+        "summary": "Export iCalendar (.ics) du planning, à importer dans Outlook, Google Agenda ou Apple Calendrier",
+        "responses": {
+          "200": {
+            "description": "Fichier text/calendar"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `planning.view`.",
+        "parameters": [
+          {
+            "name": "du",
+            "in": "query",
+            "required": false,
+            "description": "Date de début (AAAA-MM-JJ)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "au",
+            "in": "query",
+            "required": false,
+            "description": "Date de fin",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
     "/api/seances/{seance}/emargement/ouvrir": {
       "post": {
         "tags": [
@@ -1538,6 +1590,52 @@
         ]
       }
     },
+    "/api/admin/utilisateurs/{user}/mfa/reinitialiser": {
+      "post": {
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Réinitialiser la double authentification d'un compte (téléphone perdu, clé serveur changée)",
+        "description": "Permission RBAC requise : `users.manage`.",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MFA réinitialisée, redemandée à la prochaine connexion"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Impossible sur son propre compte"
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
     "/api/admin/seances": {
       "post": {
         "tags": [
@@ -1938,6 +2036,16 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "name": "maj_depuis",
+            "in": "query",
+            "required": false,
+            "description": "Inclure aussi les messages modifiés ou supprimés depuis cette date (ISO 8601)",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
           }
         ],
         "security": [
@@ -2088,6 +2196,132 @@
             "description": "Fichier introuvable"
           }
         }
+      }
+    },
+    "/api/messagerie/messages/{message}": {
+      "patch": {
+        "tags": [
+          "Messagerie"
+        ],
+        "summary": "Modifier son message (auteur, 24 h après l'envoi au plus)",
+        "responses": {
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "30 messages / minute"
+          },
+          "200": {
+            "description": "Message modifié"
+          }
+        },
+        "description": "Permission RBAC requise : `messagerie.use`.",
+        "parameters": [
+          {
+            "name": "message",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "contenu"
+                ],
+                "properties": {
+                  "contenu": {
+                    "type": "string",
+                    "maxLength": 2000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Messagerie"
+        ],
+        "summary": "Supprimer un message (auteur, ou gestionnaire du groupe) ; ses fichiers sont effacés",
+        "responses": {
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Message supprimé (il reste affiché « Message supprimé »)"
+          }
+        },
+        "description": "Permission RBAC requise : `messagerie.use`.",
+        "parameters": [
+          {
+            "name": "message",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
       }
     },
     "/api/messagerie/groupes": {
