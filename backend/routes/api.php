@@ -27,6 +27,7 @@ Route::get('/faq', [ContenuController::class, 'faq']);
 Route::get('/articles', [ContenuController::class, 'articles']);
 Route::get('/articles/{article}', [ContenuController::class, 'article']);
 Route::get('/formation-continue', [ContenuController::class, 'formationContinue']);
+Route::get('/formation-continue/{stage}', [ContenuController::class, 'stageFormationContinue']);
 Route::middleware('throttle:public-forms')->group(function () {
     Route::post('/candidatures', [CandidatureController::class, 'store']);
     Route::post('/contact', [CandidatureController::class, 'contact']);

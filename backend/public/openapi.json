@@ -1657,10 +1657,39 @@
         "tags": [
           "Contenus"
         ],
-        "summary": "Offre de formation continue : chiffres clés, domaines et stages",
+        "summary": "Catalogue de formation continue : organisme, formats, domaines et résumé des 149 stages",
         "responses": {
           "200": {
             "description": "Succès"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/formation-continue/{stage}": {
+      "get": {
+        "tags": [
+          "Contenus"
+        ],
+        "summary": "Fiche complète d'un stage (objectifs, prérequis, programme, modalités, tarifs)",
+        "parameters": [
+          {
+            "name": "stage",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant (slug) du stage",
+            "schema": {
+              "type": "string"
+            },
+            "example": "administration-windows-11"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "404": {
+            "description": "Stage inconnu"
           }
         },
         "security": []
