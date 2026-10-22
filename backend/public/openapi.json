@@ -338,6 +338,58 @@
         ]
       }
     },
+    "/api/planning/ics": {
+      "get": {
+        "tags": [
+          "Planning"
+        ],
+        "summary": "Export iCalendar (.ics) du planning, à importer dans Outlook, Google Agenda ou Apple Calendrier",
+        "responses": {
+          "200": {
+            "description": "Fichier text/calendar"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `planning.view`.",
+        "parameters": [
+          {
+            "name": "du",
+            "in": "query",
+            "required": false,
+            "description": "Date de début (AAAA-MM-JJ)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "au",
+            "in": "query",
+            "required": false,
+            "description": "Date de fin",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
     "/api/seances/{seance}/emargement/ouvrir": {
       "post": {
         "tags": [

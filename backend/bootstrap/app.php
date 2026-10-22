@@ -18,6 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Le front Nuxt est servi sur la même origine (Nginx) : authentification par cookie de session + CSRF.
         $middleware->statefulApi();
         $middleware->trustProxies(at: '*');
+        // Lien d'API ouvert sans session (téléchargement, export .ics) : réponse 401, pas de redirection vers une route inexistante.
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('api/*') ? null : '/connexion');
         $middleware->alias([
             'permission' => EnsurePermission::class,
             'mfa' => EnsureMfaEnrolled::class,

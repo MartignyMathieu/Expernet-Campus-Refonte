@@ -39,6 +39,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::middleware('mfa')->group(function () {
         Route::get('/planning', [PlanningController::class, 'index'])->middleware('permission:planning.view');
+        Route::get('/planning/ics', [PlanningController::class, 'ics'])->middleware('permission:planning.view');
 
         // Émargement
         Route::post('/seances/{seance}/emargement/ouvrir', [EmargementController::class, 'ouvrir'])->middleware('permission:emargement.manage');
