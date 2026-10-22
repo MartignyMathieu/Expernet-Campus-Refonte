@@ -1,0 +1,2913 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "API Expernet — Plateforme unifiée",
+    "version": "1.0.0",
+    "description": "API REST de la plateforme unifiée Expernet Campus : catalogue public, ENT (planning, émargement, assiduité, notes, examens, documents) et administration. Authentification par session Sanctum + double authentification TOTP (Fortify). Contrôle d'accès RBAC par permissions."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Docker local"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Catalogue"
+    },
+    {
+      "name": "Contenus"
+    },
+    {
+      "name": "Admission"
+    },
+    {
+      "name": "Authentification"
+    },
+    {
+      "name": "Identité"
+    },
+    {
+      "name": "Planning"
+    },
+    {
+      "name": "Émargement"
+    },
+    {
+      "name": "Assiduité"
+    },
+    {
+      "name": "Notes"
+    },
+    {
+      "name": "Examens"
+    },
+    {
+      "name": "Documents"
+    },
+    {
+      "name": "Messagerie"
+    },
+    {
+      "name": "Administration"
+    }
+  ],
+  "paths": {
+    "/api/formations": {
+      "get": {
+        "tags": [
+          "Catalogue"
+        ],
+        "summary": "Rechercher dans le catalogue (facettes)",
+        "responses": {
+          "200": {
+            "description": "Liste",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FormationResume"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "description": "Mot-clé",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filiere",
+            "in": "query",
+            "required": false,
+            "description": "Code filière (informatique, marketing)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "niveau",
+            "in": "query",
+            "required": false,
+            "description": "Niveau RNCP (5, 6, 7)",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "cpf",
+            "in": "query",
+            "required": false,
+            "description": "Uniquement les formations éligibles CPF",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "security": []
+      }
+    },
+    "/api/formations/facettes": {
+      "get": {
+        "tags": [
+          "Catalogue"
+        ],
+        "summary": "Valeurs disponibles pour les filtres",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/formations/{formation}": {
+      "get": {
+        "tags": [
+          "Catalogue"
+        ],
+        "summary": "Fiche détaillée d'une formation",
+        "responses": {
+          "200": {
+            "description": "Fiche",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/FormationDetail"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Introuvable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "formation",
+            "in": "path",
+            "required": true,
+            "description": "Slug de la formation",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": []
+      }
+    },
+    "/api/candidatures": {
+      "post": {
+        "tags": [
+          "Admission"
+        ],
+        "summary": "Déposer une candidature",
+        "responses": {
+          "201": {
+            "description": "Candidature enregistrée"
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (5/min/IP)"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Candidature"
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/contact": {
+      "post": {
+        "tags": [
+          "Admission"
+        ],
+        "summary": "Envoyer un message de contact",
+        "responses": {
+          "201": {
+            "description": "Message enregistré"
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Contact"
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/me": {
+      "get": {
+        "tags": [
+          "Identité"
+        ],
+        "summary": "Profil, rôle, permissions et état MFA de l'utilisateur connecté",
+        "responses": {
+          "200": {
+            "description": "Profil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Moi"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/planning": {
+      "get": {
+        "tags": [
+          "Planning"
+        ],
+        "summary": "Emploi du temps (étudiant : ses promotions ; formateur : ses séances)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `planning.view`.",
+        "parameters": [
+          {
+            "name": "du",
+            "in": "query",
+            "required": false,
+            "description": "Date de début (AAAA-MM-JJ)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "au",
+            "in": "query",
+            "required": false,
+            "description": "Date de fin",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/seances/{seance}/emargement/ouvrir": {
+      "post": {
+        "tags": [
+          "Émargement"
+        ],
+        "summary": "Ouvrir la fenêtre d'émargement (génère un code à 6 chiffres)",
+        "responses": {
+          "200": {
+            "description": "Code généré",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "482913"
+                    },
+                    "expire_at": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `emargement.manage`.",
+        "parameters": [
+          {
+            "name": "seance",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la séance",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/seances/{seance}/emargement/signer": {
+      "post": {
+        "tags": [
+          "Émargement"
+        ],
+        "summary": "Signer sa présence (code + signature PNG)",
+        "responses": {
+          "201": {
+            "description": "Présence enregistrée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preuve"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de tentatives"
+          }
+        },
+        "description": "Permission RBAC requise : `emargement.sign`.",
+        "parameters": [
+          {
+            "name": "seance",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la séance",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Signature"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/seances/{seance}/emargement/cloturer": {
+      "post": {
+        "tags": [
+          "Émargement"
+        ],
+        "summary": "Clôturer la séance (non-signataires = absents)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `emargement.manage`.",
+        "parameters": [
+          {
+            "name": "seance",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la séance",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/seances/{seance}/emargement": {
+      "get": {
+        "tags": [
+          "Émargement"
+        ],
+        "summary": "Feuille d'émargement de la séance",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `emargement.manage`.",
+        "parameters": [
+          {
+            "name": "seance",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la séance",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/emargements/{emargement}/verification": {
+      "get": {
+        "tags": [
+          "Émargement"
+        ],
+        "summary": "Vérifier l'intégrité d'une signature (recalcul SHA-256)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `planning.view`.",
+        "parameters": [
+          {
+            "name": "emargement",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de l'émargement",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/promotions/{promotion}/attestation": {
+      "get": {
+        "tags": [
+          "Émargement"
+        ],
+        "summary": "Attestation d'assiduité PDF de l'étudiant connecté",
+        "responses": {
+          "200": {
+            "description": "PDF",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `attestation.download`.",
+        "parameters": [
+          {
+            "name": "promotion",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la promotion",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/promotions/{promotion}/etudiants/{etudiant}/attestation": {
+      "get": {
+        "tags": [
+          "Émargement"
+        ],
+        "summary": "Attestation PDF d'un étudiant (administration)",
+        "responses": {
+          "200": {
+            "description": "PDF",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `users.manage`.",
+        "parameters": [
+          {
+            "name": "promotion",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la promotion",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "etudiant",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de l'étudiant",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/formateur/promotions": {
+      "get": {
+        "tags": [
+          "Assiduité"
+        ],
+        "summary": "Promotions suivies avec taux d'assiduité et alertes",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `assiduite.view`.",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/promotions/{promotion}/assiduite": {
+      "get": {
+        "tags": [
+          "Assiduité"
+        ],
+        "summary": "Tableau d'assiduité d'une promotion",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `assiduite.view`.",
+        "parameters": [
+          {
+            "name": "promotion",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la promotion",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/me/notes": {
+      "get": {
+        "tags": [
+          "Notes"
+        ],
+        "summary": "Notes de l'étudiant et moyenne pondérée",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `notes.view_own`.",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/notes": {
+      "post": {
+        "tags": [
+          "Notes"
+        ],
+        "summary": "Saisir une note (module enseigné à l'étudiant)",
+        "responses": {
+          "201": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `notes.manage`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Note"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/examens": {
+      "get": {
+        "tags": [
+          "Examens"
+        ],
+        "summary": "Sessions d'examen (admin : toutes ; formateur : ses jurys)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `examens.view`.",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Examens"
+        ],
+        "summary": "Planifier une session d'examen",
+        "responses": {
+          "201": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `examens.manage`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionExamen"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/examens/{session}/jury": {
+      "put": {
+        "tags": [
+          "Examens"
+        ],
+        "summary": "Composer le jury (1 président, ≥ 2 membres)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `examens.manage`.",
+        "parameters": [
+          {
+            "name": "session",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la session d'examen",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Jury"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/examens/{session}/grille": {
+      "get": {
+        "tags": [
+          "Examens"
+        ],
+        "summary": "Grille compétences × étudiants (membres du jury)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `competences.evaluate`.",
+        "parameters": [
+          {
+            "name": "session",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la session d'examen",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/examens/{session}/evaluations": {
+      "post": {
+        "tags": [
+          "Examens"
+        ],
+        "summary": "Saisir un niveau de compétence",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `competences.evaluate`.",
+        "parameters": [
+          {
+            "name": "session",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la session d'examen",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvaluationCompetence"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/promotions/{promotion}/documents": {
+      "get": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Documents de la promotion",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `documents.view`.",
+        "parameters": [
+          {
+            "name": "promotion",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la promotion",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Déposer un document (multipart, 10 Mo max)",
+        "responses": {
+          "201": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `documents.upload`.",
+        "parameters": [
+          {
+            "name": "promotion",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la promotion",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "titre",
+                  "fichier"
+                ],
+                "properties": {
+                  "titre": {
+                    "type": "string"
+                  },
+                  "module_id": {
+                    "type": "integer"
+                  },
+                  "fichier": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/documents/{document}/telechargement": {
+      "get": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Télécharger un document",
+        "responses": {
+          "200": {
+            "description": "Fichier",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `documents.view`.",
+        "parameters": [
+          {
+            "name": "document",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant du document",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/admin/tableau-de-bord": {
+      "get": {
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Indicateurs globaux",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `users.manage`.",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/admin/utilisateurs": {
+      "get": {
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Lister les comptes",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `users.manage`.",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Créer un compte",
+        "responses": {
+          "201": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `users.manage`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NouvelUtilisateur"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/admin/utilisateurs/{user}": {
+      "patch": {
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Changer le rôle ou activer/désactiver un compte",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `users.manage`.",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "admin",
+                      "formateur",
+                      "etudiant"
+                    ]
+                  },
+                  "actif": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/admin/seances": {
+      "post": {
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Créer une séance",
+        "responses": {
+          "201": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `users.manage`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Seance"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/admin/candidatures": {
+      "get": {
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Candidatures reçues",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `users.manage`.",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/faq": {
+      "get": {
+        "tags": [
+          "Contenus"
+        ],
+        "summary": "Questions fréquentes",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/articles": {
+      "get": {
+        "tags": [
+          "Contenus"
+        ],
+        "summary": "Articles du blog (paginés, 12 par page)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          }
+        },
+        "parameters": [
+          {
+            "name": "categorie",
+            "in": "query",
+            "required": false,
+            "description": "conseils, vie-du-campus, evenements, metiers",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "Page",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": []
+      }
+    },
+    "/api/articles/{article}": {
+      "get": {
+        "tags": [
+          "Contenus"
+        ],
+        "summary": "Article et suggestions de la même catégorie",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "404": {
+            "description": "Introuvable"
+          }
+        },
+        "parameters": [
+          {
+            "name": "article",
+            "in": "path",
+            "required": true,
+            "description": "Slug de l'article",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": []
+      }
+    },
+    "/api/formation-continue": {
+      "get": {
+        "tags": [
+          "Contenus"
+        ],
+        "summary": "Offre de formation continue : chiffres clés, domaines et stages",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/messagerie/contacts": {
+      "get": {
+        "tags": [
+          "Messagerie"
+        ],
+        "summary": "Personnes que l'utilisateur peut contacter (périmètre par rôle)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `messagerie.use`.",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/messagerie/non-lus": {
+      "get": {
+        "tags": [
+          "Messagerie"
+        ],
+        "summary": "Nombre total de messages non lus",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `messagerie.use`.",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/messagerie/conversations": {
+      "get": {
+        "tags": [
+          "Messagerie"
+        ],
+        "summary": "Conversations de l'utilisateur (dernier message, non-lus)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `messagerie.use`.",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Messagerie"
+        ],
+        "summary": "Ouvrir ou retrouver une conversation privée",
+        "responses": {
+          "201": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `messagerie.use`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "user_id"
+                ],
+                "properties": {
+                  "user_id": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/messagerie/conversations/{conversation}/messages": {
+      "get": {
+        "tags": [
+          "Messagerie"
+        ],
+        "summary": "Messages (100 derniers, ou ceux après ?apres=id) — marque comme lus",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `messagerie.use`.",
+        "parameters": [
+          {
+            "name": "conversation",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "apres",
+            "in": "query",
+            "required": false,
+            "description": "Identifiant du dernier message connu",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Messagerie"
+        ],
+        "summary": "Envoyer un message (texte brut, 2000 caractères max)",
+        "responses": {
+          "201": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "30 messages / minute"
+          }
+        },
+        "description": "Permission RBAC requise : `messagerie.use`.",
+        "parameters": [
+          {
+            "name": "conversation",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "contenu"
+                ],
+                "properties": {
+                  "contenu": {
+                    "type": "string",
+                    "maxLength": 2000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/messagerie/groupes": {
+      "post": {
+        "tags": [
+          "Messagerie"
+        ],
+        "summary": "Créer un groupe (membres choisis et/ou toute une promotion)",
+        "responses": {
+          "201": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `messagerie.groupes`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nom"
+                ],
+                "properties": {
+                  "nom": {
+                    "type": "string"
+                  },
+                  "membres": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "promotion_id": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/messagerie/groupes/{conversation}/membres": {
+      "patch": {
+        "tags": [
+          "Messagerie"
+        ],
+        "summary": "Ajouter / retirer des membres (gestionnaire du groupe)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `messagerie.groupes`.",
+        "parameters": [
+          {
+            "name": "conversation",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant du groupe",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ajouter": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "retirer": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Authentification"
+        ],
+        "summary": "Connexion (étape 1) — réponse two_factor=true si TOTP requis",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "two_factor": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "5 tentatives / minute"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/auth/two-factor-challenge": {
+      "post": {
+        "tags": [
+          "Authentification"
+        ],
+        "summary": "Connexion (étape 2) — code TOTP ou code de secours",
+        "responses": {
+          "204": {
+            "description": "Connecté"
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "example": "123456"
+                  },
+                  "recovery_code": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "Authentification"
+        ],
+        "summary": "Déconnexion",
+        "responses": {
+          "204": {
+            "description": "Déconnecté"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/auth/user/two-factor-authentication": {
+      "post": {
+        "tags": [
+          "Authentification"
+        ],
+        "summary": "Activer la MFA (génère le secret TOTP)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Authentification"
+        ],
+        "summary": "Désactiver la MFA",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/auth/user/two-factor-qr-code": {
+      "get": {
+        "tags": [
+          "Authentification"
+        ],
+        "summary": "QR code SVG à scanner",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/auth/user/confirmed-two-factor-authentication": {
+      "post": {
+        "tags": [
+          "Authentification"
+        ],
+        "summary": "Confirmer la MFA avec un premier code",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides ou règle métier violée",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/auth/user/two-factor-recovery-codes": {
+      "get": {
+        "tags": [
+          "Authentification"
+        ],
+        "summary": "Codes de secours",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Authentification"
+        ],
+        "summary": "Régénérer les codes de secours",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "cookieSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "expernet-ent-session",
+        "description": "Session Laravel Sanctum (cookie httpOnly). Les requêtes non-GET doivent porter l'en-tête X-XSRF-TOKEN (cookie XSRF-TOKEN obtenu via GET /sanctum/csrf-cookie)."
+      }
+    },
+    "schemas": {
+      "Erreur": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "example": "MFA_REQUIRED"
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "FormationResume": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "intitule": {
+            "type": "string"
+          },
+          "accroche": {
+            "type": "string"
+          },
+          "filiere": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "libelle": {
+                "type": "string"
+              }
+            }
+          },
+          "niveau_rncp": {
+            "type": "integer"
+          },
+          "niveau_libelle": {
+            "type": "string"
+          },
+          "code_rncp": {
+            "type": "string"
+          },
+          "eligible_cpf": {
+            "type": "boolean"
+          },
+          "rythme": {
+            "type": "string"
+          },
+          "prochaine_rentree": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "FormationDetail": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FormationResume"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "campus": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "objectifs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "prerequis": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "modalites": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "debouches": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Candidature": {
+        "type": "object",
+        "properties": {
+          "formation": {
+            "type": "string",
+            "description": "slug"
+          },
+          "prenom": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "telephone": {
+            "type": "string",
+            "example": "0692 12 34 56"
+          },
+          "message": {
+            "type": "string"
+          },
+          "consentement_rgpd": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "site_web": {
+            "type": "string",
+            "description": "Pot de miel : doit être absent"
+          }
+        },
+        "required": [
+          "formation",
+          "prenom",
+          "nom",
+          "email",
+          "consentement_rgpd"
+        ]
+      },
+      "Contact": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "sujet": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "consentement_rgpd": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "nom",
+          "email",
+          "sujet",
+          "message",
+          "consentement_rgpd"
+        ]
+      },
+      "Moi": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "prenom": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "formateur",
+              "etudiant"
+            ]
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "promotions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "libelle": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "mfa": {
+            "type": "object",
+            "properties": {
+              "active": {
+                "type": "boolean"
+              },
+              "obligatoire": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "Signature": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^\\d{6}$"
+          },
+          "signature": {
+            "type": "string",
+            "description": "data:image/png;base64,… (200 Ko max)"
+          }
+        },
+        "required": [
+          "code",
+          "signature"
+        ]
+      },
+      "Preuve": {
+        "type": "object",
+        "properties": {
+          "statut": {
+            "type": "string",
+            "example": "present"
+          },
+          "signe_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "empreinte": {
+            "type": "string",
+            "description": "SHA-256 (seance|etudiant|horodatage|hash image)"
+          }
+        }
+      },
+      "Note": {
+        "type": "object",
+        "properties": {
+          "module_id": {
+            "type": "integer"
+          },
+          "etudiant_id": {
+            "type": "integer"
+          },
+          "intitule": {
+            "type": "string"
+          },
+          "valeur": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 20
+          },
+          "coefficient": {
+            "type": "number"
+          },
+          "date_evaluation": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": [
+          "module_id",
+          "etudiant_id",
+          "intitule",
+          "valeur",
+          "date_evaluation"
+        ]
+      },
+      "SessionExamen": {
+        "type": "object",
+        "properties": {
+          "promotion_id": {
+            "type": "integer"
+          },
+          "intitule": {
+            "type": "string"
+          },
+          "debut": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fin": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lieu": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "promotion_id",
+          "intitule",
+          "debut",
+          "fin"
+        ]
+      },
+      "Jury": {
+        "type": "object",
+        "properties": {
+          "membres": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "integer"
+                },
+                "fonction": {
+                  "type": "string",
+                  "enum": [
+                    "president",
+                    "membre"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "membres"
+        ]
+      },
+      "EvaluationCompetence": {
+        "type": "object",
+        "properties": {
+          "etudiant_id": {
+            "type": "integer"
+          },
+          "competence_id": {
+            "type": "integer"
+          },
+          "niveau": {
+            "type": "string",
+            "enum": [
+              "non_acquis",
+              "en_cours",
+              "acquis",
+              "maitrise"
+            ]
+          },
+          "commentaire": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "etudiant_id",
+          "competence_id",
+          "niveau"
+        ]
+      },
+      "NouvelUtilisateur": {
+        "type": "object",
+        "properties": {
+          "prenom": {
+            "type": "string"
+          },
+          "nom": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "formateur",
+              "etudiant"
+            ]
+          },
+          "password": {
+            "type": "string",
+            "minLength": 12
+          }
+        },
+        "required": [
+          "prenom",
+          "nom",
+          "email",
+          "role",
+          "password"
+        ]
+      },
+      "Seance": {
+        "type": "object",
+        "properties": {
+          "promotion_id": {
+            "type": "integer"
+          },
+          "module_id": {
+            "type": "integer"
+          },
+          "formateur_id": {
+            "type": "integer"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "creneau": {
+            "type": "string",
+            "enum": [
+              "matin",
+              "apres_midi"
+            ]
+          },
+          "heure_debut": {
+            "type": "string",
+            "example": "08:30"
+          },
+          "heure_fin": {
+            "type": "string",
+            "example": "12:00"
+          },
+          "lieu": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "promotion_id",
+          "module_id",
+          "formateur_id",
+          "date",
+          "creneau",
+          "heure_debut",
+          "heure_fin"
+        ]
+      }
+    }
+  }
+}
