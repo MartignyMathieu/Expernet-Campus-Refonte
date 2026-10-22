@@ -115,7 +115,14 @@ function recommencer() {
 
 <style scoped>
 .disposition { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: var(--esp-5); align-items: start; margin-top: calc(-1 * var(--esp-5)); position: relative; z-index: 1; }
-.formulaire { padding: 32px; }
+.formulaire { padding: 32px; animation: monter .6s .15s cubic-bezier(.2,.7,.2,1) both; }
+.coordonnees > * { animation: monter .6s cubic-bezier(.2,.7,.2,1) both; }
+.coordonnees > :nth-child(1) { animation-delay: .2s; }
+.coordonnees > :nth-child(2) { animation-delay: .27s; }
+.coordonnees > :nth-child(3) { animation-delay: .34s; }
+.coordonnees > :nth-child(4) { animation-delay: .41s; }
+.confirmation { animation: monter .5s cubic-bezier(.2,.7,.2,1) both; }
+.confirmation-icone { animation: pulsation .6s .2s ease both; }
 .formulaire h2 { font-size: 1.45rem; margin-bottom: 4px; }
 .formulaire > form > .aide { margin: 0 0 20px; }
 .motifs { border: 0; padding: 0; margin: 0 0 20px; display: flex; flex-wrap: wrap; gap: 8px; }

@@ -78,7 +78,7 @@ const partenaires = [
         </div>
       </div>
       <div class="grille grille-3" role="tabpanel">
-        <CarteFormation v-for="f in liste" :key="f.slug" :f="f" />
+        <CarteFormation v-for="(f, i) in liste" :key="f.slug" v-apparition="i % 3" :f="f" />
       </div>
       <p class="voir-tout"><NuxtLink :to="`/formations?filiere=${onglet}`" class="btn btn-secondaire">Voir toutes les formations {{ onglet === 'informatique' ? 'informatique' : 'marketing digital' }} <Icone nom="suivant" :taille="18" /></NuxtLink></p>
     </section>
@@ -86,13 +86,13 @@ const partenaires = [
     <!-- PRÉSENTATION -->
     <section class="presentation">
       <div class="conteneur presentation-grille">
-        <div class="visuels">
+        <div v-apparition class="visuels">
           <img src="/images/campus/hero-blog.webp" alt="Apprenants et équipe pédagogique échangeant au campus Expernet" class="v1" loading="lazy" width="1920" height="547">
           <img src="/images/campus/presentation.webp" alt="" class="v2" loading="lazy" width="422" height="381">
           <img src="/images/brand/motif-carres.svg" alt="" class="motif" width="95" height="87">
         </div>
         <div>
-          <p class="sur-titre">Le campus</p>
+          <p v-apparition="1" class="sur-titre">Le campus</p>
           <h2>Le spécialiste de l'alternance dans les métiers du numérique</h2>
           <p>Le Campus EXPERNET est créé en 2017. Après être devenu un acteur local reconnu de la formation continue des salariés, il s'est spécialisé dans les <strong>formations en alternance</strong> aux métiers du numérique.</p>
           <p>Avec {{ nb('informatique') }} cursus en informatique et {{ nb('marketing') }} cursus en marketing digital, du BAC+2 au BAC+5, le campus accompagne une centaine d'apprenants par an pour les préparer aux métiers de demain et garantir leur employabilité.</p>
@@ -108,11 +108,11 @@ const partenaires = [
 
     <!-- FILIÈRES -->
     <section class="conteneur bloc filieres" aria-label="Filières">
-      <NuxtLink to="/formations?filiere=informatique" class="filiere">
+      <NuxtLink v-apparition to="/formations?filiere=informatique" class="filiere">
         <img src="/images/campus/filiere-informatique.webp" alt="" loading="lazy" width="1920" height="1280">
         <span class="filiere-texte"><span class="sur-titre clair">{{ nb('informatique') }} cursus</span><strong>Formations informatique</strong><span>Réseaux, développement, cybersécurité, pilotage de projets IT</span></span>
       </NuxtLink>
-      <NuxtLink to="/formations?filiere=marketing" class="filiere marketing">
+      <NuxtLink v-apparition="1" to="/formations?filiere=marketing" class="filiere marketing">
         <img src="/images/formations/bac2-graphiste-multimedia-ia.webp" alt="" loading="lazy" width="1438" height="694">
         <span class="filiere-texte"><span class="sur-titre clair">{{ nb('marketing') }} cursus</span><strong>Formations marketing digital</strong><span>Design graphique, IA, webmarketing, stratégie digitale</span></span>
       </NuxtLink>
@@ -124,7 +124,7 @@ const partenaires = [
         <p class="sur-titre centre">Nos partenaires</p>
         <h2 id="titre-partenaires" class="centre">Des titres délivrés avec des écoles reconnues</h2>
         <ul>
-          <li v-for="p in partenaires" :key="p.nom"><img :src="p.src" :alt="p.nom" loading="lazy"></li>
+          <li v-for="(p, i) in partenaires" :key="p.nom" v-apparition="i"><img :src="p.src" :alt="p.nom" loading="lazy"></li>
         </ul>
       </div>
     </section>
@@ -133,7 +133,7 @@ const partenaires = [
     <section class="conteneur bloc" aria-labelledby="titre-vie">
       <p class="sur-titre">La vie du campus</p>
       <h2 id="titre-vie">Apprendre ensemble, au Port</h2>
-      <div class="mosaique">
+      <div v-apparition class="mosaique">
         <img src="/images/campus/hero-marketing.webp" alt="Une promotion Expernet devant le campus" class="m1" loading="lazy">
         <img src="/images/campus/campus-reunion.webp" alt="Apprenante travaillant sur ordinateur portable" class="m2" loading="lazy">
         <img src="/images/campus/le-numerique-se-forme.webp" alt="Interview d'un apprenant Expernet" class="m3" loading="lazy">
@@ -143,7 +143,7 @@ const partenaires = [
 
     <!-- BANDEAU ENT -->
     <section class="conteneur bloc">
-      <div class="bandeau-ent">
+      <div v-apparition class="bandeau-ent">
         <img src="/images/brand/motif-carres.svg" alt="" class="motif-ent" width="95" height="87">
         <div>
           <p class="sur-titre clair">Espace numérique de travail</p>
@@ -162,6 +162,13 @@ const partenaires = [
 <style scoped>
 .hero { position: relative; min-height: min(640px, 88vh); display: flex; align-items: center; color: #fff; overflow: hidden; }
 .hero-contenu { position: relative; z-index: 1; padding: 72px 0 110px; }
+/* Entrée du hero : éléments échelonnés */
+.hero-contenu > * { animation: monter .7s cubic-bezier(.2,.7,.2,1) both; }
+.hero-contenu > :nth-child(2) { animation-delay: .08s; }
+.hero-contenu > :nth-child(3) { animation-delay: .16s; }
+.hero-contenu > :nth-child(4) { animation-delay: .24s; }
+.hero-contenu > :nth-child(5) { animation-delay: .32s; }
+.chiffres { animation: monter .7s .35s cubic-bezier(.2,.7,.2,1) both; }
 .sur-titre.clair { color: #9FDCF5; }
 .hero h1 { color: #fff; max-width: 14ch; text-shadow: 0 2px 30px rgba(0,0,0,.25); }
 .accent { color: var(--orange); }
@@ -170,7 +177,7 @@ const partenaires = [
 .recherche input { flex: 1; border: 0; font: inherit; padding: 10px 4px; min-width: 0; color: var(--encre); background: transparent; }
 .recherche input:focus { outline: none; }
 .raccourcis { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
-.raccourcis a { color: #fff; text-decoration: none; font-size: .88rem; font-weight: 500; padding: 6px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.45); background: rgba(255,255,255,.08); backdrop-filter: blur(4px); }
+.raccourcis a { color: #fff; text-decoration: none; font-size: .88rem; font-weight: 500; padding: 6px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.45); transition: background .15s; }
 .raccourcis a:hover { background: rgba(255,255,255,.2); }
 
 .chiffres { position: relative; z-index: 2; margin-top: -56px; display: grid; grid-template-columns: repeat(5, 1fr); background: #fff; border-radius: var(--rayon); box-shadow: var(--ombre-forte); overflow: hidden; }
@@ -204,7 +211,7 @@ const partenaires = [
 
 .filieres { display: grid; grid-template-columns: 1fr 1fr; gap: var(--esp-4); }
 .filiere { position: relative; display: block; border-radius: var(--rayon); overflow: hidden; min-height: 300px; color: #fff; text-decoration: none; box-shadow: var(--ombre); }
-.filiere img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
+.filiere img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .6s cubic-bezier(.2,.7,.2,1); }
 .filiere::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,70,110,.94) 0%, rgba(0,155,221,.35) 60%, rgba(0,155,221,.1) 100%); }
 .filiere.marketing::after { background: linear-gradient(0deg, rgba(110,62,0,.94) 0%, rgba(237,143,0,.35) 60%, rgba(237,143,0,.1) 100%); }
 .filiere:hover img { transform: scale(1.06); }
