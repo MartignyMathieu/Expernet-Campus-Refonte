@@ -82,7 +82,8 @@ async function soumettre() {
 .slogan { font-family: var(--police-titre); font-size: clamp(1.8rem, 3vw, 2.6rem); line-height: 1.2; margin: 0 0 28px; }
 .slogan strong { color: var(--jaune); }
 .atouts { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
-.atouts li { display: flex; gap: 12px; align-items: center; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); backdrop-filter: blur(6px); padding: 12px 16px; border-radius: 12px; max-width: 380px; }
+.atouts li { display: flex; gap: 14px; align-items: center; padding: 6px 0; max-width: 380px; }
+.atouts :deep(.icone) { color: var(--jaune); }
 .pied-visuel { font-size: .85rem; opacity: .8; margin: 0; }
 .panneau { display: grid; place-items: center; padding: var(--esp-5) var(--esp-3); background: #fff; min-width: 0; }
 .formulaire { width: 100%; max-width: 420px; min-width: 0; }
