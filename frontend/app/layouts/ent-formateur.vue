@@ -5,5 +5,6 @@
     { libelle: 'Mes séances', to: '/ent/formateur/planning', icone: 'planning' },
     { libelle: 'Assiduité', to: '/ent/formateur/assiduite', icone: 'assiduite' },
     { libelle: 'Jurys & compétences', to: '/ent/formateur/examens', icone: 'examens' },
+    { libelle: 'Documents', to: '/ent/formateur/documents', icone: 'documents' },
   ]"><slot /></EntShell>
 </template>
