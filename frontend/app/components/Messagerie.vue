@@ -247,8 +247,8 @@ async function retirer(id: number) {
 .extrait { color: var(--texte-doux); font-size: .86rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .nonlu .extrait { color: var(--encre); font-weight: 500; }
 .badge { background: var(--orange); color: var(--encre); font-weight: 700; font-size: .72rem; border-radius: 999px; min-width: 20px; height: 20px; display: grid; place-items: center; padding: 0 6px; flex-shrink: 0; }
-.avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, var(--primaire), var(--primaire-fonce)); color: #fff; font-weight: 700; font-size: .85rem; flex-shrink: 0; }
-.avatar.groupe { border-radius: 14px; background: linear-gradient(135deg, var(--orange), #F5B544); color: var(--encre); }
+.avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--primaire-fonce); color: #fff; font-weight: 700; font-size: .85rem; flex-shrink: 0; }
+.avatar.groupe { border-radius: 14px; background: var(--orange); color: var(--encre); }
 .avatar.petit { width: 34px; height: 34px; font-size: .75rem; }
 .discussion { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: linear-gradient(180deg, #F8FBFD, #F2F6F9); }
 .fil-tete { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: #fff; border-bottom: 1px solid var(--gris-bord); }
@@ -270,7 +270,7 @@ async function retirer(id: number) {
 .saisie { display: flex; gap: 10px; align-items: flex-end; padding: 12px 16px; background: #fff; border-top: 1px solid var(--gris-bord); flex-wrap: wrap; }
 .saisie .erreur { width: 100%; margin: 0; }
 .saisie textarea { flex: 1; resize: none; font: inherit; border: 1.5px solid #C6CFD8; border-radius: 14px; padding: 11px 14px; max-height: 160px; min-width: 0; }
-.saisie textarea:focus { outline: none; border-color: var(--primaire); box-shadow: 0 0 0 4px rgba(0,155,221,.14); }
+.saisie textarea:focus { outline: none; border-color: var(--primaire); box-shadow: inset 0 0 0 1px var(--primaire); }
 .envoyer { width: 48px; height: 48px; border-radius: 14px; border: 0; background: var(--orange); color: var(--encre); display: grid; place-items: center; cursor: pointer; flex-shrink: 0; }
 .envoyer:disabled { opacity: .45; cursor: not-allowed; }
 .accueil-fil { margin: auto; text-align: center; max-width: 420px; padding: 24px; display: grid; justify-items: center; gap: 10px; }
@@ -278,7 +278,7 @@ async function retirer(id: number) {
 .accueil-fil p { margin: 0 0 8px; color: var(--texte-doux); }
 .grande-icone { width: 84px; height: 84px; border-radius: 24px; display: grid; place-items: center; background: #E1F3FB; color: var(--primaire-fonce); }
 .dialogue { border: 0; border-radius: 18px; padding: 0 22px 0; width: min(480px, calc(100vw - 32px)); max-height: min(640px, calc(100vh - 40px)); box-shadow: var(--ombre-forte); }
-.dialogue::backdrop { background: rgba(8,32,52,.45); backdrop-filter: blur(2px); }
+.dialogue::backdrop { background: rgba(8,32,52,.45); }
 .dialogue-tete { display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: #fff; padding: 18px 0 12px; z-index: 1; }
 .dialogue-tete h2 { margin: 0; font-size: 1.2rem; }
 .dialogue .recherche { margin: 0 0 10px; }

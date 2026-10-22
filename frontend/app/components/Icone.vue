@@ -10,7 +10,7 @@ import {
   PhCaretDown, PhSignature, PhWarningCircle, PhDownloadSimple, PhList, PhX, PhPause, PhPlay, PhDesktop, PhTable, PhChartLine,
   PhKanban, PhMegaphone, PhCode, PhPenNib, PhCube, PhTerminalWindow, PhHardDrives, PhNetwork, PhBrain, PhUserPlus, PhStudent,
   PhChalkboardTeacher, PhBuildings, PhHandshake, PhLaptop, PhArrowUpRight, PhFilePdf, PhInfo, PhCaretRight, PhBookOpenText,
-  PhTimer, PhFingerprint, PhIdentificationBadge, PhUsersFour,
+  PhTimer, PhFingerprint, PhIdentificationBadge, PhUsersFour, PhUserCircle,
 } from '@phosphor-icons/vue'
 
 const props = withDefaults(defineProps<{ nom: string; taille?: number | string; poids?: 'thin' | 'light' | 'regular' | 'bold' | 'fill' | 'duotone'; libelle?: string }>(), { taille: 20, poids: 'regular' })
@@ -27,6 +27,7 @@ const icones: Record<string, any> = {
   'ajouter-membre': PhUserPlus, etudiant: PhStudent, formateur: PhChalkboardTeacher, entreprise: PhBuildings, partenaires: PhHandshake,
   ordinateur: PhLaptop, externe: PhArrowUpRight, pdf: PhFilePdf, info: PhInfo, chevron: PhCaretRight, lecture_article: PhBookOpenText,
   minuteur: PhTimer, empreinte: PhFingerprint, badge: PhIdentificationBadge, groupe: PhUsersFour, assiduite: PhChartLine,
+  utilisateur: PhUserCircle,
 }
 const composant = computed(() => icones[props.nom] || PhInfo)
 </script>

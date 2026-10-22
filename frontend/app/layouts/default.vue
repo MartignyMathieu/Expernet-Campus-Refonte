@@ -23,7 +23,7 @@ const marketing = [
 </script>
 
 <template>
-  <div>
+  <div class="site">
     <a href="#contenu" class="lien-evitement">Aller au contenu</a>
     <div class="barre-haute">
       <div class="conteneur ligne-haute">
@@ -45,7 +45,7 @@ const marketing = [
           <NuxtLink to="/faq">FAQ</NuxtLink>
           <NuxtLink to="/contact">Contact</NuxtLink>
           <span class="actions">
-            <NuxtLink to="/connexion" class="btn btn-secondaire">Espace ENT</NuxtLink>
+            <NuxtLink to="/connexion" class="btn btn-secondaire"><Icone nom="utilisateur" :taille="18" />Mon espace</NuxtLink>
             <NuxtLink to="/formations" class="btn btn-primaire">Candidater</NuxtLink>
           </span>
         </nav>
@@ -81,13 +81,15 @@ const marketing = [
       </div>
       <div class="conteneur legal">
         <p>© Expernet Campus {{ new Date().getFullYear() }} · Prototype pédagogique réalisé dans le cadre du titre CDA</p>
-        <p class="liens-legaux"><NuxtLink to="/formations">Formations</NuxtLink><NuxtLink to="/formation-continue">Formation continue</NuxtLink><NuxtLink to="/blog">Blog</NuxtLink><NuxtLink to="/faq">FAQ</NuxtLink><NuxtLink to="/contact">Contact</NuxtLink><NuxtLink to="/connexion">Espace ENT</NuxtLink><a href="/api/docs">API</a></p>
+        <p class="liens-legaux"><NuxtLink to="/formations">Formations</NuxtLink><NuxtLink to="/formation-continue">Formation continue</NuxtLink><NuxtLink to="/blog">Blog</NuxtLink><NuxtLink to="/faq">FAQ</NuxtLink><NuxtLink to="/contact">Contact</NuxtLink><NuxtLink to="/connexion">Mon espace</NuxtLink><a href="/api/docs">API</a></p>
       </div>
     </footer>
   </div>
 </template>
 
 <style scoped>
+.site { min-height: 100vh; display: flex; flex-direction: column; }
+.site > main { flex: 1; padding-bottom: var(--esp-6); }
 .barre-haute { background: var(--marine); color: #CFE3F1; font-size: .82rem; }
 .ligne-haute { display: flex; justify-content: space-between; gap: 16px; min-height: 36px; align-items: center; }
 .ligne-haute p { margin: 0; letter-spacing: .02em; }
@@ -105,7 +107,6 @@ nav > a:hover::after, nav > a.router-link-exact-active::after { transform: scale
 .actions { display: flex; gap: 10px; margin-left: 8px; }
 .burger { display: none; background: none; border: 0; font-size: 1.6rem; min-width: 44px; min-height: 44px; cursor: pointer; color: var(--encre); }
 .pied { background: var(--marine); color: #C9D8E4; padding: var(--esp-6) 0 var(--esp-3); position: relative; overflow: hidden; }
-.pied::before { content: ''; position: absolute; right: -60px; top: -60px; width: 260px; height: 240px; background: url('/images/brand/motif-carres.svg') no-repeat center / contain; opacity: .18; }
 .pied h2 { color: #fff; font-size: .95rem; text-transform: uppercase; letter-spacing: .08em; }
 .pied a { color: #fff; text-decoration: none; }
 .pied a:hover { text-decoration: underline; }

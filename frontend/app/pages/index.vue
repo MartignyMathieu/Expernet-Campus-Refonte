@@ -151,7 +151,7 @@ const partenaires = [
           <p>Planning, émargement, notes, documents et jurys réunis dans un seul espace sécurisé.</p>
         </div>
         <div class="boutons-ent">
-          <NuxtLink to="/connexion" class="btn btn-primaire">Accéder à mon ENT</NuxtLink>
+          <NuxtLink to="/connexion" class="btn btn-primaire">Accéder à mon espace</NuxtLink>
           <NuxtLink to="/contact" class="btn btn-contour-blanc">Nous contacter</NuxtLink>
         </div>
       </div>
@@ -178,7 +178,7 @@ const partenaires = [
 .chiffres > div:last-child { border-right: 0; }
 .chiffres .chiffre { color: var(--primaire-fonce); }
 .chiffres .ic { color: var(--primaire); }
-.chiffres .qualiopi { background: linear-gradient(135deg, var(--primaire), var(--primaire-fonce)); }
+.chiffres .qualiopi { background: var(--primaire-fonce); }
 .chiffres .qualiopi .libelle-chiffre, .chiffres .qualiopi :deep(.icone) { color: #fff; }
 
 .bloc { margin-top: var(--esp-6); }
@@ -187,8 +187,8 @@ const partenaires = [
 .onglets { display: inline-flex; background: var(--gris-fond); padding: 5px; border-radius: 999px; gap: 4px; }
 .onglets button { border: 0; background: transparent; font: inherit; font-weight: 700; padding: 10px 18px; border-radius: 999px; cursor: pointer; color: var(--texte-doux); display: flex; gap: 8px; align-items: center; }
 .onglets button span { background: #fff; border-radius: 999px; padding: 0 8px; font-size: .78rem; }
-.onglets button.actif { background: var(--primaire); color: #fff; box-shadow: 0 6px 16px rgba(0,155,221,.35); }
-.onglets button.actif.orange { background: var(--orange); color: var(--encre); box-shadow: 0 6px 16px rgba(237,143,0,.35); }
+.onglets button.actif { background: var(--primaire); color: #fff; }
+.onglets button.actif.orange { background: var(--orange); color: var(--encre); }
 .onglets button.actif span { color: var(--encre); }
 .voir-tout { text-align: center; margin-top: var(--esp-4); }
 
@@ -225,10 +225,10 @@ const partenaires = [
 .mosaique .m1 { grid-row: 1 / 3; }
 .mosaique .m4 { grid-column: 2 / 4; }
 
-.bandeau-ent { position: relative; overflow: hidden; display: flex; justify-content: space-between; align-items: center; gap: var(--esp-4); padding: 44px 48px; border-radius: 20px; color: #fff; background: radial-gradient(circle at 90% 10%, rgba(255,255,255,.12), transparent 40%), linear-gradient(120deg, var(--primaire-fonce), var(--primaire)); }
+.bandeau-ent { position: relative; overflow: hidden; display: flex; justify-content: space-between; align-items: center; gap: var(--esp-4); padding: 44px 48px; border-radius: 20px; color: #fff; background: var(--primaire-fonce); }
 .bandeau-ent h2 { color: #fff; margin-bottom: 8px; }
 .bandeau-ent p { margin: 0; color: #E3EEF6; }
-.motif-ent { position: absolute; right: 30%; top: -20px; width: 110px; opacity: .25; }
+.motif-ent { position: absolute; right: 30%; top: -20px; width: 110px; opacity: .14; }
 .boutons-ent { display: flex; gap: 12px; flex-wrap: wrap; position: relative; }
 
 @media (max-width: 960px) {

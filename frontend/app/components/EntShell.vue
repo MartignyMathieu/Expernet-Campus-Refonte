@@ -87,12 +87,12 @@ ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .aide-bloc p { margin: 0; }
 .aide-icone { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: #E1F3FB; color: var(--primaire-fonce); }
 .cadre { min-width: 0; display: flex; flex-direction: column; }
-.haut { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 40px; background: rgba(255,255,255,.85); backdrop-filter: blur(8px); border-bottom: 1px solid var(--gris-bord); position: sticky; top: 0; z-index: 20; }
+.haut { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 40px; background: #fff; border-bottom: 1px solid var(--gris-bord); position: sticky; top: 0; z-index: 20; }
 .date { margin: 0; color: var(--texte-doux); text-transform: capitalize; font-size: .9rem; }
 .profil { position: relative; }
 .chip { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--gris-bord); border-radius: 999px; padding: 5px 14px 5px 5px; cursor: pointer; font: inherit; color: var(--encre); }
-.avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, var(--primaire), var(--primaire-fonce)); color: #fff; font-weight: 700; font-size: .85rem; }
-.theme-banane .avatar { background: linear-gradient(135deg, var(--jaune), var(--orange)); color: var(--encre); }
+.avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--primaire-fonce); color: #fff; font-weight: 700; font-size: .85rem; }
+.theme-banane .avatar { background: var(--jaune); color: var(--encre); }
 .nom { display: grid; text-align: left; line-height: 1.2; }
 .nom small { color: var(--texte-doux); }
 .menu-profil { position: absolute; right: 0; top: calc(100% + 8px); background: #fff; border: 1px solid var(--gris-bord); border-radius: 12px; box-shadow: var(--ombre-forte); padding: 6px; display: grid; min-width: 220px; z-index: 30; }

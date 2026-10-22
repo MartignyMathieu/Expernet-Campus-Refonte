@@ -150,7 +150,7 @@ const sections = [['objectifs', 'Objectifs pédagogiques'], ['prerequis', 'Prér
 .ariane { font-size: .88rem; color: #CFE3F1; margin-bottom: 28px; }
 .ariane a { color: #fff; }
 .pastilles { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
-.pastilles .pastille { background: rgba(255,255,255,.16); color: #fff; backdrop-filter: blur(4px); }
+.pastilles .pastille { background: rgba(255,255,255,.16); color: #fff; }
 .pastilles .niveau { background: var(--primaire); }
 .marketing .pastilles .niveau { background: var(--orange); color: var(--encre); }
 .pastilles .pastille-jaune { background: var(--jaune); color: var(--encre); }
@@ -169,7 +169,7 @@ dt { display: flex; align-items: center; gap: 6px; font-weight: 500; color: var(
 dt :deep(.icone) { color: var(--primaire); }
 dd { margin: 0; color: var(--encre); }
 .candidature { margin-top: var(--esp-5); }
-.deux-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 var(--esp-3); }
+.deux-col { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 0 var(--esp-3); }
 .pot { position: absolute; left: -9999px; }
 @media (max-width: 860px) { .disposition, .deux-col { grid-template-columns: 1fr; } .infos { position: static; } }
 </style>
