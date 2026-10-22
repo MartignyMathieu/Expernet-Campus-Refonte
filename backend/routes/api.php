@@ -93,6 +93,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/utilisateurs', [AdminController::class, 'utilisateurs']);
             Route::post('/utilisateurs', [AdminController::class, 'creerUtilisateur']);
             Route::patch('/utilisateurs/{user}', [AdminController::class, 'modifierUtilisateur']);
+            Route::post('/utilisateurs/{user}/mfa/reinitialiser', [AdminController::class, 'reinitialiserMfa']);
             Route::post('/seances', [AdminController::class, 'creerSeance']);
             Route::get('/candidatures', [CandidatureController::class, 'index']);
         });

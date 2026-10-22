@@ -20,7 +20,8 @@ async function soumettre() {
     await navigateTo((route.query.retour as string) || accueilRole())
   } catch (e: any) {
     erreur.value = e?.status === 429 ? 'Trop de tentatives. Patientez une minute.'
-      : etape.value === 'mfa' ? 'Code invalide ou expiré.' : 'Identifiants incorrects.'
+      : e?.status === 409 && e?.data?.message ? e.data.message   // MFA illisible : l'administration doit la réinitialiser
+      : etape.value === 'mfa' ? 'Code invalide ou expiré (un même code ne sert qu\'une fois : attendez le suivant).' : 'Identifiants incorrects.'
   } finally { enCours.value = false }
 }
 </script>

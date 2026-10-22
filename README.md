@@ -61,7 +61,7 @@ Le premier démarrage installe les dépendances, génère la clé, applique les 
 | http://localhost:8080/openapi.json | Spécification OpenAPI 3.0 |
 | http://localhost:8025 | Boîte mail de développement (Mailpit) |
 
-**Comptes de démonstration** (personnes fictives, mot de passe = `DEMO_PASSWORD`) : `admin@expernet.test`, `formateur@expernet.test`, `formatrice@expernet.test`, `etudiant@expernet.test`. À la première connexion d'un formateur ou d'un administrateur, l'activation de la MFA est demandée : scanner le QR code avec Google Authenticator ou Microsoft Authenticator.
+**Comptes de démonstration** (personnes fictives, mot de passe = `DEMO_PASSWORD`) : `admin@expernet.test`, `formateur@expernet.test`, `formatrice@expernet.test`, `etudiant@expernet.test`. À la première connexion d'un formateur ou d'un administrateur, l'activation de la MFA est demandée : scanner le QR code avec Google Authenticator ou Microsoft Authenticator. Tous les parcours (codes de secours, réinitialisation) : [docs/07](docs/07-connexions.md).
 
 ## Tests
 
@@ -124,6 +124,7 @@ npm run dev                  # http://localhost:3000 (relaie /api vers :8000)
 4. [Organisation du binôme et workflow Git](docs/04-organisation-binome.md)
 5. [Charte graphique](docs/05-charte-graphique.md)
 6. [Scénario de démonstration](docs/06-scenario-demo.md)
+7. [Types de connexion et double authentification](docs/07-connexions.md)
 
 ## Hypothèses à valider avec Expernet
 
