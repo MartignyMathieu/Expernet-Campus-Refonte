@@ -19,9 +19,9 @@ const creneau = (c: string) => c === 'matin' ? 'Matin' : 'Après-midi'
           <JaugeAssiduite :taux="a.taux" :seuil="a.seuil" />
           <p class="aide">Seuil d'alerte : {{ a.seuil }} %. Les absences justifiées comptent comme des présences.</p>
         </div>
-        <div class="carte"><Icone nom="valide" :taille="26" poids="duotone" class="ic ok" /><span class="chiffre">{{ a.presences }}</span><p class="libelle-chiffre">demi-journée(s) présente(s)</p></div>
-        <div class="carte"><Icone nom="alerte" :taille="26" poids="duotone" class="ic ko" /><span class="chiffre">{{ a.absences }}</span><p class="libelle-chiffre">absence(s) non justifiée(s)</p></div>
-        <div class="carte"><Icone nom="documents" :taille="26" poids="duotone" class="ic" /><span class="chiffre">{{ a.excuses }}</span><p class="libelle-chiffre">absence(s) justifiée(s)</p></div>
+        <div class="carte"><Icone nom="valide" :taille="26" poids="duotone" class="ic ok" /><span class="chiffre">{{ a.presences }}</span><p class="libelle-chiffre">{{ pluriel(a.presences, 'demi-journée présente', 'demi-journées présentes') }}</p></div>
+        <div class="carte"><Icone nom="alerte" :taille="26" poids="duotone" class="ic ko" /><span class="chiffre">{{ a.absences }}</span><p class="libelle-chiffre">{{ pluriel(a.absences, 'absence non justifiée', 'absences non justifiées') }}</p></div>
+        <div class="carte"><Icone nom="documents" :taille="26" poids="duotone" class="ic" /><span class="chiffre">{{ a.excuses }}</span><p class="libelle-chiffre">{{ pluriel(a.excuses, 'absence justifiée', 'absences justifiées') }}</p></div>
       </div>
 
       <div class="grille deux">

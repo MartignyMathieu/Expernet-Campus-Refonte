@@ -7,7 +7,7 @@ if (error.value || !data.value) throw createError({ statusCode: 404, statusMessa
 
 const s = computed(() => data.value!.stage)
 useSeoMeta({
-  title: () => `${s.value.intitule} — formation continue`,
+  title: () => `${s.value.intitule} - formation continue`,
   description: () => `${s.value.intitule} (${s.value.duree}) : ${(s.value.objectifs[0] || 'formation professionnelle Expernet')}. À La Réunion et à Mayotte.`,
 })
 
@@ -27,7 +27,7 @@ function toutBasculer() { ouverts.value = toutOuvert.value ? new Set() : new Set
 
 // Une ligne commençant par « ## » dans une modalité est un intertitre.
 const intertitre = (l: string) => l.startsWith('## ')
-const devis = computed(() => `/contact?sujet=${encodeURIComponent(`Devis — ${s.value.intitule}`.slice(0, 150))}`)
+const devis = computed(() => `/contact?sujet=${encodeURIComponent(`Devis - ${s.value.intitule}`.slice(0, 150))}`)
 </script>
 
 <template>
@@ -35,9 +35,9 @@ const devis = computed(() => `/contact?sujet=${encodeURIComponent(`Devis — ${s
     <section class="bandeau">
       <img src="/images/campus/filiere-informatique.webp" alt="" width="1920" height="547">
       <div class="conteneur bandeau-contenu">
-        <nav class="ariane" aria-label="Fil d'Ariane"><NuxtLink to="/">Accueil</NuxtLink> / <NuxtLink to="/formation-continue">Formation continue</NuxtLink> / <NuxtLink :to="`/formation-continue?domaine=${s.domaine.slug}#catalogue`">{{ s.domaine.libelle.split(' — ')[0] }}</NuxtLink></nav>
+        <nav class="ariane" aria-label="Fil d'Ariane"><NuxtLink to="/">Accueil</NuxtLink> / <NuxtLink to="/formation-continue">Formation continue</NuxtLink> / <NuxtLink :to="`/formation-continue?domaine=${s.domaine.slug}#catalogue`">{{ s.domaine.libelle.split(' - ')[0] }}</NuxtLink></nav>
         <p class="pastilles">
-          <span class="pastille niveau"><Icone :nom="s.domaine.icone" :taille="14" />{{ s.domaine.libelle.split(' — ')[0] }}</span>
+          <span class="pastille niveau"><Icone :nom="s.domaine.icone" :taille="14" />{{ s.domaine.libelle.split(' - ')[0] }}</span>
           <span v-if="s.sous_theme" class="pastille">{{ s.sous_theme }}</span>
           <span class="pastille"><Icone nom="horloge" :taille="14" />{{ s.duree }}</span>
           <span v-if="sessionAVenir(s.prochaine_session)" class="pastille pastille-jaune">Session le {{ dateCourte(s.prochaine_session) }}</span>

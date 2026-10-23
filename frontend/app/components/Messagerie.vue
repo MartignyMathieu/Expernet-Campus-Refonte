@@ -262,7 +262,7 @@ async function retirer(id: number) {
             <span class="conv-texte">
               <span class="conv-ligne"><strong>{{ c.titre }}</strong><small v-if="c.dernier_message">{{ heure(c.dernier_message.date) }}</small></span>
               <span class="conv-ligne"><span class="extrait">{{ c.dernier_message ? `${c.dernier_message.auteur} : ${c.dernier_message.extrait}` : 'Nouvelle conversation' }}</span>
-                <span v-if="c.non_lus" :key="c.non_lus" class="badge" :aria-label="`${c.non_lus} non lu(s)`">{{ c.non_lus }}</span></span>
+                <span v-if="c.non_lus" :key="c.non_lus" class="badge" :aria-label="`${c.non_lus} ${pluriel(c.non_lus, 'non lu', 'non lus')}`">{{ c.non_lus }}</span></span>
             </span>
           </button>
         </li>
@@ -370,10 +370,10 @@ async function retirer(id: number) {
       <p v-if="erreurDialogue" class="message message-erreur" role="alert">{{ erreurDialogue }}</p>
 
       <template v-if="mode === 'groupe'">
-        <div class="champ"><label for="g-nom">Nom du groupe</label><input id="g-nom" v-model="groupe.nom" maxlength="100" placeholder="ex. Projet fil rouge — équipe 2"></div>
+        <div class="champ"><label for="g-nom">Nom du groupe</label><input id="g-nom" v-model="groupe.nom" maxlength="100" placeholder="ex. Projet fil rouge - équipe 2"></div>
         <div v-if="user?.promotions.length" class="champ">
           <label for="g-promo">Ajouter toute une promotion (facultatif)</label>
-          <select id="g-promo" v-model="groupe.promotion"><option :value="null">— Aucune —</option><option v-for="p in user?.promotions" :key="p.id" :value="p.id">{{ p.libelle }}</option></select>
+          <select id="g-promo" v-model="groupe.promotion"><option :value="null">- Aucune -</option><option v-for="p in user?.promotions" :key="p.id" :value="p.id">{{ p.libelle }}</option></select>
         </div>
       </template>
       <template v-if="mode === 'membres' && active">
@@ -398,7 +398,7 @@ async function retirer(id: number) {
           </li>
         </ul>
         <button v-if="mode === 'groupe'" class="btn btn-primaire plein" :disabled="groupe.nom.trim().length < 2 || (!groupe.membres.length && !groupe.promotion)" @click="creerGroupe">Créer le groupe</button>
-        <button v-if="mode === 'membres'" class="btn btn-primaire plein" :disabled="!groupe.membres.length" @click="ajouterMembres">Ajouter {{ groupe.membres.length || '' }} membre(s)</button>
+        <button v-if="mode === 'membres'" class="btn btn-primaire plein" :disabled="!groupe.membres.length" @click="ajouterMembres">{{ groupe.membres.length ? `Ajouter ${nombre(groupe.membres.length, 'membre')}` : 'Ajouter des membres' }}</button>
       </template>
     </dialog>
   </div>

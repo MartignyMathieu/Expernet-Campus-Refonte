@@ -37,8 +37,8 @@ const date = (d: string) => new Date(d).toLocaleDateString('fr-FR', { weekday: '
     </div>
 
     <section v-for="p in data" :key="p.promotion.id" class="carte bloc">
-      <h2>{{ p.promotion.libelle }} <span class="aide">— {{ p.formation }}</span></h2>
-      <p>Taux moyen : <strong>{{ p.taux_moyen ?? '—' }} %</strong> · seuil d'alerte : {{ p.seuil }} % · <span class="aide">cliquez sur un apprenant pour justifier ses absences</span></p>
+      <h2>{{ p.promotion.libelle }} <span class="aide">- {{ p.formation }}</span></h2>
+      <p>Taux moyen : <strong>{{ p.taux_moyen ?? '-' }} %</strong> · seuil d'alerte : {{ p.seuil }} % · <span class="aide">cliquez sur un apprenant pour justifier ses absences</span></p>
 
       <div v-if="vue === 'tableau'" class="tableau-scroll">
         <table class="tableau">
@@ -59,7 +59,7 @@ const date = (d: string) => new Date(d).toLocaleDateString('fr-FR', { weekday: '
           <button class="vignette-apprenant" :class="{ alerte: e.alerte }" @click="ouvrir(p.promotion.id, e.id)">
             <Avatar :url="e.avatar_url" :nom="e.nom" :taille="84" />
             <strong>{{ e.nom }}</strong>
-            <span class="pastille" :class="e.alerte ? 'pastille-rouge' : 'pastille-verte'">{{ e.taux ?? '—' }}{{ e.taux !== null ? ' %' : '' }}</span>
+            <span class="pastille" :class="e.alerte ? 'pastille-rouge' : 'pastille-verte'">{{ e.taux ?? '-' }}{{ e.taux !== null ? ' %' : '' }}</span>
           </button>
         </li>
       </ul>
@@ -79,7 +79,7 @@ const date = (d: string) => new Date(d).toLocaleDateString('fr-FR', { weekday: '
           </div>
         </div>
         <JaugeAssiduite :taux="fiche.taux" :seuil="fiche.seuil" />
-        <p class="aide">{{ fiche.presences }} présence(s) · {{ fiche.absences }} absence(s) · {{ fiche.excuses }} justifiée(s)</p>
+        <p class="aide">{{ nombre(fiche.presences, 'présence') }} · {{ nombre(fiche.absences, 'absence') }} · {{ nombre(fiche.excuses, 'justifiée') }}</p>
         <p v-if="erreur" class="message message-erreur" role="alert">{{ erreur }}</p>
         <h3>Demi-journées manquées</h3>
         <p v-if="!fiche.detail_absences.length" class="vide">Aucune absence.</p>

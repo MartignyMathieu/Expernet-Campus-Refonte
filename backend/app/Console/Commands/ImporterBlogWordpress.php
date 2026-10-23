@@ -58,7 +58,7 @@ class ImporterBlogWordpress extends Command
             }
         }
 
-        $this->info("$importes article(s) importé(s) depuis $site.");
+        $this->info($importes.($importes > 1 ? ' articles importés' : ' article importé')." depuis $site.");
 
         return self::SUCCESS;
     }

@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "API Expernet — Plateforme unifiée",
+    "title": "API Expernet - Plateforme unifiée",
     "version": "1.0.0",
     "description": "API REST de la plateforme unifiée Expernet Campus : catalogue public, ENT (planning, émargement, assiduité, notes, examens, documents) et administration. Authentification par session Sanctum + double authentification TOTP (Fortify). Contrôle d'accès RBAC par permissions."
   },
@@ -2364,6 +2364,48 @@
         "security": []
       }
     },
+    "/api/formation-continue/a-propos": {
+      "get": {
+        "tags": [
+          "Contenus"
+        ],
+        "summary": "Formation continue : présentation, histoire, équipe, certification et locaux de l'organisme",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/formation-continue/actualites": {
+      "get": {
+        "tags": [
+          "Contenus"
+        ],
+        "summary": "Formation continue : actualités de l'organisme (reprises de expernet.re, lien vers l'article d'origine)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/formation-continue/planning": {
+      "get": {
+        "tags": [
+          "Contenus"
+        ],
+        "summary": "Formation continue : planning des prochaines sessions inter-entreprises",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          }
+        },
+        "security": []
+      }
+    },
     "/api/formation-continue/{stage}": {
       "get": {
         "tags": [
@@ -2552,7 +2594,7 @@
         "tags": [
           "Messagerie"
         ],
-        "summary": "Messages (100 derniers, ou ceux après ?apres=id) — marque comme lus",
+        "summary": "Messages (100 derniers, ou ceux après ?apres=id) - marque comme lus",
         "responses": {
           "200": {
             "description": "Succès"
@@ -3029,7 +3071,7 @@
         "tags": [
           "Authentification"
         ],
-        "summary": "Connexion (étape 1) — réponse two_factor=true si TOTP requis",
+        "summary": "Connexion (étape 1) - réponse two_factor=true si TOTP requis",
         "responses": {
           "200": {
             "description": "OK",
@@ -3091,7 +3133,7 @@
         "tags": [
           "Authentification"
         ],
-        "summary": "Connexion (étape 2) — code TOTP ou code de secours",
+        "summary": "Connexion (étape 2) - code TOTP ou code de secours",
         "responses": {
           "204": {
             "description": "Connecté"

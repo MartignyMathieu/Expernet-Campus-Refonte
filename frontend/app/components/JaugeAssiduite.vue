@@ -5,7 +5,7 @@ const couleur = computed(() => props.taux === null ? '#C9CED4' : props.taux < pr
 <template>
   <div class="jauge" role="meter" :aria-valuenow="taux ?? 0" aria-valuemin="0" aria-valuemax="100" :aria-label="`Taux d'assiduité ${taux ?? 'non calculé'} %`">
     <div class="barre"><div class="rempli" :style="{ width: (taux ?? 0) + '%', background: couleur }" /><div class="seuil" :style="{ left: seuil + '%' }" /></div>
-    <span class="valeur">{{ taux === null ? '—' : taux + ' %' }}</span>
+    <span class="valeur">{{ taux === null ? '-' : taux + ' %' }}</span>
   </div>
 </template>
 <style scoped>

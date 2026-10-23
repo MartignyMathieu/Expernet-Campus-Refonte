@@ -24,7 +24,7 @@ const tuiles = computed(() => s.value ? [
       <div v-for="p in promos" :key="p.promotion.id" class="ligne">
         <span>{{ p.promotion.libelle }}</span>
         <JaugeAssiduite :taux="p.taux_moyen" :seuil="p.seuil" />
-        <span class="pastille" :class="p.alertes.length ? 'pastille-rouge' : 'pastille-verte'">{{ p.alertes.length }} alerte(s)</span>
+        <span class="pastille" :class="p.alertes.length ? 'pastille-rouge' : 'pastille-verte'">{{ nombre(p.alertes.length, 'alerte') }}</span>
       </div>
     </section>
   </div>

@@ -77,7 +77,7 @@ const libelleVide = computed(() => props.recherche ? 'Aucun document ne correspo
         <span v-else><strong>Glissez un fichier ici</strong> ou cliquez pour parcourir<br><small>PDF, Office, OpenDocument, ZIP, images, texte · 10 Mo max</small></span>
       </label>
       <div class="depot">
-        <div class="champ"><label :for="`titre-${espace.code}`">Titre</label><input :id="`titre-${espace.code}`" v-model="titre" required maxlength="150" :placeholder="estRendu ? 'Ex. : TP 2 — Modélisation' : 'Ex. : Support séance 4'"></div>
+        <div class="champ"><label :for="`titre-${espace.code}`">Titre</label><input :id="`titre-${espace.code}`" v-model="titre" required maxlength="150" :placeholder="estRendu ? 'Ex. : TP 2 - Modélisation' : 'Ex. : Support séance 4'"></div>
         <div class="champ"><label :for="`desc-${espace.code}`">{{ estRendu ? 'Message pour le formateur' : 'Description' }} <span class="aide">(facultatif)</span></label><input :id="`desc-${espace.code}`" v-model="description" maxlength="500"></div>
       </div>
       <button class="btn btn-primaire" :disabled="envoi"><span v-if="envoi" class="chargement" aria-hidden="true" />{{ estRendu ? 'Déposer' : 'Publier' }}</button>

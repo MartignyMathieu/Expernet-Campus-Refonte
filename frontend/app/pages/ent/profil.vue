@@ -1,11 +1,13 @@
 <script setup lang="ts">
-// Mon profil : photo, coordonnées, mot de passe, et un résumé propre à chaque rôle.
+// Mon profil : photo, coordonnées, mot de passe, sécurité du compte (MFA) et un résumé propre à chaque rôle.
 definePageMeta({ layout: false, middleware: 'auth' })
 useSeoMeta({ title: 'Mon profil' })
 const { user, charger, peut } = useAuth()
 const api = useApi()
 const layout = computed(() => ({ admin: 'ent-admin', formateur: 'ent-formateur', etudiant: 'ent-etudiant' }[user.value?.role || 'etudiant']))
 const libelleRole = computed(() => ({ admin: 'Administrateur', formateur: 'Formateur', etudiant: 'Apprenant' } as any)[user.value?.role || ''] || '')
+// Double authentification obligatoire mais pas encore activée : seule la carte Sécurité est utilisable
+const mfaBloquant = computed(() => !!(user.value?.mfa.obligatoire && !user.value?.mfa.active))
 const nomComplet = computed(() => `${user.value?.prenom || ''} ${user.value?.nom || ''}`.trim())
 
 // ---------- Photo ----------
@@ -75,18 +77,18 @@ async function changerMdp() {
 }
 
 // ---------- Résumé par rôle ----------
-const { data: assiduite } = await useAsyncData('profil-assiduite', () => peut('emargement.sign') ? api<any[]>('/api/me/assiduite') : Promise.resolve([]))
-const { data: promosSuivies } = await useAsyncData('profil-promos', () => user.value?.role === 'formateur' ? api<any[]>('/api/formateur/promotions') : Promise.resolve([]))
-const dateFr = (d?: string | null) => d ? new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'
+const { data: assiduite } = await useAsyncData('profil-assiduite', () => !mfaBloquant.value && peut('emargement.sign') ? api<any[]>('/api/me/assiduite') : Promise.resolve([]))
+const { data: promosSuivies } = await useAsyncData('profil-promos', () => !mfaBloquant.value && user.value?.role === 'formateur' ? api<any[]>('/api/formateur/promotions') : Promise.resolve([]))
+const dateFr = (d?: string | null) => d ? new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'
 </script>
 
 <template>
   <NuxtLayout :name="layout">
     <h1>Mon profil</h1>
 
-    <div class="profil-grille">
+    <div class="profil-grille" :class="{ bloquant: mfaBloquant }">
       <!-- Carte d'identité -->
-      <section class="carte identite" aria-labelledby="t-identite">
+      <section v-if="!mfaBloquant" class="carte identite" aria-labelledby="t-identite">
         <h2 id="t-identite" class="sr-only">Identité</h2>
         <div class="photo-zone" :class="{ survol }" @dragover.prevent="survol = true" @dragleave="survol = false" @drop.prevent="deposerFichier">
           <img v-if="apercuLocal" :src="apercuLocal" alt="Aperçu de la nouvelle photo" class="grande">
@@ -116,36 +118,36 @@ const dateFr = (d?: string | null) => d ? new Date(d).toLocaleDateString('fr-FR'
           <div><dt><Icone nom="session" :taille="18" /> Membre depuis</dt><dd>{{ dateFr(user?.membre_depuis) }}</dd></div>
           <div><dt><Icone nom="securite" :taille="18" /> Double authentification</dt>
             <dd><span class="pastille" :class="user?.mfa.active ? 'pastille-verte' : 'pastille-rouge'">{{ user?.mfa.active ? 'Active' : 'Inactive' }}</span>
-              <NuxtLink to="/ent/securite" class="lien-discret">Gérer</NuxtLink></dd></div>
+              <a href="#securite" class="lien-discret">Gérer</a></dd></div>
         </dl>
       </section>
 
       <div class="colonne">
         <!-- Résumé selon le rôle -->
-        <section v-if="assiduite?.length" class="carte" aria-labelledby="t-assiduite">
+        <section v-if="!mfaBloquant && assiduite?.length" class="carte" aria-labelledby="t-assiduite">
           <h2 id="t-assiduite">Mon assiduité</h2>
           <div v-for="a in assiduite" :key="a.promotion.id" class="resume">
             <JaugeAssiduite :taux="a.taux" :seuil="a.seuil" />
             <ul class="compteurs">
-              <li><strong>{{ a.presences }}</strong> présence(s)</li>
-              <li><strong>{{ a.absences }}</strong> absence(s)</li>
-              <li><strong>{{ a.excuses }}</strong> excusée(s)</li>
+              <li><strong>{{ a.presences }}</strong> {{ pluriel(a.presences, 'présence') }}</li>
+              <li><strong>{{ a.absences }}</strong> {{ pluriel(a.absences, 'absence') }}</li>
+              <li><strong>{{ a.excuses }}</strong> {{ pluriel(a.excuses, 'justifiée') }}</li>
             </ul>
           </div>
           <NuxtLink to="/ent/etudiant/assiduite" class="lien-fleche">Détail et justificatifs <Icone nom="suivant" :taille="16" /></NuxtLink>
         </section>
-        <section v-if="promosSuivies?.length" class="carte" aria-labelledby="t-promos">
+        <section v-if="!mfaBloquant && promosSuivies?.length" class="carte" aria-labelledby="t-promos">
           <h2 id="t-promos">Promotions suivies</h2>
           <ul class="promos">
             <li v-for="p in promosSuivies" :key="p.promotion.id">
-              <div><strong>{{ p.promotion.libelle }}</strong><br><span class="aide">{{ p.formation }} · {{ p.etudiants.length }} apprenant(s)</span></div>
+              <div><strong>{{ p.promotion.libelle }}</strong><br><span class="aide">{{ p.formation }} · {{ nombre(p.etudiants.length, 'apprenant') }}</span></div>
               <JaugeAssiduite :taux="p.taux_moyen" :seuil="p.seuil" />
             </li>
           </ul>
         </section>
 
         <!-- Coordonnées -->
-        <form class="carte" aria-labelledby="t-coordonnees" @submit.prevent="enregistrerProfil">
+        <form v-if="!mfaBloquant" class="carte" aria-labelledby="t-coordonnees" @submit.prevent="enregistrerProfil">
           <h2 id="t-coordonnees">Coordonnées et présentation</h2>
           <p v-if="infoProfil" class="message message-succes" role="status">{{ infoProfil }}</p>
           <div class="champ">
@@ -163,7 +165,7 @@ const dateFr = (d?: string | null) => d ? new Date(d).toLocaleDateString('fr-FR'
         </form>
 
         <!-- Mot de passe -->
-        <form class="carte" aria-labelledby="t-mdp" @submit.prevent="changerMdp">
+        <form v-if="!mfaBloquant" class="carte" aria-labelledby="t-mdp" @submit.prevent="changerMdp">
           <h2 id="t-mdp" class="titre-icone"><Icone nom="cle" :taille="22" /> Mot de passe</h2>
           <p v-if="infoMdp" class="message message-succes" role="status">{{ infoMdp }}</p>
           <div class="champ">
@@ -187,6 +189,9 @@ const dateFr = (d?: string | null) => d ? new Date(d).toLocaleDateString('fr-FR'
           <p v-if="erreursMdp.password" class="erreur" role="alert">{{ erreursMdp.password }}</p>
           <button class="btn btn-primaire" :disabled="envoiMdp"><span v-if="envoiMdp" class="chargement" aria-hidden="true" />Changer le mot de passe</button>
         </form>
+
+        <!-- Toujours monté (même quand le reste se débloque) : les codes de secours restent affichés -->
+        <SecuriteCompte />
       </div>
     </div>
   </NuxtLayout>
@@ -195,6 +200,7 @@ const dateFr = (d?: string | null) => d ? new Date(d).toLocaleDateString('fr-FR'
 <style scoped>
 .profil-grille { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: var(--esp-4); align-items: start; }
 .colonne { display: grid; gap: var(--esp-4); min-width: 0; }
+.bloquant { grid-template-columns: minmax(0, 760px); }
 .identite { text-align: center; position: sticky; top: 90px; }
 .photo-zone { position: relative; width: 148px; height: 148px; margin: 4px auto 14px; border-radius: 50%; transition: box-shadow .2s, transform .2s; }
 .photo-zone.survol { box-shadow: 0 0 0 4px var(--primaire); transform: scale(1.03); }

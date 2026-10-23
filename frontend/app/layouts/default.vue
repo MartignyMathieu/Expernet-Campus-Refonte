@@ -33,7 +33,7 @@ const marketing = [
     </div>
     <header class="entete" :class="{ defile }">
       <div class="conteneur ligne">
-        <NuxtLink to="/" class="logo"><img src="/images/brand/logo-expernet.png" alt="Expernet Campus Informatique & Marketing Digital — accueil" width="900" height="241"></NuxtLink>
+        <NuxtLink to="/" class="logo"><img src="/images/brand/logo-expernet.png" alt="Expernet Campus Informatique & Marketing Digital - accueil" width="900" height="241"></NuxtLink>
         <button class="burger" :aria-expanded="ouvert" aria-controls="menu-principal" @click="ouvert = !ouvert">
           <span class="sr-only">Menu</span><Icone :nom="ouvert ? 'fermer' : 'menu'" :taille="26" />
         </button>

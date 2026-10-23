@@ -54,7 +54,7 @@ async function soumettre() {
     </section>
     <main class="panneau">
       <form class="formulaire" @submit.prevent="soumettre">
-        <NuxtLink to="/" class="logo-mobile"><img src="/images/brand/logo-expernet.png" alt="Expernet Campus — retour au site" width="900" height="241"></NuxtLink>
+        <NuxtLink to="/" class="logo-mobile"><img src="/images/brand/logo-expernet.png" alt="Expernet Campus - retour au site" width="900" height="241"></NuxtLink>
         <Transition name="etape" mode="out-in">
         <div v-if="verification" key="verif" class="etape"><p class="aide"><span class="chargement" aria-hidden="true" /> Vérification de votre session…</p></div>
         <div v-else-if="user && etape === 'identifiants'" key="deja" class="etape">

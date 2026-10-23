@@ -22,9 +22,9 @@ async function saisir(e: number, c: number, n: string) {
         <tr v-for="e in data?.etudiants" :key="e.id">
           <th scope="row">{{ e.nom }}</th>
           <td v-for="c in data?.competences" :key="c.id">
-            <label class="sr-only" :for="`n-${e.id}-${c.id}`">{{ c.code }} — {{ e.nom }}</label>
+            <label class="sr-only" :for="`n-${e.id}-${c.id}`">{{ c.code }} - {{ e.nom }}</label>
             <select :id="`n-${e.id}-${c.id}`" :value="niveau(e.id, c.id)" :class="'n-' + niveau(e.id, c.id)" @change="saisir(e.id, c.id, ($event.target as HTMLSelectElement).value)">
-              <option value="">—</option>
+              <option value="">-</option>
               <option v-for="n in data?.niveaux" :key="n" :value="n">{{ libelles[n] }}</option>
             </select>
           </td>
