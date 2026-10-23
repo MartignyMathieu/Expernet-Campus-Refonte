@@ -10,7 +10,7 @@ const qr = ref(''); const secret = ref(''); const code = ref(''); const codesSec
 const erreur = ref(''); const etape = ref<'depart' | 'scan' | 'fini'>(user.value?.mfa.active ? 'fini' : 'depart')
 
 async function activer() {
-  erreur.value = ''
+  erreur.value = ''; info.value = ''
   await csrf()
   await api('/api/auth/user/two-factor-authentication', { method: 'POST' })
   const q: any = await api('/api/auth/user/two-factor-qr-code')
@@ -18,6 +18,21 @@ async function activer() {
   const s: any = await api('/api/auth/user/two-factor-secret-key').catch(() => ({}))
   secret.value = s.secretKey || ''
   etape.value = 'scan'
+}
+// Désactivation par l'utilisateur lui-même (mot de passe exigé)
+const desactivation = ref(false); const mdp = ref(''); const erreurDesactivation = ref(''); const info = ref(''); const enCours = ref(false)
+function ouvrirDesactivation() { desactivation.value = true; nextTick(() => document.getElementById('mdp-desactivation')?.focus()) }
+async function desactiver() {
+  erreurDesactivation.value = ''; enCours.value = true
+  try {
+    await csrf()
+    const r: any = await api('/api/me/mfa/desactiver', { method: 'POST', body: { password: mdp.value } })
+    await charger()
+    info.value = r.message; mdp.value = ''; desactivation.value = false; codesSecours.value = []; code.value = ''
+    etape.value = 'depart'
+  } catch (e: any) {
+    erreurDesactivation.value = e?.status === 429 ? 'Trop de tentatives. Patientez une minute.' : erreursValidation(e).password || e?.data?.message || 'Désactivation impossible.'
+  } finally { enCours.value = false }
 }
 async function confirmer() {
   erreur.value = ''
@@ -36,6 +51,7 @@ async function confirmer() {
       <p v-if="user?.mfa.obligatoire && !user?.mfa.active" class="message message-erreur" role="alert">
         Votre rôle donne accès à des données sensibles : la double authentification est <strong>obligatoire</strong> avant de continuer.
       </p>
+      <p v-if="info" class="message message-succes" role="status">{{ info }}</p>
       <template v-if="etape === 'depart'">
         <h2>Double authentification</h2>
         <p>À chaque connexion, un code à 6 chiffres généré par votre téléphone vous sera demandé en plus du mot de passe.</p>
@@ -60,6 +76,23 @@ async function confirmer() {
           <ul class="codes"><li v-for="c in codesSecours" :key="c"><code>{{ c }}</code></li></ul>
         </div>
         <NuxtLink :to="accueilRole()" class="btn btn-primaire">Continuer vers mon espace</NuxtLink>
+
+        <section class="desactiver" aria-labelledby="t-desactiver">
+          <h3 id="t-desactiver">Changer de téléphone ou désactiver</h3>
+          <p class="aide">La double authentification sera retirée de votre compte.
+            <template v-if="user?.mfa.obligatoire"><strong>Elle est obligatoire pour votre rôle</strong> : vous devrez la réactiver (nouveau QR code) pour accéder à votre espace.</template>
+            <template v-else>Vous pourrez la réactiver à tout moment.</template></p>
+          <button v-if="!desactivation" type="button" class="btn btn-secondaire" @click="ouvrirDesactivation">Désactiver ma double authentification</button>
+          <form v-else class="ligne" @submit.prevent="desactiver">
+            <div class="champ">
+              <label for="mdp-desactivation">Confirmez avec votre mot de passe</label>
+              <input id="mdp-desactivation" v-model="mdp" type="password" autocomplete="current-password" required :aria-invalid="!!erreurDesactivation" aria-describedby="err-desactivation">
+            </div>
+            <button class="btn btn-danger" :disabled="enCours">{{ enCours ? 'Désactivation…' : 'Désactiver' }}</button>
+            <button type="button" class="btn btn-secondaire" @click="desactivation = false; mdp = ''; erreurDesactivation = ''">Annuler</button>
+          </form>
+          <p v-if="erreurDesactivation" id="err-desactivation" class="erreur" role="alert">{{ erreurDesactivation }}</p>
+        </section>
       </template>
     </div>
   </NuxtLayout>
@@ -73,4 +106,9 @@ async function confirmer() {
 .ligne { display: flex; gap: 12px; align-items: flex-end; }
 .ligne .champ { margin: 0; }
 .codes { columns: 2; padding-left: 20px; }
+.desactiver { margin-top: var(--esp-5); padding-top: var(--esp-4); border-top: 1px solid var(--gris-bord); }
+.desactiver h3 { margin: 0 0 6px; font-size: 1.05rem; }
+.ligne { flex-wrap: wrap; }
+.btn-danger { background: var(--alerte); color: #fff; border-color: var(--alerte); }
+.erreur { color: var(--alerte); margin: 8px 0 0; }
 </style>
