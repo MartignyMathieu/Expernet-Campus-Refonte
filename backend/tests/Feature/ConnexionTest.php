@@ -52,4 +52,33 @@ class ConnexionTest extends TestCase
         $this->assertNull($this->formateur->fresh()->two_factor_secret);
         $this->artisan('mfa:reinitialiser', ['email' => 'inconnu@exemple.test', '--force' => true])->assertFailed();
     }
+
+    public function test_chacun_peut_desactiver_sa_propre_mfa_avec_son_mot_de_passe(): void
+    {
+        $this->actingAs($this->formateur)->postJson('/api/me/mfa/desactiver', ['password' => 'faux'])
+            ->assertStatus(422)->assertJsonValidationErrors('password');
+        $this->assertTrue($this->formateur->fresh()->aMfaActive());
+
+        $this->actingAs($this->formateur)->postJson('/api/me/mfa/desactiver', ['password' => 'MotDePasse-Test-123'])
+            ->assertOk()->assertJsonPath('obligatoire', true);
+        $this->assertFalse($this->formateur->fresh()->aMfaActive());
+
+        // Rôle où la MFA est obligatoire : l'espace est bloqué jusqu'à la réactivation
+        $this->actingAs($this->formateur->fresh())->getJson('/api/planning')->assertForbidden()->assertJsonPath('code', 'MFA_REQUIRED');
+    }
+
+    public function test_un_etudiant_peut_desactiver_une_mfa_facultative_et_garder_l_acces(): void
+    {
+        $this->etudiant->forceFill(['two_factor_secret' => encrypt('JBSWY3DPEHPK3PXP'), 'two_factor_confirmed_at' => now()])->save();
+
+        $this->actingAs($this->etudiant)->postJson('/api/me/mfa/desactiver', ['password' => 'MotDePasse-Test-123'])
+            ->assertOk()->assertJsonPath('obligatoire', false);
+        $this->actingAs($this->etudiant->fresh())->getJson('/api/planning')->assertOk();
+    }
+
+    public function test_desactiver_exige_une_session_et_une_mfa_active(): void
+    {
+        $this->postJson('/api/me/mfa/desactiver', ['password' => 'MotDePasse-Test-123'])->assertUnauthorized();
+        $this->actingAs($this->etudiant)->postJson('/api/me/mfa/desactiver', ['password' => 'MotDePasse-Test-123'])->assertStatus(422);
+    }
 }
