@@ -34,7 +34,12 @@ Projet du titre **Concepteur Développeur d'Applications (CDA)**. Refonte du sys
 - **Examens** : planification des sessions, composition des jurys (un président), saisie des grilles de compétences
 - **Planning** en vue agenda (semaine, mois, liste) avec export `.ics` vers Outlook ou Google Agenda ; notes avec moyenne pondérée, espace documentaire par promotion organisé en **espaces** (cours, pédagogie, TP & exercices, examens, administratif, stage & alternance, rendus), avec recherche, **aperçu en ligne** (PDF, images, textes) et suppression par l'auteur ; les apprenants déposent leurs rendus et justificatifs, visibles d'eux seuls et de l'équipe
 - **Messagerie** : conversations privées et groupes ; l'étudiant écrit à sa promotion, à ses formateurs et à l'administration ; le formateur crée des groupes (choix des membres ou toute une promotion) et les gère ; pièces jointes (5 fichiers de 10 Mo) et émoticônes ; modification (24 h) et suppression de ses messages, modération par le gestionnaire du groupe ; compteur de non-lus
-- Administration : comptes (avec photos), rôles, activation, candidatures, assiduité, documents administratifs, indicateurs
+- **Devoirs** : le formateur publie un devoir (consignes, échéance, coefficient) ; l'apprenant dépose son rendu (remplaçable jusqu'à la correction, retard signalé) ; la note et le commentaire sont reportés automatiquement dans le carnet de notes
+- **Cahier de textes** par séance (contenu vu, travail à faire pour une date) et carte « À faire » de l'apprenant (devoirs et travail des séances)
+- **Justificatif d'absence** déposé depuis la ligne de l'absence, validé en un clic par l'équipe
+- **Notifications** dans l'ENT (cloche) et par e-mail (Mailpit en développement) : nouveau devoir, note, correction, document, travail à faire, absence justifiée, ouverture de l'émargement
+- **Journal d'audit** des actions sensibles (notes, corrections, absences, documents, comptes, double authentification), consultable par l'administration
+- Administration : comptes (avec photos), rôles, activation, candidatures, assiduité, documents administratifs, journal d'audit, indicateurs
 
 ## Prérequis
 
@@ -72,18 +77,20 @@ Le premier démarrage installe les dépendances, génère la clé, applique les 
 ## Tests
 
 ```powershell
-docker compose exec backend vendor/bin/phpunit
+docker compose exec backend vendor/bin/phpunit              # API : 131 tests, 798 assertions (SQLite par défaut)
+docker compose exec frontend npm run test:unit              # Front : utilitaires et composants (Vitest)
+docker compose --profile tests run --rm e2e                 # Parcours complets dans Chromium (Playwright)
 ```
 
-120 tests et 647 assertions (unitaires et intégration), dont 16 sur l'émargement, 11 sur la messagerie et 8 sur le profil. Ils passent sur SQLite (par défaut) et sur PostgreSQL :
-
-```powershell
-docker compose exec -e DB_CONNECTION=pgsql -e DB_HOST=db backend vendor/bin/phpunit
-```
-
-Intégration continue : `.github/workflows/ci.yml` exécute les tests (SQLite + PostgreSQL) et le build du front à chaque push et Pull Request.
+Les tests de l'API passent aussi sur PostgreSQL : `docker compose exec -e DB_CONNECTION=pgsql -e DB_HOST=db backend vendor/bin/phpunit`.
 
 > Attention : sur PostgreSQL, les tests utilisent la base configurée et la **réinitialisent**. Utilisez une base dédiée aux tests.
+
+Vitest s'installe une seule fois : `docker compose exec frontend npm install -D vitest @nuxt/test-utils @vue/test-utils happy-dom` (puis commiter `package.json` et `package-lock.json`). Détails : [docs/08](docs/08-mise-en-production.md).
+
+Intégration continue : `.github/workflows/ci.yml` exécute à chaque push et Pull Request les tests de l'API (SQLite + PostgreSQL), les tests et le build du front, puis lance la plateforme complète avec Docker Compose pour les parcours Playwright.
+
+**Production** : `docker-compose.prod.yml` (HTTPS, images figées, sauvegardes quotidiennes, page de santé `/api/sante`), voir [docs/08](docs/08-mise-en-production.md).
 
 ## Développement sans Docker (optionnel)
 
@@ -131,6 +138,7 @@ npm run dev                  # http://localhost:3000 (relaie /api vers :8000)
 5. [Charte graphique](docs/05-charte-graphique.md)
 6. [Scénario de démonstration](docs/06-scenario-demo.md)
 7. [Types de connexion et double authentification](docs/07-connexions.md)
+8. [Tests, mise en production et exploitation](docs/08-mise-en-production.md)
 
 ## Hypothèses à valider avec Expernet
 

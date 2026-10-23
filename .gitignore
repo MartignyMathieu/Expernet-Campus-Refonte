@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+!.env.production.example
 backend/.env
 backend/.env.*
 !backend/.env.example
@@ -39,3 +40,9 @@ Thumbs.db
 .idea/
 .vscode/
 *.log
+
+# Production : sauvegardes et certificats (jamais versionnés)
+sauvegardes/
+docker/prod/certs/*
+docker/prod/letsencrypt/
+!docker/prod/certs/.gitkeep

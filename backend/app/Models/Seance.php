@@ -19,6 +19,8 @@ class Seance extends Model
             'emargement_ouvert_at' => 'datetime',
             'emargement_expire_at' => 'datetime',
             'cloturee_at' => 'datetime',
+            'travail_pour' => 'date:Y-m-d',
+            'cahier_maj_at' => 'datetime',
         ];
     }
 

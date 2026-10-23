@@ -1,0 +1,84 @@
+# Plateforme Expernet en PRODUCTION (serveur Linux avec Docker).
+#   cp .env.production.example .env.production   (puis renseigner les valeurs)
+#   docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+# Détails, certificats HTTPS, sauvegardes et restauration : docs/08-mise-en-production.md
+name: expernet-prod
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:?}
+      POSTGRES_USER: ${DB_USERNAME:?}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Définissez DB_PASSWORD dans .env.production}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: { context: ., dockerfile: docker/prod/php.Dockerfile }
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      SESSION_SECURE_COOKIE: "true"
+      SEED_DEMO: "false"
+    volumes:
+      # Fichiers déposés (documents, signatures, photos) : conservés hors de l'image, sauvegardés
+      - fichiers:/var/www/backend/storage/app/private
+    depends_on:
+      db: { condition: service_healthy }
+
+  frontend:
+    build: { context: ., dockerfile: docker/prod/front.Dockerfile }
+    restart: unless-stopped
+    environment:
+      NUXT_API_INTERNAL: http://nginx:8081
+      NUXT_PUBLIC_SITE_URL: ${APP_URL:?}
+
+  nginx:
+    build: { context: ., dockerfile: docker/prod/nginx.Dockerfile }
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/prod/certs:/etc/nginx/certs:ro
+      - certbot-webroot:/var/www/certbot
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "-k", "https://127.0.0.1/api/sante"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on: [backend, frontend]
+
+  sauvegarde:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    entrypoint: ["sh", "/sauvegarder.sh"]
+    environment:
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SAUVEGARDE_INTERVALLE: ${SAUVEGARDE_INTERVALLE:-86400}
+      SAUVEGARDE_JOURS: ${SAUVEGARDE_JOURS:-14}
+    volumes:
+      - ./docker/sauvegarde/sauvegarder.sh:/sauvegarder.sh:ro
+      - ./sauvegardes:/sauvegardes
+      - fichiers:/fichiers:ro
+    depends_on:
+      db: { condition: service_healthy }
+
+volumes:
+  db-data:
+  fichiers:
+  certbot-webroot:

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\Note;
 use App\Models\User;
+use App\Services\Journal;
+use App\Services\Notificateur;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -45,6 +47,8 @@ class NoteController extends Controller
         abort_unless($enseigne, 403, 'Vous n\'enseignez pas ce module à cet étudiant.');
 
         $note = Note::create($donnees + ['formateur_id' => $formateur->id, 'coefficient' => $donnees['coefficient'] ?? 1]);
+        Journal::ecrire('note.creation', $note, "Note saisie pour {$etudiant->nomComplet()} : {$note->valeur}/20 ({$note->intitule})", ['valeur' => (float) $note->valeur]);
+        Notificateur::envoyer($etudiant, 'note', 'Nouvelle note : '.$note->intitule, 'Une nouvelle note a été publiée dans votre carnet.', '/ent/etudiant/notes', true);
 
         return response()->json($note, 201);
     }

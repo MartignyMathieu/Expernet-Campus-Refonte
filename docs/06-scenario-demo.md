@@ -1,4 +1,4 @@
-# 6. Scénario de démonstration (environ 8 minutes)
+# 6. Scénario de démonstration (environ 12 minutes)
 
 Prérequis : `docker compose up -d --build`, puis ouvrir http://localhost:8080. Une application d'authentification sur téléphone (Google ou Microsoft Authenticator).
 
@@ -15,7 +15,12 @@ Prérequis : `docker compose up -d --build`, puis ouvrir http://localhost:8080. 
 | 9 | Clôturer | Les non-signataires passent absents | Émargement |
 | 10 | Étudiant, puis Documents | **Attestation PDF** avec empreintes | Attestations |
 | 11 | Jurys & compétences | Saisie de la grille par un membre du jury | Examens |
-| 12 | Terminal | `docker compose exec backend vendor/bin/phpunit` : 64 tests verts | Tests |
-| 13 | GitHub | Branches, Pull Requests, Conventional Commits, `67.php` à la racine | Git, contraintes |
+| 12 | Formateur : **Devoirs** | Publier un devoir ; côté étudiant, la cloche et l'e-mail (Mailpit) l'annoncent ; l'étudiant dépose son rendu ; le formateur note et commente : la note apparaît dans « Notes » | Logique métier, notifications |
+| 13 | Agenda : une séance | **Cahier de textes** rempli par le formateur ; l'étudiant le retrouve avec le travail à faire et les documents du module | Suivi pédagogique |
+| 14 | Étudiant : **Assiduité** | Joindre un justificatif sur une absence ; le formateur le voit dans la fiche et justifie en un clic | Assiduité |
+| 15 | Admin : **Journal d'audit** | Les actions précédentes (devoir, correction, justification) tracées avec auteur, date et adresse IP | Sécurité, traçabilité |
+| 16 | Terminal | `docker compose exec backend vendor/bin/phpunit` : 131 tests verts ; `docker compose --profile tests run --rm e2e` : parcours Playwright | Tests |
+| 17 | `/api/sante` et `docker-compose.prod.yml` | Page de santé (base, stockage, cache), production en HTTPS avec sauvegardes | Déploiement |
+| 18 | GitHub | Branches, Pull Requests, CI verte (API, front, bout en bout), Conventional Commits, `67.php` à la racine | Git, contraintes |
 
 Comptes de démonstration (personnes fictives) : `admin@expernet.test`, `formateur@expernet.test`, `formatrice@expernet.test`, `etudiant@expernet.test`. Le mot de passe est celui défini dans `DEMO_PASSWORD`.

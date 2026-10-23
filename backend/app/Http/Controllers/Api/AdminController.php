@@ -11,6 +11,8 @@ use App\Models\Promotion;
 use App\Models\Role;
 use App\Models\Seance;
 use App\Models\User;
+use App\Models\JournalAudit;
+use App\Services\Journal;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -58,6 +60,8 @@ class AdminController extends Controller
             'password' => $donnees['password'], 'role_id' => Role::where('code', $donnees['role'])->value('id'),
         ]);
 
+        Journal::ecrire('compte.creation', $user, "Création du compte {$user->email} ({$donnees['role']})");
+
         return response()->json(['id' => $user->id], 201);
     }
 
@@ -75,7 +79,12 @@ class AdminController extends Controller
         if (array_key_exists('actif', $donnees)) {
             $user->actif = $donnees['actif'];
         }
+        $changements = array_intersect_key($user->getDirty(), ['role_id' => 1, 'actif' => 1]);
         $user->save();
+        if ($changements) {
+            Journal::ecrire('compte.modification', $user, "Modification du compte {$user->email}"
+                .(isset($donnees['role']) ? " : rôle {$donnees['role']}" : '').(array_key_exists('actif', $donnees) ? ($donnees['actif'] ? ' : réactivé' : ' : désactivé') : ''), $changements);
+        }
 
         return response()->json(['message' => 'Compte mis à jour.']);
     }
@@ -89,6 +98,7 @@ class AdminController extends Controller
         abort_if($user->id === $request->user()->id, 422, 'Vous ne pouvez pas réinitialiser votre propre double authentification ici.');
 
         $user->forceFill(['two_factor_secret' => null, 'two_factor_recovery_codes' => null, 'two_factor_confirmed_at' => null])->save();
+        Journal::ecrire('mfa.reinitialisation', $user, "Réinitialisation de la double authentification de {$user->email}");
 
         return response()->json(['message' => 'Double authentification réinitialisée : elle sera redemandée à la prochaine connexion.']);
     }
@@ -111,5 +121,27 @@ class AdminController extends Controller
         abort_if($existe, 422, 'Une séance existe déjà pour cette promotion sur ce créneau.');
 
         return response()->json(Seance::create($donnees), 201);
+    }
+
+    /** Journal d'audit, du plus récent au plus ancien, filtrable par action et par auteur. */
+    public function journal(Request $request)
+    {
+        $filtres = $request->validate([
+            'action' => ['nullable', 'string', 'max:60'],
+            'user_id' => ['nullable', 'integer'],
+            'recherche' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $page = JournalAudit::with('auteur:id,prenom,nom,email')
+            ->when($filtres['action'] ?? null, fn ($q, $a) => str_ends_with($a, '.') ? $q->where('action', 'like', $a.'%') : $q->where('action', $a))
+            ->when($filtres['user_id'] ?? null, fn ($q, $u) => $q->where('user_id', $u))
+            ->when($filtres['recherche'] ?? null, fn ($q, $r) => $q->where('resume', 'like', '%'.$r.'%'))
+            ->orderByDesc('created_at')->orderByDesc('id')->paginate(30);
+
+        return response()->json($page->through(fn (JournalAudit $l) => [
+            'id' => $l->id, 'date' => $l->created_at?->toIso8601String(), 'action' => $l->action, 'resume' => $l->resume,
+            'cible' => $l->cible_type ? $l->cible_type.' #'.$l->cible_id : null, 'details' => $l->details, 'ip' => $l->ip,
+            'auteur' => $l->auteur ? ['id' => $l->auteur->id, 'nom' => $l->auteur->nomComplet(), 'email' => $l->auteur->email] : null,
+        ])->toArray() + ['actions' => JournalAudit::query()->distinct()->orderBy('action')->pluck('action')]);
     }
 }

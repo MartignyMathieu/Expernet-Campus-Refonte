@@ -1,4 +1,5 @@
-# Intégration continue : tests de l'API (SQLite + PostgreSQL) et build du front à chaque push / Pull Request.
+# Intégration continue : tests de l'API (SQLite + PostgreSQL), tests et build du front,
+# puis parcours de bout en bout sur la plateforme complète lancée par Docker Compose.
 name: CI
 
 on:
@@ -53,4 +54,35 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
+      - name: Tests unitaires et de composants (Vitest)
+        run: |
+          if [ -f node_modules/.bin/vitest ]; then npm run test:unit; else echo "Vitest n'est pas encore installé (voir docs/08) : étape ignorée."; fi
       - run: npm run build
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: [api, front]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configuration de démonstration
+        run: |
+          cp .env.example .env
+          sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=ci-e2e-only/; s/^DEMO_PASSWORD=.*/DEMO_PASSWORD=Demo-E2e-2026/' .env
+      - name: Démarrage de la plateforme
+        run: docker compose up -d --build
+      - name: Attente de la plateforme (API et front)
+        run: |
+          for i in $(seq 1 120); do
+            if curl -fsS -o /dev/null http://localhost:8080/api/sante && curl -fsS -o /dev/null http://localhost:8080/; then exit 0; fi
+            sleep 5
+          done
+          docker compose logs --tail 80 backend frontend nginx
+          exit 1
+      - name: Parcours de bout en bout (Playwright)
+        run: docker compose --profile tests run --rm -e CI=1 e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: rapport-playwright
+          path: frontend/e2e/playwright-report
+          retention-days: 7

@@ -10,6 +10,8 @@ use App\Models\Role;
 use App\Models\Seance;
 use App\Models\User;
 use App\Services\EmargementService;
+use App\Services\Journal;
+use App\Services\Notificateur;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
@@ -21,6 +23,10 @@ class EmargementController extends Controller
     public function ouvrir(Request $request, Seance $seance)
     {
         $code = $this->service->ouvrir($seance, $request->user());
+        $seance->loadMissing(['promotion', 'module:id,intitule']);
+        Journal::ecrire('emargement.ouverture', $seance, "Ouverture de l'émargement : {$seance->module?->intitule} ({$seance->promotion->libelle})");
+        Notificateur::envoyer($seance->promotion->etudiants()->get(), 'emargement', 'Émargement ouvert',
+            'Vous pouvez signer votre présence pour la séance « '.$seance->module?->intitule.' ».', '/ent/etudiant/emargement/'.$seance->id);
 
         return response()->json([
             'code' => $code,
@@ -50,6 +56,7 @@ class EmargementController extends Controller
     public function cloturer(Request $request, Seance $seance)
     {
         $absents = $this->service->cloturer($seance->load('promotion'), $request->user());
+        Journal::ecrire('emargement.cloture', $seance, "Clôture de l'émargement ({$seance->promotion->libelle}) : {$absents} ".($absents > 1 ? 'absents enregistrés' : 'absent enregistré'), ['absents' => $absents]);
 
         return response()->json(['message' => 'Séance clôturée.', 'absents' => $absents]);
     }

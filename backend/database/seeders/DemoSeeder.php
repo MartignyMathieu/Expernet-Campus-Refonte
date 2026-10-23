@@ -111,6 +111,7 @@ class DemoSeeder extends Seeder
         // Documents de la promotion (aperçu dans le portail : PDF, image, texte)
         $this->documentsDemo($promo, $f1, $modules);
         $this->espacesDemo($promo, $admin, $f1, $f2, $etudiants[0], $modules);
+        $this->suiviDemo($promo, $f1, $modules);
 
         // Session d'examen + jury
         $examen = SessionExamen::updateOrCreate(['promotion_id' => $promo->id, 'intitule' => 'Évaluation intermédiaire - AT1'], [
@@ -151,6 +152,32 @@ class DemoSeeder extends Seeder
         if (! env('DEMO_PASSWORD')) {
             $this->command?->warn('Mot de passe généré (DEMO_PASSWORD vide) : '.$motDePasse);
         }
+    }
+
+    /** Devoirs et cahier de textes de démonstration (idempotent). */
+    private function suiviDemo(Promotion $promo, User $f1, $modules): void
+    {
+        $web = $modules[2] ?? $modules->first();
+        // Le devoir porte sur un module que formateur@ enseigne réellement (séance existante)
+        $module = Seance::where('promotion_id', $promo->id)->where('formateur_id', $f1->id)->value('module_id') ?? $web->id;
+        \App\Models\Devoir::firstOrCreate(['promotion_id' => $promo->id, 'titre' => 'TP 3 - API REST sécurisée'], [
+            'module_id' => $module, 'auteur_id' => $f1->id, 'coefficient' => 2, 'echeance' => Carbon::today()->addDays(5)->setTime(18, 0),
+            'consignes' => "Exposer la ressource /api/projets (CRUD complet), protégée par authentification et rôles.\nDocumenter le contrat OpenAPI et écrire au moins cinq tests automatisés.\nRendu : archive ZIP du projet ou lien du dépôt Git dans un fichier texte.",
+        ]);
+
+        // Cahier de textes des séances déjà passées de la semaine, et travail pour la prochaine séance
+        $sujets = ['Installation de l\'environnement et premiers pas', 'Modélisation : MCD, MLD et normalisation', 'Routes, contrôleurs et validation', 'Composants et état côté interface', 'Planification et suivi en mode agile'];
+        Seance::where('promotion_id', $promo->id)->whereDate('date', '>=', Carbon::today()->subDays(7))->whereDate('date', '<=', Carbon::today())
+            ->whereNull('cahier_maj_at')->with('module')->get()
+            ->each(function (Seance $s) use ($sujets) {
+                $i = (int) $s->module_id % count($sujets);
+                $s->forceFill([
+                    'contenu_vu' => $sujets[$i].' : notions vues en cours, démonstration puis exercices guidés.',
+                    'travail_a_faire' => $s->date->isToday() ? 'Relire le support du module et terminer l\'exercice commencé en séance.' : null,
+                    'travail_pour' => $s->date->isToday() ? Carbon::today()->addWeekday()->toDateString() : null,
+                    'cahier_maj_at' => now(),
+                ])->save();
+            });
     }
 
     /**

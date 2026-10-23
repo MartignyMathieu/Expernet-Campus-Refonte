@@ -1,0 +1,13 @@
+{
+  "name": "expernet-e2e",
+  "private": true,
+  "type": "module",
+  "description": "Tests de bout en bout (Playwright) : parcours public et parcours apprenant sur la plateforme lancée par Docker.",
+  "scripts": {
+    "test": "playwright test",
+    "rapport": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.0"
+  }
+}

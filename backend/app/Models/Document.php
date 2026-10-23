@@ -13,6 +13,8 @@ class Document extends Model
 
     protected $appends = ['apercu'];
 
+    protected $casts = ['corrige_at' => 'datetime', 'note' => 'float'];
+
     /**
      * Espaces documentaires d'une promotion : libellé, description et rôles autorisés à y déposer.
      * « rendus » est l'espace des apprenants (devoirs, justificatifs) : chacun n'y voit que ses propres dépôts.
@@ -58,5 +60,15 @@ class Document extends Model
     public function module(): BelongsTo
     {
         return $this->belongsTo(Module::class);
+    }
+
+    public function devoir(): BelongsTo
+    {
+        return $this->belongsTo(Devoir::class);
+    }
+
+    public function correcteur(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'corrige_par');
     }
 }

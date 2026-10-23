@@ -12,6 +12,8 @@ const promo = computed(() => user.value?.promotions[0])
 const { data: documents } = await useAsyncData('documents-recents', () => promo.value ? api<any[]>(`/api/promotions/${promo.value.id}/documents`) : Promise.resolve([]))
 const recents = computed(() => (documents.value || []).filter((d: any) => d.espace !== 'rendus').slice(0, 4))
 const bilan = computed(() => assiduite.value?.[0])
+const { data: aFaire } = await useAsyncData('a-faire', () => api<any[]>('/api/me/a-faire').catch(() => []))
+const jourCourt = (d: string) => new Date(d.length === 10 ? d + 'T00:00:00' : d).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })
 onMounted(() => { const t = setInterval(refresh, 15000); onBeforeUnmount(() => clearInterval(t)) })   // la fenêtre d'émargement peut s'ouvrir à tout moment
 const prochaine = computed(() => semaine.value?.seances.find((s: any) => s.date > auj))
 </script>
@@ -34,6 +36,21 @@ const prochaine = computed(() => semaine.value?.seances.find((s: any) => s.date 
         <NuxtLink to="/ent/etudiant/notes" class="lien-fleche">Toutes mes notes <Icone nom="suivant" :taille="16" /></NuxtLink>
       </section>
     </div>
+    <section class="carte suite a-faire" aria-labelledby="t-a-faire">
+      <h2 id="t-a-faire" class="titre-icone"><Icone nom="devoir" :taille="22" /> À faire</h2>
+      <p v-if="!aFaire?.length" class="vide">Rien à rendre pour le moment.</p>
+      <ul class="liste-a-faire">
+        <li v-for="t in aFaire?.slice(0, 6)" :key="t.type + t.id" :class="t.type">
+          <span class="quand">{{ jourCourt(t.pour) }}</span>
+          <span class="quoi">
+            <strong>{{ t.type === 'devoir' ? t.texte : t.module }}</strong>
+            <small>{{ t.type === 'devoir' ? `Devoir · ${t.module}` : t.texte }}</small>
+          </span>
+          <NuxtLink v-if="t.type === 'devoir'" to="/ent/etudiant/devoirs" class="pastille" :class="t.rendu ? 'pastille-verte' : 'pastille-orange'">{{ t.rendu ? 'Rendu' : 'À rendre' }}</NuxtLink>
+          <NuxtLink v-else :to="`/ent/etudiant/documents?module=${t.module_id}`" class="pastille pastille-bleue">Supports</NuxtLink>
+        </li>
+      </ul>
+    </section>
     <div class="grille grille-dashboard suite">
       <section class="carte" aria-labelledby="t-docs">
         <h2 id="t-docs">Dernières ressources</h2>
@@ -60,6 +77,15 @@ const prochaine = computed(() => semaine.value?.seances.find((s: any) => s.date 
 .grille-dashboard { grid-template-columns: 1.6fr 1fr; }
 .lien-fleche { display: inline-flex; align-items: center; gap: 6px; }
 .suite { margin-top: var(--esp-4); }
+.titre-icone { display: flex; align-items: center; gap: 8px; }
+.liste-a-faire { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.liste-a-faire li { display: grid; grid-template-columns: 110px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 10px; background: var(--gris-fond); border-left: 4px solid var(--primaire); }
+.liste-a-faire li.devoir { border-left-color: #6C3FC5; }
+.quand { font-weight: 700; color: var(--encre); text-transform: capitalize; }
+.quoi { display: grid; min-width: 0; }
+.quoi small { color: var(--texte-doux); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.liste-a-faire .pastille { text-decoration: none; }
+@media (max-width: 600px) { .liste-a-faire li { grid-template-columns: 1fr auto; } .quand { grid-column: 1 / -1; } }
 .critique { border-color: #F2B8BB; background: #FFF7F7; }
 .doc-lien { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; min-width: 0; }
 .docs-recents li { align-items: center; }
