@@ -20,8 +20,9 @@ Les rôles qui exigent la double authentification se règlent avec `MFA_OBLIGATO
    4. **noter les 8 codes de secours**, affichés une seule fois.
 3. **Connexion suivante (formateur, administration)** : mot de passe, puis code à 6 chiffres de l'application. Un même code ne sert qu'une fois : juste après l'activation, attendre le code suivant (30 secondes).
 4. **Téléphone indisponible** : *Utiliser un code de secours* sur l'écran du code ; chaque code de secours ne sert qu'une fois.
-5. **Téléphone perdu ou application réinstallée** : l'administration clique sur *Réinitialiser* (colonne MFA de *Utilisateurs & rôles*). À la connexion suivante, la personne réactive sa double authentification (parcours 2).
-6. **Administrateur bloqué** (ou plus aucun administrateur disponible) : en ligne de commande, sur le serveur :
+5. **Changer de téléphone, ou laisser quelqu'un l'activer sur le sien** (démonstration) : chacun peut, depuis *Sécurité du compte* (menu à son nom), cliquer sur **Désactiver ma double authentification** et confirmer avec son mot de passe. Pour un formateur ou un administrateur, l'espace reste bloqué jusqu'à la réactivation avec un nouveau QR code.
+6. **Téléphone perdu ou application réinstallée** : l'administration clique sur *Réinitialiser* (colonne MFA de *Utilisateurs & rôles*). À la connexion suivante, la personne réactive sa double authentification (parcours 2).
+7. **Administrateur bloqué** (ou plus aucun administrateur disponible) : en ligne de commande, sur le serveur :
    ```bash
    docker compose exec backend php artisan mfa:reinitialiser admin@expernet.test
    ```
@@ -46,4 +47,4 @@ Pour tester plusieurs profils en même temps (formateur et apprenant côte à c�
 Si le projet est relancé depuis un autre dossier sans son `backend/.env`, une nouvelle clé est générée et les secrets MFA existants deviennent illisibles. L'écran de connexion affiche alors : *« Votre double authentification ne peut plus être vérifiée… »*. Deux solutions :
 
 - recopier l'ancienne ligne `APP_KEY=` dans `backend/.env`, puis `docker compose restart backend` (rien à réactiver) ;
-- ou réinitialiser la MFA des comptes concernés (parcours 5 ou 6), qui la réactivent ensuite.
+- ou réinitialiser la MFA des comptes concernés (parcours 6 ou 7), qui la réactivent ensuite.
