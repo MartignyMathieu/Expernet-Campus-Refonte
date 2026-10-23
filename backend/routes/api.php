@@ -36,6 +36,8 @@ Route::middleware('throttle:public-forms')->group(function () {
 // ---------- ENT (session Sanctum + MFA pour les comptes à privilèges) ----------
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/me', [MeController::class, 'show']);
+    // Hors du middleware « mfa » : on doit pouvoir la désactiver puis la réactiver depuis la page Sécurité.
+    Route::post('/me/mfa/desactiver', [MeController::class, 'desactiverMfa'])->middleware('throttle:6,1');
 
     Route::middleware('mfa')->group(function () {
         Route::get('/planning', [PlanningController::class, 'index'])->middleware('permission:planning.view');
