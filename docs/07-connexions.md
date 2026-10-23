@@ -26,6 +26,14 @@ Les rôles qui exigent la double authentification se règlent avec `MFA_OBLIGATO
    docker compose exec backend php artisan mfa:reinitialiser admin@expernet.test
    ```
 
+## Changer de compte sur le même navigateur
+
+Une seule session est ouverte à la fois par navigateur. Si quelqu'un est déjà connecté, la page de connexion affiche **« Déjà connecté »** avec son nom, et propose :
+- *Accéder à mon espace* ;
+- *Se connecter avec un autre compte*, qui ferme la session en cours avant d'afficher le formulaire.
+
+Pour tester plusieurs profils en même temps (formateur et apprenant côte à côte), utiliser une fenêtre de navigation privée ou un second navigateur.
+
 ## Protections
 
 - Session sécurisée (cookie `HttpOnly`, chiffré, `SameSite=Lax`) et jeton CSRF sur chaque requête qui modifie des données.
