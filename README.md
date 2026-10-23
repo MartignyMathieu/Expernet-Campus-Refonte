@@ -56,6 +56,8 @@ docker compose up -d --build
 
 Le premier démarrage installe les dépendances, génère la clé, applique les migrations et charge le catalogue et les données de démonstration (environ 3 à 5 minutes). Suivi : `docker compose logs -f backend frontend`.
 
+> **Patience au premier affichage (surtout sous Windows)** : attendre que `docker compose logs frontend` affiche `Listening on http://[::]:3000` **et** que `docker compose logs backend` affiche `ready to handle connections`. La toute première page peut ensuite mettre jusqu'à 2 à 3 minutes à s'afficher (fichiers lus à travers le partage de dossier Docker) : ne pas recharger ni redémarrer pendant ce temps, les pages suivantes sont immédiates. En cas de `502 Bad Gateway`, c'est qu'un service démarre encore : patienter une minute puis recharger.
+
 | URL | Contenu |
 |---|---|
 | http://localhost:8080 | Site public + ENT |
