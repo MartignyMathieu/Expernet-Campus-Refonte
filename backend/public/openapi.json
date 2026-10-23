@@ -46,10 +46,22 @@
       "name": "Documents"
     },
     {
+      "name": "Devoirs",
+      "description": "Devoirs, rendus et correction"
+    },
+    {
       "name": "Messagerie"
     },
     {
       "name": "Administration"
+    },
+    {
+      "name": "Supervision",
+      "description": "Santé de la plateforme (sondes Docker, supervision)"
+    },
+    {
+      "name": "Notifications",
+      "description": "Notifications de l'ENT"
     }
   ],
   "paths": {
@@ -3445,6 +3457,664 @@
             }
           }
         },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/sante": {
+      "get": {
+        "tags": [
+          "Supervision"
+        ],
+        "summary": "Santé de la plateforme (base, stockage, cache) : 200 ou 503",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "503": {
+            "description": "Composant indisponible"
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/seances/{seance}/cahier": {
+      "patch": {
+        "tags": [
+          "Planning"
+        ],
+        "summary": "Cahier de textes d'une séance (contenu vu, travail à faire)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides"
+          }
+        },
+        "description": "Formateur de la séance ou administrateur. Les apprenants sont notifiés d'un nouveau travail à faire. Permission RBAC requise : `planning.view`.",
+        "parameters": [
+          {
+            "name": "seance",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la séance",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "contenu_vu": {
+                    "type": "string",
+                    "maxLength": 5000
+                  },
+                  "travail_a_faire": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "travail_pour": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/me/a-faire": {
+      "get": {
+        "tags": [
+          "Planning"
+        ],
+        "summary": "Mes travaux à faire : cahier de textes et devoirs non échus",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `documents.rendre`.",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/promotions/{promotion}/devoirs": {
+      "get": {
+        "tags": [
+          "Devoirs"
+        ],
+        "summary": "Devoirs de la promotion (avec mon rendu pour l'apprenant, avancement des rendus pour l'équipe)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `documents.view`.",
+        "parameters": [
+          {
+            "name": "promotion",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la promotion",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Devoirs"
+        ],
+        "summary": "Publier un devoir (module enseigné à la promotion)",
+        "responses": {
+          "201": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides"
+          }
+        },
+        "description": "Permission RBAC requise : `documents.upload`.",
+        "parameters": [
+          {
+            "name": "promotion",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la promotion",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "titre",
+                  "module_id",
+                  "echeance"
+                ],
+                "properties": {
+                  "titre": {
+                    "type": "string",
+                    "maxLength": 150
+                  },
+                  "consignes": {
+                    "type": "string",
+                    "maxLength": 5000
+                  },
+                  "module_id": {
+                    "type": "integer"
+                  },
+                  "echeance": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "coefficient": {
+                    "type": "number",
+                    "minimum": 0.5,
+                    "maximum": 10
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/devoirs/{devoir}": {
+      "get": {
+        "tags": [
+          "Devoirs"
+        ],
+        "summary": "Détail d'un devoir : rendus de chaque apprenant (équipe) ou mon rendu (apprenant)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `documents.view`.",
+        "parameters": [
+          {
+            "name": "devoir",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant du devoir",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/devoirs/{devoir}/rendu": {
+      "post": {
+        "tags": [
+          "Devoirs"
+        ],
+        "summary": "Déposer ou remplacer son rendu (impossible une fois corrigé)",
+        "responses": {
+          "201": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides"
+          }
+        },
+        "description": "Permission RBAC requise : `documents.rendre`.",
+        "parameters": [
+          {
+            "name": "devoir",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant du devoir",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "fichier"
+                ],
+                "properties": {
+                  "fichier": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "commentaire": {
+                    "type": "string",
+                    "maxLength": 500
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rendus/{document}/correction": {
+      "post": {
+        "tags": [
+          "Devoirs"
+        ],
+        "summary": "Corriger un rendu : note sur 20 et commentaire, reportés dans le carnet de notes",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides"
+          }
+        },
+        "description": "Permission RBAC requise : `documents.upload`.",
+        "parameters": [
+          {
+            "name": "document",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant du rendu",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "note"
+                ],
+                "properties": {
+                  "note": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 20
+                  },
+                  "commentaire": {
+                    "type": "string",
+                    "maxLength": 1000
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Mes 30 dernières notifications et le nombre de non lues",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/notifications/lues": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Marquer toutes mes notifications comme lues",
+        "responses": {
+          "204": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/notifications/{id}/lue": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Marquer une notification comme lue",
+        "responses": {
+          "204": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant (UUID) de la notification",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/emargements/{emargement}/justificatif": {
+      "post": {
+        "tags": [
+          "Assiduité"
+        ],
+        "summary": "Joindre un justificatif à son absence (PDF ou image, 5 Mo)",
+        "responses": {
+          "201": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides"
+          }
+        },
+        "description": "Permission RBAC requise : `documents.rendre`.",
+        "parameters": [
+          {
+            "name": "emargement",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de l'émargement",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "fichier"
+                ],
+                "properties": {
+                  "fichier": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "commentaire": {
+                    "type": "string",
+                    "maxLength": 500
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/journal": {
+      "get": {
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Journal d'audit (paginé, filtres action, auteur, recherche)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `users.manage`.",
+        "parameters": [
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Action exacte, ou préfixe terminé par un point (ex. « absence. »)"
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "recherche",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "security": [
           {
             "cookieSession": []

@@ -65,6 +65,7 @@ const typeDe = (d: any) => d.apercu === 'pdf' ? { icone: 'pdf', libelle: 'PDF', 
 const estNouveau = (d: any) => Date.now() - new Date(d.created_at).getTime() < 7 * 864e5
 const libelleVide = computed(() => props.recherche ? 'Aucun document ne correspond à votre recherche.'
   : estRendu.value && user.value?.role === 'etudiant' ? 'Vous n\'avez encore rien déposé. Devoirs, TP, justificatifs d\'absence : déposez-les ici.'
+  : props.moduleDefaut ? 'Aucun document pour ce module dans cet espace pour l\'instant.'
   : 'Aucun document dans cet espace pour l\'instant.')
 </script>
 

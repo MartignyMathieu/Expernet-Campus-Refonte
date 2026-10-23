@@ -7,5 +7,6 @@
     { libelle: 'Assiduité', to: '/ent/admin/assiduite', icone: 'assiduite' },
     { libelle: 'Examens & jurys', to: '/ent/admin/examens', icone: 'examens' },
     { libelle: 'Documents', to: '/ent/admin/documents', icone: 'documents' },
+    { libelle: 'Journal d\'audit', to: '/ent/admin/journal', icone: 'programme' },
   ]"><slot /></EntShell>
 </template>

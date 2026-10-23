@@ -8,6 +8,8 @@ use App\Models\Module;
 use App\Models\Promotion;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\Journal;
+use App\Services\Notificateur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -88,6 +90,11 @@ class DocumentController extends Controller
             'taille' => $fichier->getSize(),
         ]);
 
+        if ($espace !== Document::RENDUS) {
+            Notificateur::envoyer($promotion->etudiants()->get(), 'document', 'Nouveau document : '.$document->titre,
+                'Publié dans « '.Document::ESPACES[$espace]['libelle'].' » par '.$user->nomComplet().'.', '/ent/etudiant/documents?espace='.$espace);
+        }
+
         return response()->json($document, 201);
     }
 
@@ -97,6 +104,7 @@ class DocumentController extends Controller
         $user = $request->user();
         abort_unless($this->peutSupprimer($user, $document) && $this->peutConsulter($user, $document), 403);
 
+        Journal::ecrire('document.suppression', $document, "Suppression du document « {$document->titre} » ({$document->espace})", ['nom_original' => $document->nom_original]);
         Storage::disk('local')->delete($document->chemin);
         $document->delete();
 
@@ -141,6 +149,7 @@ class DocumentController extends Controller
 
     private function peutSupprimer(User $user, Document $document): bool
     {
-        return $document->auteur_id === $user->id || $user->hasRole(Role::ADMIN);
+        // Un rendu déjà corrigé reste en place (la note en dépend), sauf pour l'administration
+        return ($document->auteur_id === $user->id && $document->corrige_at === null) || $user->hasRole(Role::ADMIN);
     }
 }

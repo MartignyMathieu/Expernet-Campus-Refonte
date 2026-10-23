@@ -5,20 +5,26 @@ use App\Http\Controllers\Api\AssiduiteController;
 use App\Http\Controllers\Api\CandidatureController;
 use App\Http\Controllers\Api\CatalogueController;
 use App\Http\Controllers\Api\ContenuController;
+use App\Http\Controllers\Api\DevoirController;
 use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\EmargementController;
 use App\Http\Controllers\Api\ExamenController;
 use App\Http\Controllers\Api\MeController;
 use App\Http\Controllers\Api\MessagerieController;
 use App\Http\Controllers\Api\NoteController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PlanningController;
 use App\Http\Controllers\Api\ProfilController;
+use App\Http\Controllers\Api\SanteController;
 use Illuminate\Support\Facades\Route;
 
 /*
 | API REST Expernet - documentée dans public/openapi.json (Swagger UI : /api/docs).
 | Toutes les routes sont préfixées par /api.
 */
+
+// ---------- Supervision ----------
+Route::get('/sante', SanteController::class)->middleware('throttle:60,1');
 
 // ---------- Module public ----------
 Route::get('/formations', [CatalogueController::class, 'index']);
@@ -54,6 +60,20 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::get('/planning', [PlanningController::class, 'index'])->middleware('permission:planning.view');
         Route::get('/planning/ics', [PlanningController::class, 'ics'])->middleware('permission:planning.view');
+        Route::patch('/seances/{seance}/cahier', [PlanningController::class, 'cahier'])->middleware('permission:planning.view');
+        Route::get('/me/a-faire', [PlanningController::class, 'aFaire'])->middleware('permission:documents.rendre');
+
+        // Devoirs : publication, rendus, correction (reportée dans les notes)
+        Route::get('/promotions/{promotion}/devoirs', [DevoirController::class, 'index'])->middleware('permission:documents.view');
+        Route::post('/promotions/{promotion}/devoirs', [DevoirController::class, 'store'])->middleware('permission:documents.upload');
+        Route::get('/devoirs/{devoir}', [DevoirController::class, 'show'])->middleware('permission:documents.view');
+        Route::post('/devoirs/{devoir}/rendu', [DevoirController::class, 'rendre'])->middleware(['permission:documents.rendre', 'throttle:30,1']);
+        Route::post('/rendus/{document}/correction', [DevoirController::class, 'corriger'])->middleware('permission:documents.upload');
+
+        // Notifications de l'ENT
+        Route::get('/notifications', [NotificationController::class, 'index']);
+        Route::post('/notifications/lues', [NotificationController::class, 'toutLire']);
+        Route::post('/notifications/{id}/lue', [NotificationController::class, 'lire']);
 
         // Émargement
         Route::post('/seances/{seance}/emargement/ouvrir', [EmargementController::class, 'ouvrir'])->middleware('permission:emargement.manage');
@@ -70,6 +90,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/promotions/{promotion}/assiduite', [AssiduiteController::class, 'promotion'])->middleware('permission:assiduite.view');
         Route::get('/promotions/{promotion}/etudiants/{etudiant}/assiduite', [AssiduiteController::class, 'etudiant'])->middleware('permission:assiduite.view');
         Route::patch('/emargements/{emargement}/justification', [AssiduiteController::class, 'justifier'])->middleware('permission:assiduite.view');
+        Route::post('/emargements/{emargement}/justificatif', [AssiduiteController::class, 'deposerJustificatif'])->middleware(['permission:documents.rendre', 'throttle:20,1']);
 
         // Notes
         Route::get('/me/notes', [NoteController::class, 'mesNotes'])->middleware('permission:notes.view_own');
@@ -116,6 +137,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('/utilisateurs/{user}/mfa/reinitialiser', [AdminController::class, 'reinitialiserMfa']);
             Route::post('/seances', [AdminController::class, 'creerSeance']);
             Route::get('/candidatures', [CandidatureController::class, 'index']);
+            Route::get('/journal', [AdminController::class, 'journal']);
         });
     });
 });

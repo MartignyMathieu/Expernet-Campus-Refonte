@@ -86,10 +86,11 @@ const date = (d: string) => new Date(d).toLocaleDateString('fr-FR', { weekday: '
         <ul class="absences">
           <li v-for="a in fiche.detail_absences" :key="a.id" :class="a.statut">
             <div class="absence-texte"><strong>{{ date(a.date) }} · {{ a.creneau === 'matin' ? 'matin' : 'après-midi' }}</strong><span class="aide">{{ a.module }}</span>
-              <span v-if="a.motif" class="motif">Motif : {{ a.motif }}</span></div>
+              <span v-if="a.motif" class="motif">Motif : {{ a.motif }}</span>
+              <a v-if="a.justificatif" :href="a.justificatif.url" target="_blank" rel="noopener" class="justif"><Icone nom="fichier" :taille="15" /> Justificatif : {{ a.justificatif.nom }}</a></div>
             <form v-if="a.statut === 'absent'" class="justifier" @submit.prevent="justifier(a, true)">
               <label :for="`motif-${a.id}`" class="sr-only">Motif</label>
-              <input :id="`motif-${a.id}`" v-model="motifs[a.id]" placeholder="Motif (certificat…)" maxlength="255">
+              <input :id="`motif-${a.id}`" v-model="motifs[a.id]" :placeholder="a.justificatif ? 'Motif (ex. : certificat médical fourni)' : 'Motif (certificat…)'" maxlength="255">
               <button class="btn btn-primaire petit">Justifier</button>
             </form>
             <button v-else class="btn btn-secondaire petit" @click="justifier(a, false)">Annuler la justification</button>
@@ -131,6 +132,7 @@ const date = (d: string) => new Date(d).toLocaleDateString('fr-FR', { weekday: '
 .absences li.excuse { background: #F1FAF4; border-color: #CBE9D5; }
 .absence-texte { display: grid; gap: 2px; }
 .motif { font-size: .88rem; }
+.justif { display: inline-flex; align-items: center; gap: 4px; font-size: .88rem; font-weight: 600; }
 .justifier { display: flex; gap: 8px; }
 .justifier input { flex: 1; min-width: 0; font: inherit; padding: 8px 12px; border: 1.5px solid #C6CFD8; border-radius: var(--rayon-s); }
 .petit { min-height: 38px; padding: 6px 14px; font-size: .88rem; }

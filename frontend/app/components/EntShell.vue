@@ -46,7 +46,9 @@ watch(() => route.fullPath, majNonLus)
     <div class="cadre">
       <header class="haut">
         <p class="date">{{ date }}</p>
-        <div class="profil" v-if="user">
+        <div class="actions-haut" v-if="user">
+        <ClocheNotifications />
+        <div class="profil">
           <button class="chip" :aria-expanded="menuProfil" aria-controls="menu-profil" @click="menuProfil = !menuProfil">
             <Avatar class="avatar" :url="user.avatar_url" :nom="`${user.prenom} ${user.nom}`" :taille="36" />
             <span class="nom"><strong>{{ user.prenom }} {{ user.nom }}</strong><small>{{ libelleRole }}</small></span>
@@ -56,6 +58,7 @@ watch(() => route.fullPath, majNonLus)
             <NuxtLink to="/ent/profil" @click="menuProfil = false"><Icone nom="utilisateur" /> Mon profil</NuxtLink>
             <button @click="deconnexion"><Icone nom="deconnexion" /> Se déconnecter</button>
           </div>
+        </div>
         </div>
       </header>
       <main id="contenu" class="contenu" tabindex="-1">
@@ -103,6 +106,7 @@ ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .cadre { min-width: 0; display: flex; flex-direction: column; }
 .haut { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 40px; background: #fff; border-bottom: 1px solid var(--gris-bord); position: sticky; top: 0; z-index: 20; }
 .date { margin: 0; color: var(--texte-doux); text-transform: capitalize; font-size: .9rem; }
+.actions-haut { display: flex; align-items: center; gap: 12px; }
 .profil { position: relative; }
 .chip { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--gris-bord); border-radius: 999px; padding: 5px 14px 5px 5px; cursor: pointer; font: inherit; color: var(--encre); }
 .theme-banane .avatar { background: var(--jaune); color: var(--encre); }

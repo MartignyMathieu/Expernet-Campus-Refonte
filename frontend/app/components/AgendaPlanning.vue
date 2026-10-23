@@ -107,7 +107,24 @@ function ouvrirJour(d: Date) { reference.value = d; vue.value = 'semaine' }
 // ----- Détail d'une séance -----
 const detail = ref<any | null>(null)
 const dialogue = ref<HTMLDialogElement | null>(null)
-function voir(s: any) { detail.value = s; nextTick(() => dialogue.value?.showModal()) }
+function voir(s: any) { detail.value = s; editionCahier.value = false; nextTick(() => dialogue.value?.showModal()) }
+
+// ----- Cahier de textes (lecture pour tous, saisie par le formateur de la séance) -----
+const editionCahier = ref(false); const cahierEnvoi = ref(false); const cahierErreur = ref('')
+const cahier = reactive({ contenu_vu: '', travail_a_faire: '', travail_pour: '' })
+function editerCahier() {
+  Object.assign(cahier, { contenu_vu: detail.value.cahier?.contenu_vu || '', travail_a_faire: detail.value.cahier?.travail_a_faire || '', travail_pour: detail.value.cahier?.travail_pour || '' })
+  cahierErreur.value = ''; editionCahier.value = true
+}
+async function enregistrerCahier() {
+  cahierEnvoi.value = true; cahierErreur.value = ''
+  try {
+    await csrf()
+    const r: any = await api(`/api/seances/${detail.value.id}/cahier`, { method: 'PATCH', body: { contenu_vu: cahier.contenu_vu || null, travail_a_faire: cahier.travail_a_faire || null, travail_pour: cahier.travail_pour || null } })
+    detail.value.cahier = r; editionCahier.value = false
+  } catch (e: any) { cahierErreur.value = Object.values(erreursValidation(e))[0] || e?.data?.message || 'Enregistrement impossible.' } finally { cahierEnvoi.value = false }
+}
+const dateCourteFr = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
 const statut: Record<string, [string, string]> = { present: ['Présent', 'pastille-verte'], absent: ['Absent', 'pastille-rouge'], excuse: ['Excusé', 'pastille-jaune'] }
 const etat = (s: any) => props.role === 'etudiant'
   ? (s.emargement.mon_statut ? statut[s.emargement.mon_statut] : s.emargement.ouvert ? ['À signer', 'pastille-orange'] : null)
@@ -189,6 +206,27 @@ const dateLongue = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('
           <div v-else><dt><Icone nom="groupe" :taille="16" />Promotion</dt><dd>{{ detail.promotion }}</dd></div>
           <div v-if="etat(detail)"><dt><Icone nom="signature" :taille="16" />Émargement</dt><dd><span class="pastille" :class="etat(detail)![1]">{{ etat(detail)![0] }}</span></dd></div>
         </dl>
+        <section class="cahier" aria-labelledby="t-cahier">
+          <div class="cahier-tete">
+            <h3 id="t-cahier"><Icone nom="cahier" :taille="18" /> Cahier de textes</h3>
+            <button v-if="detail.cahier?.modifiable && !editionCahier" class="lien-cahier" @click="editerCahier"><Icone nom="modifier" :taille="15" /> {{ detail.cahier?.contenu_vu || detail.cahier?.travail_a_faire ? 'Modifier' : 'Remplir' }}</button>
+          </div>
+          <form v-if="editionCahier" class="form-cahier" @submit.prevent="enregistrerCahier">
+            <p v-if="cahierErreur" class="message message-erreur" role="alert">{{ cahierErreur }}</p>
+            <div class="champ"><label for="c-vu">Ce qui a été vu</label><textarea id="c-vu" v-model="cahier.contenu_vu" rows="3" maxlength="5000" /></div>
+            <div class="champ"><label for="c-travail">Travail à faire <span class="aide">(les apprenants sont prévenus)</span></label><textarea id="c-travail" v-model="cahier.travail_a_faire" rows="2" maxlength="2000" /></div>
+            <div v-if="cahier.travail_a_faire" class="champ"><label for="c-pour">Pour le</label><input id="c-pour" v-model="cahier.travail_pour" type="date" required></div>
+            <div class="boutons-cahier">
+              <button class="btn btn-primaire petit" :disabled="cahierEnvoi">Enregistrer</button>
+              <button type="button" class="btn btn-secondaire petit" @click="editionCahier = false">Annuler</button>
+            </div>
+          </form>
+          <template v-else>
+            <p v-if="detail.cahier?.contenu_vu" class="vu">{{ detail.cahier.contenu_vu }}</p>
+            <p v-if="detail.cahier?.travail_a_faire" class="travail"><strong>À faire pour le {{ dateCourteFr(detail.cahier.travail_pour) }} :</strong> {{ detail.cahier.travail_a_faire }}</p>
+            <p v-if="!detail.cahier?.contenu_vu && !detail.cahier?.travail_a_faire" class="aide">Rien n'a encore été renseigné pour cette séance.</p>
+          </template>
+        </section>
         <NuxtLink v-if="detail.module_id" :to="`/ent/${role}/documents?module=${detail.module_id}`" class="btn btn-secondaire plein bouton-docs"><Icone nom="documents" :taille="18" /> {{ role === 'formateur' ? 'Déposer un cours ou un TP' : 'Cours et TP du module' }}</NuxtLink>
         <NuxtLink v-if="role === 'etudiant' && detail.emargement.ouvert && !detail.emargement.mon_statut" :to="`/ent/etudiant/emargement/${detail.id}`" class="btn btn-primaire plein">Signer ma présence</NuxtLink>
         <NuxtLink v-else-if="role === 'formateur' && detail.date === aujourdHui && !detail.emargement.cloture" :to="`/ent/formateur/seance/${detail.id}`" class="btn btn-primaire plein">{{ detail.emargement.ouvert ? 'Suivre l\'émargement' : 'Ouvrir l\'émargement' }}</NuxtLink>
@@ -248,7 +286,7 @@ const dateLongue = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('
 .plus { border: 0; background: none; font: inherit; font-size: .74rem; font-weight: 700; color: var(--primaire-texte); cursor: pointer; text-align: left; }
 
 /* Détail */
-.detail { border: 0; border-radius: 18px; padding: 20px 22px; width: min(420px, calc(100vw - 32px)); box-shadow: var(--ombre-forte); }
+.detail { border: 0; border-radius: 18px; padding: 20px 22px; width: min(460px, calc(100vw - 32px)); max-height: 90vh; overflow-y: auto; box-shadow: var(--ombre-forte); }
 .detail[open] { animation: monter .2s ease; }
 .detail::backdrop { background: rgba(8,32,52,.45); }
 .detail-tete { display: flex; justify-content: space-between; align-items: center; }
@@ -259,6 +297,14 @@ const dateLongue = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('
 .detail dt { display: flex; align-items: center; gap: 6px; color: var(--texte-doux); font-size: .88rem; }
 .detail dd { margin: 0; color: var(--encre); font-weight: 500; }
 .plein { width: 100%; }
+.cahier { border-top: 1px solid var(--gris-bord); margin: 12px 0; padding-top: 12px; }
+.cahier-tete { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.cahier h3 { display: flex; align-items: center; gap: 6px; font-size: 1rem; margin: 0 0 6px; }
+.lien-cahier { display: inline-flex; align-items: center; gap: 4px; background: none; border: 0; color: var(--primaire-texte); font: inherit; font-size: .88rem; font-weight: 600; cursor: pointer; }
+.vu { white-space: pre-line; margin: 0 0 8px; }
+.travail { margin: 0; padding: 8px 12px; background: #EDE7FB; border-radius: 8px; color: #3D2A7A; white-space: pre-line; }
+.form-cahier .champ { margin-bottom: 10px; }
+.boutons-cahier { display: flex; gap: 8px; }
 .bouton-docs { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px; }
 .vue-agenda-enter-active, .vue-agenda-leave-active { transition: opacity .18s ease, transform .18s ease; }
 .vue-agenda-enter-from { opacity: 0; transform: translateY(8px); }

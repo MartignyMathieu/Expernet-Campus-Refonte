@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Devoir;
 use App\Models\Role;
 use App\Models\Seance;
 use App\Models\User;
+use App\Services\Journal;
+use App\Services\Notificateur;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -38,6 +41,12 @@ class PlanningController extends Controller
             'promotion_id' => $s->promotion_id,
             'formateur' => $s->formateur->nomComplet(),
             'promotion' => $s->promotion->libelle,
+            'cahier' => [
+                'contenu_vu' => $s->contenu_vu,
+                'travail_a_faire' => $s->travail_a_faire,
+                'travail_pour' => $s->travail_pour?->toDateString(),
+                'modifiable' => $user->hasRole(Role::ADMIN) || $s->formateur_id === $user->id,
+            ],
             'emargement' => [
                 'ouvert' => $s->fenetreOuverte(),
                 'cloture' => $s->cloturee_at !== null,
@@ -99,6 +108,64 @@ class PlanningController extends Controller
         $morceaux[] = $ligne;
 
         return implode("\r\n ", $morceaux);
+    }
+
+    /** Cahier de textes d'une séance : contenu vu et travail à faire (formateur de la séance ou administration). */
+    public function cahier(Request $request, Seance $seance)
+    {
+        $user = $request->user();
+        abort_unless($user->hasRole(Role::ADMIN) || $seance->formateur_id === $user->id, 403, 'Vous n\'animez pas cette séance.');
+        $donnees = $request->validate([
+            'contenu_vu' => ['nullable', 'string', 'max:5000'],
+            'travail_a_faire' => ['nullable', 'string', 'max:2000'],
+            'travail_pour' => ['nullable', 'date', 'required_with:travail_a_faire'],
+        ], ['travail_pour.required_with' => 'Indiquez pour quand le travail est à faire.']);
+
+        $avant = $seance->travail_a_faire;
+        $nettoyer = fn ($t) => isset($t) && trim($t) !== '' ? trim(strip_tags($t)) : null;
+        $seance->forceFill([
+            'contenu_vu' => $nettoyer($donnees['contenu_vu'] ?? null),
+            'travail_a_faire' => $nettoyer($donnees['travail_a_faire'] ?? null),
+            'travail_pour' => ! empty($donnees['travail_a_faire']) ? ($donnees['travail_pour'] ?? null) : null,
+            'cahier_maj_at' => now(),
+        ])->save();
+        $seance->loadMissing(['promotion', 'module:id,intitule']);
+
+        Journal::ecrire('cahier.modification', $seance, "Cahier de textes mis à jour : {$seance->module?->intitule} du ".$seance->date->format('d/m/Y'));
+        if ($seance->travail_a_faire && $seance->travail_a_faire !== $avant) {
+            Notificateur::envoyer($seance->promotion->etudiants()->get(), 'travail', 'Travail à faire : '.$seance->module?->intitule,
+                'Pour le '.$seance->travail_pour?->locale('fr')->isoFormat('dddd D MMMM').' : '.mb_strimwidth($seance->travail_a_faire, 0, 140, '…'), '/ent/etudiant');
+        }
+
+        return response()->json([
+            'contenu_vu' => $seance->contenu_vu, 'travail_a_faire' => $seance->travail_a_faire,
+            'travail_pour' => $seance->travail_pour?->toDateString(), 'modifiable' => true,
+        ]);
+    }
+
+    /** Ce que l'apprenant a à faire : travail du cahier de textes et devoirs non échus, par date. */
+    public function aFaire(Request $request)
+    {
+        $user = $request->user();
+        $promotions = $user->promotions()->pluck('promotions.id');
+
+        $travaux = Seance::with('module:id,intitule')->whereIn('promotion_id', $promotions)
+            ->whereNotNull('travail_a_faire')->whereDate('travail_pour', '>=', today())
+            ->orderBy('travail_pour')->limit(20)->get()
+            ->map(fn (Seance $s) => [
+                'type' => 'travail', 'id' => $s->id, 'pour' => $s->travail_pour->toDateString(), 'module' => $s->module?->intitule,
+                'module_id' => $s->module_id, 'texte' => $s->travail_a_faire, 'donne_le' => $s->date->toDateString(),
+            ]);
+
+        $devoirs = Devoir::with('module:id,intitule')->whereIn('promotion_id', $promotions)->where('echeance', '>=', now())
+            ->withExists(['rendus as rendu' => fn ($q) => $q->where('auteur_id', $user->id)])
+            ->orderBy('echeance')->limit(20)->get()
+            ->map(fn (Devoir $d) => [
+                'type' => 'devoir', 'id' => $d->id, 'pour' => $d->echeance->toIso8601String(), 'module' => $d->module?->intitule,
+                'module_id' => $d->module_id, 'texte' => $d->titre, 'rendu' => (bool) $d->rendu,
+            ]);
+
+        return response()->json($travaux->concat($devoirs)->sortBy('pour')->values());
     }
 
     /** @return array{0: string, 1: string} */

@@ -25,6 +25,11 @@ class Emargement extends Model
         return $this->belongsTo(Seance::class);
     }
 
+    public function justificatif(): BelongsTo
+    {
+        return $this->belongsTo(Document::class, 'justificatif_id');
+    }
+
     public function etudiant(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

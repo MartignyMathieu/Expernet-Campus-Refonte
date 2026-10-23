@@ -69,7 +69,7 @@ class AssiduiteService
      */
     public function bilanEtudiant(User $etudiant, Promotion $promotion): array
     {
-        $emargements = Emargement::with('seance.module:id,intitule')
+        $emargements = Emargement::with(['seance.module:id,intitule', 'justificatif:id,nom_original,mime'])
             ->where('user_id', $etudiant->id)
             ->whereHas('seance', fn ($q) => $q->where('promotion_id', $promotion->id)->whereNotNull('cloturee_at'))
             ->get();
@@ -91,6 +91,10 @@ class AssiduiteService
                     'module' => $e->seance->module?->intitule,
                     'statut' => $e->statut,
                     'motif' => $e->motif,
+                    'justificatif' => $e->justificatif ? [
+                        'id' => $e->justificatif->id, 'nom' => $e->justificatif->nom_original,
+                        'url' => '/api/documents/'.$e->justificatif->id.'/'.($e->justificatif->apercu ? 'apercu' : 'telechargement'),
+                    ] : null,
                 ])->values()->all(),
         ];
     }
