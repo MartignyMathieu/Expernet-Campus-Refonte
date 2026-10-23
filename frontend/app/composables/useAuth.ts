@@ -15,8 +15,13 @@ export function useAuth() {
     return user.value
   }
 
-  /** Étape 1 : identifiants. Renvoie true si un code TOTP est demandé ensuite. */
+  /**
+   * Étape 1 : identifiants. Renvoie true si un code TOTP est demandé ensuite.
+   * Une session déjà ouverte (autre compte) est fermée d'abord : sinon le serveur ignore
+   * la nouvelle connexion et l'on resterait sur le compte précédent.
+   */
   async function connexion(email: string, password: string): Promise<boolean> {
+    if (user.value || await charger()) await fermerSession()
     await csrf()
     const r: any = await api('/api/auth/login', { method: 'POST', body: { email, password } })
     if (r?.two_factor) return true
@@ -30,14 +35,20 @@ export function useAuth() {
     await charger()
   }
 
-  async function deconnexion() {
+  /** Ferme la session côté serveur ; un nouveau jeton CSRF est ensuite nécessaire. */
+  async function fermerSession() {
+    await csrf().catch(() => {})
     await api('/api/auth/logout', { method: 'POST' }).catch(() => {})
     user.value = null
+  }
+
+  async function deconnexion() {
+    await fermerSession()
     await navigateTo('/connexion')
   }
 
   const peut = (permission: string) => !!user.value?.permissions.includes(permission)
   const accueilRole = () => ({ admin: '/ent/admin', formateur: '/ent/formateur', etudiant: '/ent/etudiant' }[user.value?.role || 'etudiant'])
 
-  return { user, charger, connexion, codeMfa, deconnexion, peut, accueilRole }
+  return { user, charger, connexion, codeMfa, deconnexion, fermerSession, peut, accueilRole }
 }

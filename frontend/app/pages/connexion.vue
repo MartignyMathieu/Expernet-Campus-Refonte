@@ -2,8 +2,15 @@
 definePageMeta({ layout: false })
 useSeoMeta({ title: 'Connexion à l\'ENT', robots: 'noindex' })
 
-const { connexion, codeMfa, accueilRole } = useAuth()
+const { user, charger, connexion, codeMfa, fermerSession, accueilRole } = useAuth()
 const route = useRoute()
+const libelleRole = { admin: 'Administration', formateur: 'Formateur', etudiant: 'Apprenant' }
+// Session déjà ouverte : on propose de continuer ou de changer de compte, au lieu d'un formulaire trompeur.
+const verification = ref(true)
+onMounted(async () => { await charger(); verification.value = false })
+async function changerDeCompte() { enCours.value = true; await fermerSession(); enCours.value = false; nextTick(() => document.getElementById('email')?.focus()) }
+// Retour après connexion : uniquement un chemin interne de l'espace (pas de redirection vers un autre site).
+const retourSur = () => { const r = route.query.retour as string | undefined; return r && /^\/ent(\/|$)/.test(r) ? r : null }
 const etape = ref<'identifiants' | 'mfa'>('identifiants')
 const email = ref(''); const motDePasse = ref(''); const code = ref(''); const secours = ref(false)
 const erreur = ref(''); const enCours = ref(false)
@@ -17,7 +24,7 @@ async function soumettre() {
     } else {
       await codeMfa(code.value.trim(), secours.value)
     }
-    await navigateTo((route.query.retour as string) || accueilRole())
+    await navigateTo(retourSur() || accueilRole())
   } catch (e: any) {
     erreur.value = e?.status === 429 ? 'Trop de tentatives. Patientez une minute.'
       : e?.status === 409 && e?.data?.message ? e.data.message   // MFA illisible : l'administration doit la réinitialiser
@@ -49,7 +56,19 @@ async function soumettre() {
       <form class="formulaire" @submit.prevent="soumettre">
         <NuxtLink to="/" class="logo-mobile"><img src="/images/brand/logo-expernet.png" alt="Expernet Campus — retour au site" width="900" height="241"></NuxtLink>
         <Transition name="etape" mode="out-in">
-        <div :key="etape" class="etape">
+        <div v-if="verification" key="verif" class="etape"><p class="aide"><span class="chargement" aria-hidden="true" /> Vérification de votre session…</p></div>
+        <div v-else-if="user && etape === 'identifiants'" key="deja" class="etape">
+          <p class="sur-titre">Espace numérique de travail</p>
+          <h1>Déjà connecté</h1>
+          <div class="session-ouverte">
+            <span class="avatar">{{ user.prenom[0] }}{{ user.nom[0] }}</span>
+            <span><strong>{{ user.prenom }} {{ user.nom }}</strong><small>{{ libelleRole[user.role] }} · {{ user.email }}</small></span>
+          </div>
+          <NuxtLink :to="accueilRole()" class="btn btn-bleu plein">Accéder à mon espace</NuxtLink>
+          <button type="button" class="btn btn-secondaire plein" :disabled="enCours" @click="changerDeCompte">Se connecter avec un autre compte</button>
+          <NuxtLink to="/" class="retour"><Icone nom="retour" :taille="15" /> Retour au site Expernet</NuxtLink>
+        </div>
+        <div v-else :key="etape" class="etape">
         <p class="sur-titre">{{ etape === 'identifiants' ? 'Espace numérique de travail' : 'Sécurité renforcée' }}</p>
         <h1>{{ etape === 'identifiants' ? 'Connexion' : 'Vérification en deux étapes' }}</h1>
         <p class="aide intro">{{ etape === 'identifiants' ? 'Apprenants, formateurs et équipe administrative.' : 'Une étape de plus pour protéger vos données.' }}</p>
@@ -96,6 +115,10 @@ async function soumettre() {
 .etape-leave-active { transition: opacity .18s ease, transform .18s ease; }
 .etape-leave-to { opacity: 0; transform: translateX(-16px); }
 .plein .chargement { margin-right: 4px; }
+.session-ouverte { display: flex; align-items: center; gap: 14px; padding: 14px 16px; margin: 18px 0 8px; border: 1px solid var(--gris-bord); border-radius: var(--rayon); background: var(--gris-fond); }
+.session-ouverte span:last-child { display: grid; min-width: 0; }
+.session-ouverte small { color: var(--texte-doux); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.avatar { width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center; background: var(--primaire-fonce); color: #fff; font-weight: 700; }
 .etape > .message-erreur { animation: secouer .4s ease; }
 .voile { position: absolute; inset: 0; background: linear-gradient(160deg, rgba(0,155,221,.88) 0%, rgba(13,90,138,.9) 45%, rgba(8,32,52,.96) 100%); }
 .visuel-contenu { position: relative; z-index: 1; height: 100%; padding: 48px; display: flex; flex-direction: column; justify-content: space-between; }
