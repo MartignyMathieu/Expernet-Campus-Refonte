@@ -23,7 +23,7 @@ class MessagerieController extends Controller
     public function contacts(Request $request)
     {
         return response()->json($this->service->contactsAutorises($request->user())->map(fn (User $u) => [
-            'id' => $u->id, 'nom' => $u->nomComplet(), 'role' => $u->role->code,
+            'id' => $u->id, 'nom' => $u->nomComplet(), 'role' => $u->role->code, 'avatar_url' => $u->avatarUrl(),
         ])->values());
     }
 
@@ -32,7 +32,7 @@ class MessagerieController extends Controller
         $user = $request->user();
         $conversations = $user->belongsToMany(Conversation::class, 'conversation_participants')
             ->withPivot(['role', 'dernier_lu_id'])
-            ->with(['participants:id,prenom,nom,role_id', 'participants.role:id,code', 'dernierMessage.auteur:id,prenom'])
+            ->with(['participants:id,prenom,nom,role_id,avatar_path', 'participants.role:id,code', 'dernierMessage.auteur:id,prenom'])
             ->orderByDesc('dernier_message_at')->orderByDesc('conversations.id')
             ->get();
 
@@ -108,7 +108,7 @@ class MessagerieController extends Controller
         // Synchronisation : messages modifiés ou supprimés depuis la dernière interrogation
         $majDepuis = $request->date('maj_depuis');
 
-        $messages = $conversation->messages()->with(['auteur:id,prenom,nom', 'piecesJointes'])
+        $messages = $conversation->messages()->with(['auteur:id,prenom,nom,avatar_path', 'piecesJointes'])
             ->when($apres > 0, fn ($q) => $q->where(fn ($w) => $w->where('id', '>', $apres)
                 ->when($majDepuis, fn ($o) => $o->orWhere('updated_at', '>', $majDepuis))))
             ->orderByDesc('id')->limit(100)->get()->reverse()->values();
@@ -142,7 +142,7 @@ class MessagerieController extends Controller
 
         $message = $this->service->envoyer($conversation, $user, $contenu, $fichiers);
 
-        return response()->json($this->formatMessage($message->load(['auteur:id,prenom,nom', 'piecesJointes']), $user), 201);
+        return response()->json($this->formatMessage($message->load(['auteur:id,prenom,nom,avatar_path', 'piecesJointes']), $user), 201);
     }
 
     /** Correction d'un message par son auteur (24 h après l'envoi au plus). */
@@ -159,7 +159,7 @@ class MessagerieController extends Controller
 
         $this->service->modifier($message, $contenu);
 
-        return response()->json($this->formatMessage($message->load(['auteur:id,prenom,nom', 'piecesJointes']), $user));
+        return response()->json($this->formatMessage($message->load(['auteur:id,prenom,nom,avatar_path', 'piecesJointes']), $user));
     }
 
     /** Suppression par l'auteur, ou par un gestionnaire du groupe (modération). */
@@ -174,7 +174,7 @@ class MessagerieController extends Controller
 
         $this->service->supprimer($message);
 
-        return response()->json($this->formatMessage($message->load(['auteur:id,prenom,nom', 'piecesJointes']), $user));
+        return response()->json($this->formatMessage($message->load(['auteur:id,prenom,nom,avatar_path', 'piecesJointes']), $user));
     }
 
     /** Fichier joint : affiché dans le navigateur s'il s'agit d'une image ou d'un PDF, sinon téléchargé. */
@@ -208,7 +208,8 @@ class MessagerieController extends Controller
             'type' => $c->type,
             'titre' => $c->type === Conversation::GROUPE ? $c->nom : $autres->first()?->nomComplet(),
             'interlocuteur_role' => $c->type === Conversation::PRIVEE ? $autres->first()?->role?->code : null,
-            'membres' => $c->participants->map(fn ($p) => ['id' => $p->id, 'nom' => $p->nomComplet(), 'gestionnaire' => $p->pivot->role === 'gestionnaire'])->values(),
+            'avatar_url' => $c->type === Conversation::PRIVEE ? $autres->first()?->avatarUrl() : null,
+            'membres' => $c->participants->map(fn ($p) => ['id' => $p->id, 'nom' => $p->nomComplet(), 'avatar_url' => $p->avatarUrl(), 'gestionnaire' => $p->pivot->role === 'gestionnaire'])->values(),
             'gestionnaire' => $moi?->pivot?->role === 'gestionnaire',
             'dernier_message' => $c->relationLoaded('dernierMessage') && $c->dernierMessage ? [
                 'extrait' => MessagerieService::extrait($c->dernierMessage),
@@ -226,7 +227,7 @@ class MessagerieController extends Controller
         return [
             'id' => $m->id,
             'contenu' => $m->contenu,
-            'auteur' => ['id' => $m->auteur_id, 'nom' => $m->auteur?->nomComplet()],
+            'auteur' => ['id' => $m->auteur_id, 'nom' => $m->auteur?->nomComplet(), 'avatar_url' => $m->auteur?->avatarUrl()],
             'moi' => $m->auteur_id === $user->id,
             'date' => $m->created_at->toIso8601String(),
             'maj' => $m->updated_at->toIso8601String(),

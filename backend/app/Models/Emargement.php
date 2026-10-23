@@ -17,7 +17,7 @@ class Emargement extends Model
 
     protected function casts(): array
     {
-        return ['signe_at' => 'datetime'];
+        return ['signe_at' => 'datetime', 'justifie_at' => 'datetime'];
     }
 
     public function seance(): BelongsTo

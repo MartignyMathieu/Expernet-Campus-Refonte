@@ -32,7 +32,7 @@ async function reinitialiserMfa(u: any) {
           <thead><tr><th scope="col">Nom</th><th scope="col">E-mail</th><th scope="col">Rôle</th><th scope="col">MFA</th><th scope="col">État</th></tr></thead>
           <tbody>
             <tr v-for="u in data?.data" :key="u.id">
-              <td>{{ u.prenom }} {{ u.nom }}</td><td>{{ u.email }}</td>
+              <td><span class="personne"><Avatar :url="u.avatar_url" :nom="`${u.prenom} ${u.nom}`" :taille="32" />{{ u.prenom }} {{ u.nom }}</span></td><td>{{ u.email }}</td>
               <td>
                 <label class="sr-only" :for="`r-${u.id}`">Rôle de {{ u.prenom }}</label>
                 <select :id="`r-${u.id}`" :value="u.role" :disabled="u.id === moi?.id" @change="changerRole(u, ($event.target as HTMLSelectElement).value)">
@@ -68,6 +68,7 @@ async function reinitialiserMfa(u: any) {
   </div>
 </template>
 <style scoped>
+.personne { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; }
 .deux { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); align-items: start; }
 .petit { min-height: 36px; padding: 6px 12px; }
 .mfa { white-space: nowrap; }

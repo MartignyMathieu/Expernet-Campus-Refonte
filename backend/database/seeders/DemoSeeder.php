@@ -110,6 +110,7 @@ class DemoSeeder extends Seeder
 
         // Documents de la promotion (aperçu dans le portail : PDF, image, texte)
         $this->documentsDemo($promo, $f1, $modules);
+        $this->espacesDemo($promo, $admin, $f1, $f2, $etudiants[0], $modules);
 
         // Session d'examen + jury
         $examen = SessionExamen::updateOrCreate(['promotion_id' => $promo->id, 'intitule' => 'Évaluation intermédiaire — AT1'], [
@@ -149,6 +150,55 @@ class DemoSeeder extends Seeder
         $this->command?->warn('Comptes de démonstration : admin@ / formateur@ / formatrice@ / etudiant@expernet.test');
         if (! env('DEMO_PASSWORD')) {
             $this->command?->warn('Mot de passe généré (DEMO_PASSWORD vide) : '.$motDePasse);
+        }
+    }
+
+    /**
+     * Un document de démonstration par espace (pédagogie, TP, examens, administratif, stage, rendus).
+     * Idempotent (un document déjà présent n'est pas recréé) ; ajouté aussi sur une base déjà peuplée.
+     */
+    private function espacesDemo(Promotion $promo, User $admin, User $f1, User $f2, User $etudiant, $modules): void
+    {
+        Document::where('promotion_id', $promo->id)->where('titre', 'Mémo — commandes Git du binôme')->where('espace', 'cours')->update(['espace' => 'exercices']);
+
+        $disque = Storage::disk('local');
+        $pdf = fn (string $titre, string $corps) => \Barryvdh\DomPDF\Facade\Pdf::loadHTML(
+            '<html><head><meta charset="utf-8"><title>'.e($titre).'</title></head><body><div style="font-family:Helvetica,sans-serif;color:#14202B">'
+            .'<p style="color:#009BDD;font-weight:bold;letter-spacing:2px">EXPERNET CAMPUS · CDA 2026-2028</p>'
+            .'<h1 style="color:#0D5A8A">'.e($titre).'</h1>'.$corps.'</div></body></html>'
+        )->output();
+
+        $documents = [
+            ['pedagogie', $f1, 'Programme de formation — CDA', 'Activités types, modules, volumes horaires et modalités d\'évaluation.', 'programme-cda.pdf', 'application/pdf', fn () => $pdf('Programme de formation — CDA',
+                '<p>Titre professionnel Concepteur Développeur d\'Applications (RNCP37873), niveau 6.</p><h3>Activités types</h3><ol><li>Développer une application sécurisée</li>'
+                .'<li>Concevoir et développer une application sécurisée organisée en couches</li><li>Préparer le déploiement d\'une application sécurisée</li></ol>'
+                .'<h3>Modules</h3><ul><li>Environnement de développement — 35 h</li><li>Bases de données — 70 h</li><li>Back-end — 105 h</li><li>Interfaces — 70 h</li><li>Conduite de projet — 35 h</li></ul>')],
+            ['exercices', $f2, 'TP 2 — Modéliser les inscriptions', 'À rendre dans « Mes rendus » avant vendredi 17 h.', 'tp2-modelisation.md', 'text/plain', fn () => "# TP 2 — Modéliser les inscriptions\n\n"
+                ."1. Établir le MCD (promotion, inscription, utilisateur).\n2. Le traduire en MLD en 3e forme normale.\n3. Écrire la migration Laravel.\n\n"
+                ."Rendu : un PDF ou une archive ZIP dans l'espace « Mes rendus ».\n"],
+            ['examens', $admin, 'Convocation — évaluation intermédiaire AT1', 'Date, salle, pièces à présenter et déroulé de l\'épreuve.', 'convocation-at1.pdf', 'application/pdf', fn () => $pdf('Convocation — évaluation intermédiaire AT1',
+                '<p>Vous êtes convoqué(e) à l\'évaluation intermédiaire de l\'activité type 1.</p><ul><li>Lieu : Le Port — Salle 528</li><li>Horaires : 8 h 30 — 12 h</li>'
+                .'<li>Se munir d\'une pièce d\'identité et de son ordinateur portable chargé.</li></ul>')],
+            ['administratif', $admin, 'Règlement intérieur', 'Règles de vie, assiduité, absences et justificatifs.', 'reglement-interieur.pdf', 'application/pdf', fn () => $pdf('Règlement intérieur',
+                '<h3>Assiduité</h3><p>La présence est obligatoire. Toute absence doit être justifiée sous 48 heures (justificatif déposé dans « Mes rendus »).</p>'
+                .'<h3>Émargement</h3><p>L\'émargement numérique se fait par demi-journée, à l\'ouverture de la séance par le formateur.</p>')],
+            ['stage', $f1, 'Offre d\'alternance — développeur web (Saint-Denis)', 'Entreprise partenaire, rythme 3 semaines / 1 semaine.', 'offre-alternance.md', 'text/plain', fn () => "# Offre d'alternance — Développeur web\n\n"
+                ."Entreprise partenaire à Saint-Denis. Stack : Laravel, Vue, PostgreSQL.\nRythme : 3 semaines en entreprise / 1 semaine au campus.\n\nCandidature : CV + lettre à transmettre à la chargée de relations entreprises.\n"],
+            ['rendus', $etudiant, 'Justificatif d\'absence — rendez-vous médical', null, 'justificatif-absence.md', 'text/plain', fn () => "Justificatif d'absence pour la demi-journée du matin (rendez-vous médical).\n"],
+        ];
+
+        foreach ($documents as [$espace, $auteur, $titre, $description, $nom, $mime, $contenu]) {
+            if (Document::where('promotion_id', $promo->id)->where('titre', $titre)->exists()) {
+                continue;
+            }
+            $donnees = $contenu();
+            $chemin = 'documents/'.$promo->id.'/'.Str::uuid().'.'.pathinfo($nom, PATHINFO_EXTENSION);
+            $disque->put($chemin, $donnees);
+            Document::create([
+                'promotion_id' => $promo->id, 'auteur_id' => $auteur->id, 'espace' => $espace, 'titre' => $titre, 'description' => $description,
+                'chemin' => $chemin, 'nom_original' => $nom, 'mime' => $mime, 'taille' => strlen($donnees),
+                'module_id' => $espace === 'exercices' ? ($modules[1] ?? null)?->id : null,
+            ]);
         }
     }
 

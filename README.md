@@ -26,13 +26,15 @@ Projet du titre **Concepteur Développeur d'Applications (CDA)**. Refonte du sys
 
 **Module ENT**
 - Authentification par session sécurisée + **double authentification TOTP réelle**, obligatoire pour les formateurs et les administrateurs, avec codes de secours
-- **RBAC** : rôles admin, formateur, étudiant ; 13 permissions ; cloisonnement des données par promotion
+- **RBAC** : rôles admin, formateur, étudiant ; 16 permissions ; cloisonnement des données par promotion
 - **Émargement numérique** par demi-journée : code à 6 chiffres, signature au doigt, horodatage, empreinte SHA-256 vérifiable, clôture automatique des absents, **attestation PDF**
-- **Tableau de bord formateur** (navigation à motifs de bananes ) : promotions suivies, taux d'assiduité, alertes d'absentéisme
+- **Tableau de bord formateur** (navigation à motifs de bananes ) : promotions suivies, taux d'assiduité, alertes d'absentéisme, derniers rendus des apprenants
+- **Profil** pour tous les rôles : **photo de profil** (recadrée et ré-encodée côté serveur, métadonnées supprimées), téléphone, présentation, changement de mot de passe ; photos reprises dans la messagerie, le trombinoscope et les documents
+- **Assiduité** : l'apprenant suit son taux et ses absences ; le formateur et l'administration consultent une fiche par apprenant (tableau ou trombinoscope) et **justifient les absences** (motif tracé)
 - **Examens** : planification des sessions, composition des jurys (un président), saisie des grilles de compétences
-- **Planning** en vue agenda (semaine, mois, liste) avec export `.ics` vers Outlook ou Google Agenda ; notes avec moyenne pondérée, espace documentaire par promotion avec **aperçu en ligne** (PDF, images, textes)
+- **Planning** en vue agenda (semaine, mois, liste) avec export `.ics` vers Outlook ou Google Agenda ; notes avec moyenne pondérée, espace documentaire par promotion organisé en **espaces** (cours, pédagogie, TP & exercices, examens, administratif, stage & alternance, rendus), avec recherche, **aperçu en ligne** (PDF, images, textes) et suppression par l'auteur ; les apprenants déposent leurs rendus et justificatifs, visibles d'eux seuls et de l'équipe
 - **Messagerie** : conversations privées et groupes ; l'étudiant écrit à sa promotion, à ses formateurs et à l'administration ; le formateur crée des groupes (choix des membres ou toute une promotion) et les gère ; pièces jointes (5 fichiers de 10 Mo) et émoticônes ; modification (24 h) et suppression de ses messages, modération par le gestionnaire du groupe ; compteur de non-lus
-- Administration : comptes, rôles, activation, candidatures, indicateurs
+- Administration : comptes (avec photos), rôles, activation, candidatures, assiduité, documents administratifs, indicateurs
 
 ## Prérequis
 
@@ -69,7 +71,7 @@ Le premier démarrage installe les dépendances, génère la clé, applique les 
 docker compose exec backend vendor/bin/phpunit
 ```
 
-81 tests et 354 assertions (unitaires et intégration), dont 16 sur l'émargement et 11 sur la messagerie. Ils passent sur SQLite (par défaut) et sur PostgreSQL :
+120 tests et 647 assertions (unitaires et intégration), dont 16 sur l'émargement, 11 sur la messagerie et 8 sur le profil. Ils passent sur SQLite (par défaut) et sur PostgreSQL :
 
 ```powershell
 docker compose exec -e DB_CONNECTION=pgsql -e DB_HOST=db backend vendor/bin/phpunit

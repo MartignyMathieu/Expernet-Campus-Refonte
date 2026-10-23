@@ -256,6 +256,7 @@ async function retirer(id: number) {
           <button class="conv" :class="{ active: active?.id === c.id, nonlu: c.non_lus }" :aria-current="active?.id === c.id" @click="ouvrir(c)">
             <span class="avatar" :class="c.type">
               <Icone v-if="c.type === 'groupe'" nom="groupe" :taille="20" poids="fill" />
+              <img v-else-if="c.avatar_url" :src="c.avatar_url" alt="" class="avatar-img" loading="lazy">
               <template v-else>{{ initiales(c.titre) }}</template>
             </span>
             <span class="conv-texte">
@@ -273,7 +274,7 @@ async function retirer(id: number) {
       <template v-if="active">
         <header class="fil-tete">
           <button class="bouton-icone retour-mobile" aria-label="Retour aux conversations" @click="active = null"><Icone nom="retour" :taille="20" /></button>
-          <span class="avatar" :class="active.type"><Icone v-if="active.type === 'groupe'" nom="groupe" :taille="20" poids="fill" /><template v-else>{{ initiales(active.titre) }}</template></span>
+          <span class="avatar" :class="active.type"><Icone v-if="active.type === 'groupe'" nom="groupe" :taille="20" poids="fill" /><img v-else-if="active.avatar_url" :src="active.avatar_url" alt="" class="avatar-img"><template v-else>{{ initiales(active.titre) }}</template></span>
           <div class="fil-titre">
             <h2>{{ active.titre }}</h2>
             <small>{{ active.type === 'groupe' ? `${active.membres.length} membres` : roles[active.interlocuteur_role] || '' }}</small>
@@ -293,7 +294,7 @@ async function retirer(id: number) {
                 </div>
               </div>
               <div class="bulle" :class="{ supprime: m.supprime, edition: edition?.id === m.id }">
-                <span v-if="!m.moi && active.type === 'groupe'" class="auteur">{{ m.auteur.nom }}</span>
+                <span v-if="!m.moi && active.type === 'groupe'" class="auteur"><Avatar :url="m.auteur.avatar_url" :nom="m.auteur.nom" :taille="20" />{{ m.auteur.nom }}</span>
                 <p v-if="m.supprime" class="texte-supprime"><Icone nom="interdit" :taille="15" />Message supprimé</p>
                 <form v-else-if="edition?.id === m.id" class="form-edition" @submit.prevent="enregistrerEdition">
                   <label :for="`edit-${m.id}`" class="sr-only">Modifier le message</label>
@@ -377,7 +378,7 @@ async function retirer(id: number) {
       </template>
       <template v-if="mode === 'membres' && active">
         <ul class="membres-actuels">
-          <li v-for="m in active.membres" :key="m.id"><span>{{ m.nom }} <small v-if="m.gestionnaire" class="pastille pastille-bleue">Gestionnaire</small></span>
+          <li v-for="m in active.membres" :key="m.id"><span class="membre"><Avatar :url="m.avatar_url" :nom="m.nom" :taille="28" />{{ m.nom }} <small v-if="m.gestionnaire" class="pastille pastille-bleue">Gestionnaire</small></span>
             <button v-if="active.gestionnaire && !m.gestionnaire" class="lien-retirer" @click="retirer(m.id)">Retirer</button></li>
         </ul>
         <p v-if="active.gestionnaire" class="aide">Ajouter des membres :</p>
@@ -388,11 +389,11 @@ async function retirer(id: number) {
         <ul class="contacts">
           <li v-for="c in contactsFiltres" :key="c.id">
             <button v-if="mode === 'message'" class="contact" @click="demarrer(c)">
-              <span class="avatar petit">{{ initiales(c.nom) }}</span><span>{{ c.nom }}</span><small class="pastille">{{ roles[c.role] }}</small>
+              <Avatar class="avatar petit" :url="c.avatar_url" :nom="c.nom" :taille="34" /><span>{{ c.nom }}</span><small class="pastille">{{ roles[c.role] }}</small>
             </button>
             <label v-else class="contact case">
               <input v-model="groupe.membres" type="checkbox" :value="c.id">
-              <span class="avatar petit">{{ initiales(c.nom) }}</span><span>{{ c.nom }}</span><small class="pastille">{{ roles[c.role] }}</small>
+              <Avatar class="avatar petit" :url="c.avatar_url" :nom="c.nom" :taille="34" /><span>{{ c.nom }}</span><small class="pastille">{{ roles[c.role] }}</small>
             </label>
           </li>
         </ul>
@@ -476,7 +477,10 @@ async function retirer(id: number) {
 .bulle { max-width: min(72%, 560px); background: #fff; border: 1px solid var(--gris-bord); border-radius: 16px 16px 16px 4px; padding: 10px 14px 6px; box-shadow: 0 1px 2px rgba(11,46,74,.05); }
 .moi .bulle { background: var(--primaire-fonce); border-color: var(--primaire-fonce); color: #fff; border-radius: 16px 16px 4px 16px; }
 .bulle p { margin: 0; white-space: pre-wrap; word-break: break-word; }
-.auteur { display: block; font-size: .78rem; font-weight: 700; color: var(--orange-fonce); margin-bottom: 2px; }
+.membre { display: inline-flex; align-items: center; gap: 8px; }
+.avatar-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.avatar:has(.avatar-img) { overflow: hidden; }
+.auteur { display: flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 700; color: var(--orange-fonce); margin-bottom: 2px; }
 .bulle time { display: block; text-align: right; font-size: .7rem; opacity: .65; margin-top: 2px; }
 .saisie { display: flex; gap: 10px; align-items: flex-end; padding: 12px 16px; background: #fff; border-top: 1px solid var(--gris-bord); flex-wrap: wrap; }
 .saisie .erreur { width: 100%; margin: 0; }

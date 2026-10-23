@@ -1,5 +1,6 @@
 export interface Utilisateur {
   id: number; prenom: string; nom: string; email: string
+  avatar_url: string | null; telephone: string | null; bio: string | null; membre_depuis: string | null
   role: 'admin' | 'formateur' | 'etudiant'
   permissions: string[]
   promotions: { id: number; libelle: string }[]

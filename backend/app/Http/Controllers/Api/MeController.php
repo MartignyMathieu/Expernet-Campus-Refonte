@@ -18,6 +18,10 @@ class MeController extends Controller
             'prenom' => $user->prenom,
             'nom' => $user->nom,
             'email' => $user->email,
+            'avatar_url' => $user->avatarUrl(),
+            'telephone' => $user->telephone,
+            'bio' => $user->bio,
+            'membre_depuis' => $user->created_at?->toDateString(),
             'role' => $user->role->code,
             'permissions' => $user->role->permissions->pluck('code'),
             'promotions' => match ($user->role->code) {

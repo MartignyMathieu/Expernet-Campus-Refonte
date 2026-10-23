@@ -7,7 +7,8 @@ const { data: promos } = await useAsyncData('admin-promos', () => api<any[]>('/a
 const tuiles = computed(() => s.value ? [
   ['Utilisateurs', s.value.utilisateurs, 'utilisateurs'], ['Formations publiées', s.value.formations, 'diplome'], ['Promotions', s.value.promotions, 'groupe'],
   ['Candidatures à traiter', s.value.candidatures_a_traiter, 'candidatures'], ['Séances cette semaine', s.value.seances_semaine, 'planning'],
-  ['Absences cette semaine', s.value.absences_semaine, 'alerte'], ['Comptes à privilèges sans MFA', s.value.comptes_sans_mfa, 'securite'],
+  ['Absences cette semaine', s.value.absences_semaine, 'alerte'], ['Documents publiés cette semaine', s.value.documents_semaine, 'documents'],
+  ['Rendus déposés cette semaine', s.value.rendus_semaine, 'deposer'], ['Comptes à privilèges sans MFA', s.value.comptes_sans_mfa, 'securite'],
 ] : [])
 </script>
 <template>

@@ -90,4 +90,63 @@ class NotesDocumentsTest extends TestCase
         $pdf = $this->deposer('cours.pdf', 'application/pdf');
         $this->actingAs($this->etudiantHorsPromo)->get("/api/documents/{$pdf}/apercu")->assertForbidden();
     }
+
+    public function test_les_documents_sont_ranges_par_espace(): void
+    {
+        $url = "/api/promotions/{$this->promotion->id}/documents";
+        $this->actingAs($this->formateur)->postJson($url, ['titre' => 'Programme', 'espace' => 'pedagogie', 'fichier' => UploadedFile::fake()->create('programme.pdf', 10, 'application/pdf')])->assertCreated();
+        $this->actingAs($this->formateur)->postJson($url, ['titre' => 'Cours', 'fichier' => UploadedFile::fake()->create('cours.pdf', 10, 'application/pdf')])
+            ->assertCreated()->assertJsonPath('espace', 'cours');
+        $this->actingAs($this->formateur)->postJson($url, ['titre' => 'X', 'espace' => 'inconnu', 'fichier' => UploadedFile::fake()->create('x.pdf', 10, 'application/pdf')])->assertStatus(422);
+
+        $this->actingAs($this->etudiant)->getJson($url.'?espace=pedagogie')->assertOk()->assertJsonCount(1)->assertJsonPath('0.titre', 'Programme');
+        $this->actingAs($this->etudiant)->getJson($url)->assertOk()->assertJsonCount(2);
+    }
+
+    public function test_droits_de_depot_par_espace(): void
+    {
+        $url = "/api/promotions/{$this->promotion->id}/documents";
+        $fichier = fn () => UploadedFile::fake()->create('doc.pdf', 10, 'application/pdf');
+
+        // Administratif : administration seule
+        $this->actingAs($this->formateur)->postJson($url, ['titre' => 'Règlement', 'espace' => 'administratif', 'fichier' => $fichier()])->assertForbidden();
+        $this->actingAs($this->admin)->postJson($url, ['titre' => 'Règlement', 'espace' => 'administratif', 'fichier' => $fichier()])->assertCreated();
+        // Rendus : apprenants seuls
+        $this->actingAs($this->formateur)->postJson($url, ['titre' => 'Rendu', 'espace' => 'rendus', 'fichier' => $fichier()])->assertForbidden();
+        $this->actingAs($this->etudiantHorsPromo)->postJson($url, ['titre' => 'Rendu', 'espace' => 'rendus', 'fichier' => $fichier()])->assertForbidden();
+        $this->actingAs($this->etudiant)->postJson($url, ['titre' => 'Cours', 'espace' => 'cours', 'fichier' => $fichier()])->assertForbidden();
+
+        $espaces = collect($this->actingAs($this->etudiant)->getJson('/api/documents/espaces')->assertOk()->json())->keyBy('code');
+        $this->assertTrue($espaces['rendus']['peut_deposer']);
+        $this->assertFalse($espaces['cours']['peut_deposer']);
+        $this->assertSame('Rendus des apprenants', collect($this->actingAs($this->formateur)->getJson('/api/documents/espaces')->json())->firstWhere('code', 'rendus')['libelle']);
+    }
+
+    public function test_un_rendu_n_est_visible_que_de_son_auteur_et_de_l_equipe(): void
+    {
+        $url = "/api/promotions/{$this->promotion->id}/documents";
+        $id = $this->actingAs($this->etudiant)->postJson($url, [
+            'titre' => 'TP 2', 'espace' => 'rendus', 'description' => 'Mon rendu', 'fichier' => UploadedFile::fake()->create('tp2.zip', 50, 'application/zip'),
+        ])->assertCreated()->json('id');
+
+        $this->actingAs($this->etudiant)->getJson($url.'?espace=rendus')->assertJsonCount(1);
+        $this->actingAs($this->autreEtudiant)->getJson($url.'?espace=rendus')->assertJsonCount(0);
+        $this->actingAs($this->autreEtudiant)->get("/api/documents/{$id}/telechargement")->assertForbidden();
+        $this->actingAs($this->formateur)->getJson($url.'?espace=rendus')->assertJsonCount(1);
+        $this->actingAs($this->formateur)->get("/api/documents/{$id}/telechargement")->assertOk();
+    }
+
+    public function test_suppression_par_l_auteur_ou_l_administration(): void
+    {
+        $id = $this->deposer('cours.pdf', 'application/pdf');
+        $this->assertTrue($this->actingAs($this->formateur)->getJson("/api/promotions/{$this->promotion->id}/documents")->json('0.peut_supprimer'));
+        $this->assertFalse($this->actingAs($this->etudiant)->getJson("/api/promotions/{$this->promotion->id}/documents")->json('0.peut_supprimer'));
+
+        $this->actingAs($this->etudiant)->deleteJson("/api/documents/{$id}")->assertForbidden();
+        $this->actingAs($this->formateur)->deleteJson("/api/documents/{$id}")->assertNoContent();
+        $this->assertDatabaseMissing('documents', ['id' => $id]);
+
+        $autre = $this->deposer('plan.pdf', 'application/pdf');
+        $this->actingAs($this->admin)->deleteJson("/api/documents/{$autre}")->assertNoContent();
+    }
 }

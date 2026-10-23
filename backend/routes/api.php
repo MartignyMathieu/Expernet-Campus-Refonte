@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\MeController;
 use App\Http\Controllers\Api\MessagerieController;
 use App\Http\Controllers\Api\NoteController;
 use App\Http\Controllers\Api\PlanningController;
+use App\Http\Controllers\Api\ProfilController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,6 +41,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/me/mfa/desactiver', [MeController::class, 'desactiverMfa'])->middleware('throttle:6,1');
 
     Route::middleware('mfa')->group(function () {
+        // Profil (tous les rôles)
+        Route::patch('/me/profil', [ProfilController::class, 'modifier']);
+        Route::post('/me/avatar', [ProfilController::class, 'deposerAvatar'])->middleware('throttle:10,1');
+        Route::delete('/me/avatar', [ProfilController::class, 'supprimerAvatar']);
+        Route::put('/me/mot-de-passe', [ProfilController::class, 'changerMotDePasse'])->middleware('throttle:6,1');
+        Route::get('/utilisateurs/{user}/avatar', [ProfilController::class, 'avatar']);
+        Route::get('/me/assiduite', [AssiduiteController::class, 'moi'])->middleware('permission:emargement.sign');
+
         Route::get('/planning', [PlanningController::class, 'index'])->middleware('permission:planning.view');
         Route::get('/planning/ics', [PlanningController::class, 'ics'])->middleware('permission:planning.view');
 
@@ -56,6 +65,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // Tableau de bord formateur
         Route::get('/formateur/promotions', [AssiduiteController::class, 'mesPromotions'])->middleware('permission:assiduite.view');
         Route::get('/promotions/{promotion}/assiduite', [AssiduiteController::class, 'promotion'])->middleware('permission:assiduite.view');
+        Route::get('/promotions/{promotion}/etudiants/{etudiant}/assiduite', [AssiduiteController::class, 'etudiant'])->middleware('permission:assiduite.view');
+        Route::patch('/emargements/{emargement}/justification', [AssiduiteController::class, 'justifier'])->middleware('permission:assiduite.view');
 
         // Notes
         Route::get('/me/notes', [NoteController::class, 'mesNotes'])->middleware('permission:notes.view_own');
@@ -69,8 +80,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/examens/{session}/evaluations', [ExamenController::class, 'evaluer'])->middleware('permission:competences.evaluate');
 
         // Documents
+        Route::get('/documents/espaces', [DocumentController::class, 'espaces'])->middleware('permission:documents.view');
         Route::get('/promotions/{promotion}/documents', [DocumentController::class, 'index'])->middleware('permission:documents.view');
-        Route::post('/promotions/{promotion}/documents', [DocumentController::class, 'store'])->middleware('permission:documents.upload');
+        // Droit de dépôt vérifié par espace (documents.upload pour l'équipe, documents.rendre pour les rendus)
+        Route::post('/promotions/{promotion}/documents', [DocumentController::class, 'store'])->middleware(['permission:documents.view', 'throttle:30,1']);
+        Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])->middleware('permission:documents.view');
         Route::get('/documents/{document}/telechargement', [DocumentController::class, 'telecharger'])->middleware('permission:documents.view');
         Route::get('/documents/{document}/apercu', [DocumentController::class, 'apercu'])->middleware('permission:documents.view');
 

@@ -13,7 +13,7 @@ import {
   PhTimer, PhFingerprint, PhIdentificationBadge, PhUsersFour, PhUserCircle,
   PhCurrencyEur, PhCalendarCheck, PhTarget, PhListChecks, PhFunnel, PhClipboardText, PhTag,
   PhPaperclip, PhSmiley, PhFile, PhImage, PhEye,
-  PhPencilSimple, PhTrash, PhDotsThreeVertical, PhProhibit,
+  PhPencilSimple, PhTrash, PhDotsThreeVertical, PhProhibit, PhCamera, PhKey, PhUploadSimple,
 } from '@phosphor-icons/vue'
 
 const props = withDefaults(defineProps<{ nom: string; taille?: number | string; poids?: 'thin' | 'light' | 'regular' | 'bold' | 'fill' | 'duotone'; libelle?: string }>(), { taille: 20, poids: 'regular' })
@@ -34,6 +34,7 @@ const icones: Record<string, any> = {
   euro: PhCurrencyEur, session: PhCalendarCheck, objectif: PhTarget, prerequis: PhListChecks, filtre: PhFunnel, programme: PhClipboardText, tarif: PhTag,
   trombone: PhPaperclip, emoji: PhSmiley, fichier: PhFile, image: PhImage, oeil: PhEye,
   modifier: PhPencilSimple, supprimer: PhTrash, options: PhDotsThreeVertical, interdit: PhProhibit,
+  photo: PhCamera, cle: PhKey, deposer: PhUploadSimple,
 }
 const composant = computed(() => icones[props.nom] || PhInfo)
 </script>
