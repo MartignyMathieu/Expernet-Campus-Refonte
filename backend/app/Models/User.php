@@ -18,9 +18,9 @@ class User extends Authenticatable
 
     protected $attributes = ['actif' => true];
 
-    protected $fillable = ['role_id', 'prenom', 'nom', 'email', 'password', 'actif'];
+    protected $fillable = ['role_id', 'prenom', 'nom', 'email', 'password', 'actif', 'telephone', 'bio'];
 
-    protected $hidden = ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'];
+    protected $hidden = ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes', 'avatar_path'];
 
     protected function casts(): array
     {
@@ -85,5 +85,16 @@ class User extends Authenticatable
     public function nomComplet(): string
     {
         return trim($this->prenom.' '.$this->nom);
+    }
+
+    /**
+     * URL de la photo de profil (servie par l'API aux seuls utilisateurs connectés), ou null.
+     * Le nom de fichier aléatoire sert de « version » : une nouvelle photo invalide le cache du navigateur.
+     */
+    public function avatarUrl(): ?string
+    {
+        return $this->avatar_path
+            ? '/api/utilisateurs/'.$this->id.'/avatar?v='.pathinfo($this->avatar_path, PATHINFO_FILENAME)
+            : null;
     }
 }

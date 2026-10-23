@@ -44,6 +44,7 @@ class AssiduiteService
             return [
                 'id' => $e->id,
                 'nom' => $e->nomComplet(),
+                'avatar_url' => $e->avatarUrl(),
                 'taux' => $taux,
                 'absences' => $absences,
                 'alerte' => $taux !== null && $taux < $seuil,
@@ -58,6 +59,39 @@ class AssiduiteService
             'seuil' => $seuil,
             'etudiants' => $lignes->all(),
             'alertes' => $lignes->where('alerte', true)->values()->all(),
+        ];
+    }
+
+    /**
+     * Bilan personnel d'un apprenant : taux, décompte par statut et détail des absences.
+     *
+     * @return array{promotion: array, taux: ?float, seuil: int, presences: int, absences: int, excuses: int, detail_absences: array}
+     */
+    public function bilanEtudiant(User $etudiant, Promotion $promotion): array
+    {
+        $emargements = Emargement::with('seance.module:id,intitule')
+            ->where('user_id', $etudiant->id)
+            ->whereHas('seance', fn ($q) => $q->where('promotion_id', $promotion->id)->whereNotNull('cloturee_at'))
+            ->get();
+        $compte = fn (string $statut) => $emargements->where('statut', $statut)->count();
+
+        return [
+            'promotion' => ['id' => $promotion->id, 'libelle' => $promotion->libelle],
+            'taux' => $this->tauxEtudiant($etudiant, $promotion),
+            'seuil' => (int) config('expernet.assiduite.seuil_alerte'),
+            'presences' => $compte(Emargement::PRESENT),
+            'absences' => $compte(Emargement::ABSENT),
+            'excuses' => $compte(Emargement::EXCUSE),
+            'detail_absences' => $emargements->whereIn('statut', [Emargement::ABSENT, Emargement::EXCUSE])
+                ->sortByDesc(fn ($e) => $e->seance->date.$e->seance->creneau)
+                ->map(fn ($e) => [
+                    'id' => $e->id,
+                    'date' => \Illuminate\Support\Carbon::parse($e->seance->date)->toDateString(),
+                    'creneau' => $e->seance->creneau,
+                    'module' => $e->seance->module?->intitule,
+                    'statut' => $e->statut,
+                    'motif' => $e->motif,
+                ])->values()->all(),
         ];
     }
 }

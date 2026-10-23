@@ -2,10 +2,9 @@
 <script setup lang="ts">
 export interface EntreeMenu { libelle: string; to: string; icone: string }
 const props = defineProps<{ menu: EntreeMenu[]; titre: string; theme?: 'banane' | 'standard' }>()
-const { user, deconnexion } = useAuth()
+const { user, deconnexion, accueilRole } = useAuth()
 const route = useRoute()
 const actif = (to: string) => route.path === to || (to !== props.menu[0]?.to && route.path.startsWith(to))
-const initiales = computed(() => ((user.value?.prenom?.[0] || '') + (user.value?.nom?.[0] || '')).toUpperCase())
 const libelleRole = computed(() => ({ admin: 'Administrateur', formateur: 'Formateur', etudiant: 'Apprenant' } as any)[user.value?.role || ''] || '')
 const date = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
 const menuProfil = ref(false)
@@ -24,7 +23,7 @@ watch(() => route.fullPath, majNonLus)
   <div class="ent" :class="'theme-' + (theme || 'standard')">
     <a href="#contenu" class="lien-evitement">Aller au contenu</a>
     <aside class="barre" aria-label="Navigation de l'espace">
-      <NuxtLink to="/" class="logo"><img src="/images/brand/logo-expernet.png" alt="Expernet Campus — retour au site" width="900" height="241"></NuxtLink>
+      <NuxtLink :to="accueilRole()" class="logo"><img src="/images/brand/logo-expernet.png" alt="Expernet Campus — accueil de mon espace" width="900" height="241"></NuxtLink>
       <p class="espace"><span class="point" aria-hidden="true" />{{ titre }}</p>
       <nav>
         <ul>
@@ -49,13 +48,13 @@ watch(() => route.fullPath, majNonLus)
         <p class="date">{{ date }}</p>
         <div class="profil" v-if="user">
           <button class="chip" :aria-expanded="menuProfil" aria-controls="menu-profil" @click="menuProfil = !menuProfil">
-            <span class="avatar" aria-hidden="true">{{ initiales }}</span>
+            <Avatar class="avatar" :url="user.avatar_url" :nom="`${user.prenom} ${user.nom}`" :taille="36" />
             <span class="nom"><strong>{{ user.prenom }} {{ user.nom }}</strong><small>{{ libelleRole }}</small></span>
             <Icone nom="deplier" :taille="14" />
           </button>
           <div v-show="menuProfil" id="menu-profil" class="menu-profil">
+            <NuxtLink to="/ent/profil" @click="menuProfil = false"><Icone nom="utilisateur" /> Mon profil</NuxtLink>
             <NuxtLink to="/ent/securite" @click="menuProfil = false"><Icone nom="securite" /> Sécurité du compte</NuxtLink>
-            <NuxtLink to="/" @click="menuProfil = false"><Icone nom="site" /> Site public</NuxtLink>
             <button @click="deconnexion"><Icone nom="deconnexion" /> Se déconnecter</button>
           </div>
         </div>
@@ -107,7 +106,6 @@ ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .date { margin: 0; color: var(--texte-doux); text-transform: capitalize; font-size: .9rem; }
 .profil { position: relative; }
 .chip { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--gris-bord); border-radius: 999px; padding: 5px 14px 5px 5px; cursor: pointer; font: inherit; color: var(--encre); }
-.avatar { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--primaire-fonce); color: #fff; font-weight: 700; font-size: .85rem; }
 .theme-banane .avatar { background: var(--jaune); color: var(--encre); }
 .nom { display: grid; text-align: left; line-height: 1.2; }
 .nom small { color: var(--texte-doux); }

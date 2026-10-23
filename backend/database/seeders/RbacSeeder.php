@@ -19,6 +19,7 @@ class RbacSeeder extends Seeder
         'notes.manage' => 'Saisir des notes',
         'documents.view' => 'Consulter les documents de sa promotion',
         'documents.upload' => 'Déposer des documents pédagogiques',
+        'documents.rendre' => 'Déposer ses rendus et justificatifs',
         'examens.view' => 'Consulter les sessions d\'examen',
         'examens.manage' => 'Planifier les examens et composer les jurys',
         'competences.evaluate' => 'Saisir les grilles de compétences (membre du jury)',
@@ -28,7 +29,7 @@ class RbacSeeder extends Seeder
     ];
 
     public const MATRICE = [
-        Role::ETUDIANT => ['planning.view', 'emargement.sign', 'attestation.download', 'notes.view_own', 'documents.view', 'messagerie.use'],
+        Role::ETUDIANT => ['planning.view', 'emargement.sign', 'attestation.download', 'notes.view_own', 'documents.view', 'documents.rendre', 'messagerie.use'],
         Role::FORMATEUR => ['planning.view', 'emargement.manage', 'assiduite.view', 'notes.manage', 'documents.view',
             'documents.upload', 'examens.view', 'competences.evaluate', 'messagerie.use', 'messagerie.groupes'],
         Role::ADMIN => ['planning.view', 'assiduite.view', 'documents.view', 'documents.upload', 'examens.view',

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Candidature;
+use App\Models\Document;
 use App\Models\Emargement;
 use App\Models\Formation;
 use App\Models\Promotion;
@@ -27,6 +28,8 @@ class AdminController extends Controller
             'seances_semaine' => Seance::whereDate('date', '>=', now()->startOfWeek())->whereDate('date', '<=', now()->endOfWeek())->count(),
             'absences_semaine' => Emargement::where('statut', Emargement::ABSENT)
                 ->whereHas('seance', fn ($q) => $q->whereDate('date', '>=', now()->startOfWeek())->whereDate('date', '<=', now()->endOfWeek()))->count(),
+            'documents_semaine' => Document::where('espace', '!=', Document::RENDUS)->where('created_at', '>=', now()->startOfWeek())->count(),
+            'rendus_semaine' => Document::where('espace', Document::RENDUS)->where('created_at', '>=', now()->startOfWeek())->count(),
             'comptes_sans_mfa' => User::whereHas('role', fn ($q) => $q->whereIn('code', config('expernet.mfa_obligatoire_pour')))
                 ->whereNull('two_factor_confirmed_at')->count(),
         ]);
@@ -36,7 +39,7 @@ class AdminController extends Controller
     {
         return User::with('role:id,code,libelle')->orderBy('nom')->paginate(25)->through(fn (User $u) => [
             'id' => $u->id, 'prenom' => $u->prenom, 'nom' => $u->nom, 'email' => $u->email,
-            'role' => $u->role->code, 'actif' => $u->actif, 'mfa' => $u->aMfaActive(),
+            'role' => $u->role->code, 'actif' => $u->actif, 'mfa' => $u->aMfaActive(), 'avatar_url' => $u->avatarUrl(),
         ]);
     }
 

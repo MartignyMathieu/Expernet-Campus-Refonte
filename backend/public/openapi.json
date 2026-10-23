@@ -327,6 +327,286 @@
         }
       }
     },
+    "/api/me/profil": {
+      "patch": {
+        "tags": [
+          "Identité"
+        ],
+        "summary": "Modifier ses coordonnées (téléphone, présentation)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides"
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "telephone": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 20
+                  },
+                  "bio": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 280
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/me/avatar": {
+      "post": {
+        "tags": [
+          "Identité"
+        ],
+        "summary": "Déposer sa photo de profil (JPEG, PNG ou WebP, 4 Mo max)",
+        "responses": {
+          "201": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides"
+          }
+        },
+        "description": "La photo est recadrée en carré 400 px et ré-encodée en JPEG (métadonnées EXIF supprimées).",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "photo"
+                ],
+                "properties": {
+                  "photo": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Identité"
+        ],
+        "summary": "Supprimer sa photo de profil",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/me/mot-de-passe": {
+      "put": {
+        "tags": [
+          "Identité"
+        ],
+        "summary": "Changer son mot de passe",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Données invalides"
+          }
+        },
+        "description": "Mot de passe actuel exigé ; 12 caractères minimum, majuscules, minuscules et chiffres.",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "mot_de_passe_actuel",
+                  "password",
+                  "password_confirmation"
+                ],
+                "properties": {
+                  "mot_de_passe_actuel": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password"
+                  },
+                  "password_confirmation": {
+                    "type": "string",
+                    "format": "password"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/utilisateurs/{user}/avatar": {
+      "get": {
+        "tags": [
+          "Identité"
+        ],
+        "summary": "Photo de profil d'un membre de l'ENT (image/jpeg)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pas de photo"
+          }
+        },
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de l'utilisateur",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/me/assiduite": {
+      "get": {
+        "tags": [
+          "Assiduité"
+        ],
+        "summary": "Mon assiduité : taux, présences, absences et détail par demi-journée",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `emargement.sign`.",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
     "/api/planning": {
       "get": {
         "tags": [
@@ -899,6 +1179,129 @@
         ]
       }
     },
+    "/api/promotions/{promotion}/etudiants/{etudiant}/assiduite": {
+      "get": {
+        "tags": [
+          "Assiduité"
+        ],
+        "summary": "Assiduité détaillée d'un apprenant (équipe pédagogique)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Apprenant hors de la promotion"
+          }
+        },
+        "description": "Permission RBAC requise : `assiduite.view`. Formateur de la promotion ou administrateur.",
+        "parameters": [
+          {
+            "name": "promotion",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la promotion",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "etudiant",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de l'apprenant",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/emargements/{emargement}/justification": {
+      "patch": {
+        "tags": [
+          "Assiduité"
+        ],
+        "summary": "Justifier une absence (absent ⇄ excusé, motif tracé)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Demi-journée signée ou données invalides"
+          }
+        },
+        "description": "Permission RBAC requise : `assiduite.view`. Formateur de la promotion ou administrateur.",
+        "parameters": [
+          {
+            "name": "emargement",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de l'émargement",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "justifiee"
+                ],
+                "properties": {
+                  "justifiee": {
+                    "type": "boolean"
+                  },
+                  "motif": {
+                    "type": "string",
+                    "maxLength": 255
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/me/notes": {
       "get": {
         "tags": [
@@ -1234,6 +1637,38 @@
         ]
       }
     },
+    "/api/documents/espaces": {
+      "get": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Espaces documentaires (cours, pédagogie, TP, examens, administratif, stage, rendus) et droit de dépôt",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `documents.view`.",
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
     "/api/promotions/{promotion}/documents": {
       "get": {
         "tags": [
@@ -1258,7 +1693,7 @@
             }
           }
         },
-        "description": "Permission RBAC requise : `documents.view`.",
+        "description": "Permission RBAC requise : `documents.view`. Un apprenant ne voit, dans « rendus », que ses propres dépôts.",
         "parameters": [
           {
             "name": "promotion",
@@ -1267,6 +1702,24 @@
             "description": "Identifiant de la promotion",
             "schema": {
               "type": "integer"
+            }
+          },
+          {
+            "name": "espace",
+            "in": "query",
+            "required": false,
+            "description": "Filtrer par espace",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "cours",
+                "pedagogie",
+                "exercices",
+                "examens",
+                "administratif",
+                "stage",
+                "rendus"
+              ]
             }
           }
         ],
@@ -1299,7 +1752,7 @@
             }
           }
         },
-        "description": "Permission RBAC requise : `documents.upload`.",
+        "description": "Permission `documents.upload` (équipe pédagogique) ou `documents.rendre` (apprenant, espace « rendus » uniquement). L'espace « administratif » est réservé à l'administration.",
         "parameters": [
           {
             "name": "promotion",
@@ -1336,6 +1789,23 @@
                   "fichier": {
                     "type": "string",
                     "format": "binary"
+                  },
+                  "espace": {
+                    "type": "string",
+                    "default": "cours",
+                    "enum": [
+                      "cours",
+                      "pedagogie",
+                      "exercices",
+                      "examens",
+                      "administratif",
+                      "stage",
+                      "rendus"
+                    ]
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 500
                   }
                 }
               }
@@ -1420,6 +1890,49 @@
           },
           "415": {
             "description": "Format sans aperçu (Office, ZIP) : utiliser le téléchargement"
+          }
+        },
+        "description": "Permission RBAC requise : `documents.view`.",
+        "parameters": [
+          {
+            "name": "document",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant du document",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
+    "/api/documents/{document}": {
+      "delete": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Supprimer un document (auteur ou administration)",
+        "responses": {
+          "204": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
           }
         },
         "description": "Permission RBAC requise : `documents.view`.",
@@ -3096,6 +3609,25 @@
                 "type": "boolean"
               }
             }
+          },
+          "avatar_url": {
+            "type": "string",
+            "nullable": true,
+            "description": "URL de la photo de profil (servie aux utilisateurs connectés)"
+          },
+          "telephone": {
+            "type": "string",
+            "nullable": true
+          },
+          "bio": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 280
+          },
+          "membre_depuis": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
           }
         }
       },
