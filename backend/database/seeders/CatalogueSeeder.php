@@ -16,7 +16,7 @@ class CatalogueSeeder extends Seeder
 {
     public function run(): void
     {
-        $lePort = Campus::updateOrCreate(['nom' => 'La Réunion — Le Port'], ['adresse' => 'Parc 2000, 3 avenue Théodore Drouhet, 97420 Le Port']);
+        $lePort = Campus::updateOrCreate(['nom' => 'La Réunion - Le Port'], ['adresse' => 'Parc 2000, 3 avenue Théodore Drouhet, 97420 Le Port']);
         $mayotte = Campus::updateOrCreate(['nom' => 'Mayotte'], ['adresse' => null]);
 
         $info = Filiere::updateOrCreate(['code' => 'informatique'], ['libelle' => 'Informatique']);
@@ -37,7 +37,7 @@ class CatalogueSeeder extends Seeder
                 ['Administrer les systèmes serveurs', 'Administrer et sécuriser les réseaux', 'Concevoir un système d\'information sécurisé', 'Piloter les projets d\'évolution du SI'],
                 ['Bac+2 / niveau 5 en informatique', 'Ou Bac+2 avec des compétences prononcées en informatique'],
                 ['Administrateur système et/ou réseau', 'Administrateur de bases de données', 'Spécialiste système et réseau']],
-            ['hacking-cybersecurite-bac5', $info, 'Hacking & Cybersécurité', 'Participe directement aux projets de l\'entreprise liés à la sécurité numérique.', 7, 'RNCP36399', 'ESD — Expert en Sécurité Digitale', '15 semaines en formation, 40 semaines en entreprise sur 1 an', '2026-11-23', [$lePort],
+            ['hacking-cybersecurite-bac5', $info, 'Hacking & Cybersécurité', 'Participe directement aux projets de l\'entreprise liés à la sécurité numérique.', 7, 'RNCP36399', 'ESD - Expert en Sécurité Digitale', '15 semaines en formation, 40 semaines en entreprise sur 1 an', '2026-11-23', [$lePort],
                 ['Accompagner la mise en œuvre d\'une politique de sécurité', 'Concevoir un plan stratégique de sécurité', 'Conduire un audit de sécurité'],
                 ['Bac+3 / niveau 6 en informatique', 'Ou Bac+3/4 avec des compétences prononcées en informatique'],
                 ['Expert·e en sécurité numérique', 'Consultant·e SSI', 'Auditeur·rice SSI', 'Assistant·e RSSI']],
@@ -45,15 +45,15 @@ class CatalogueSeeder extends Seeder
                 ['Gérer les processus et la qualité des projets informatiques', 'Gérer les ressources des projets', 'Traduire les besoins métiers en besoins fonctionnels et techniques'],
                 ['Diplôme de niveau 6 (Bac+3/4) en informatique ou en maîtrise d\'ouvrage', 'Formation continue : 3 ans d\'expérience professionnelle'],
                 ['Chef·fe de projet IT', 'Responsable projet', 'Consultant·e MOA/MOE']],
-            ['bac2-graphiste-multimedia-ia', $mkt, 'Graphiste, Multimédia & IA', 'Conçoit et réalise le design graphique d\'interfaces numériques en respectant la charte.', 5, 'RNCP40237', 'ECAD Consultants — IESA Multimédia', '3 semaines en entreprise / 1 semaine à l\'école', '2026-10-12', [$lePort],
+            ['bac2-graphiste-multimedia-ia', $mkt, 'Graphiste, Multimédia & IA', 'Conçoit et réalise le design graphique d\'interfaces numériques en respectant la charte.', 5, 'RNCP40237', 'ECAD Consultants - IESA Multimédia', '3 semaines en entreprise / 1 semaine à l\'école', '2026-10-12', [$lePort],
                 ['Concevoir une proposition créative cohérente avec une identité de marque', 'Réaliser des contenus graphiques print et digital', 'Intégrer l\'IA générative dans le processus de création'],
                 ['Baccalauréat, DAEU ou certification de niveau 4'],
                 ['Graphiste multimédia / web', 'Infographiste', 'Webdesigner']],
-            ['chef-de-projet-digital-bac3', $mkt, 'Chef de projet digital', 'Coordonne les opérations de marketing digital et de webmarketing.', 6, 'RNCP42627', 'ECAD Consultants — IESA Multimédia', '2 semaines en entreprise / 1 semaine à l\'école', '2026-09-07', [$lePort],
+            ['chef-de-projet-digital-bac3', $mkt, 'Chef de projet digital', 'Coordonne les opérations de marketing digital et de webmarketing.', 6, 'RNCP42627', 'ECAD Consultants - IESA Multimédia', '2 semaines en entreprise / 1 semaine à l\'école', '2026-09-07', [$lePort],
                 ['Gérer un projet de production d\'une solution digitale', 'Mettre en œuvre une stratégie webmarketing', 'Créer des contenus digitaux'],
                 ['Bac+2 (DUT TC, BTS COM…) ou 120 crédits ECTS avec appétence pour le marketing digital'],
                 ['Chef de projet digital', 'Spécialiste SEO / SEA', 'Community manager', 'UX / UI designer']],
-            ['expert-en-strategie-digitale-bac5', $mkt, 'Expert en stratégie digitale', 'Conseille l\'entreprise en définissant sa stratégie de communication digitale.', 7, 'RNCP36287', 'ECAD Consultants — IESA Multimédia', '2 semaines en entreprise / 1 semaine à l\'école', '2026-10-05', [$lePort],
+            ['expert-en-strategie-digitale-bac5', $mkt, 'Expert en stratégie digitale', 'Conseille l\'entreprise en définissant sa stratégie de communication digitale.', 7, 'RNCP36287', 'ECAD Consultants - IESA Multimédia', '2 semaines en entreprise / 1 semaine à l\'école', '2026-10-05', [$lePort],
                 ['Définir une stratégie digitale', 'Déployer un dispositif digital de communication et marketing', 'Piloter un dispositif digital'],
                 ['Titre ou diplôme de niveau 6 (Bac+3, 180 crédits ECTS) dans le digital, le commerce ou la communication'],
                 ['Responsable e-commerce', 'Manager de projet digital', 'Growth hacker', 'Lead UX']],

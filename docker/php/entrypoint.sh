@@ -11,8 +11,12 @@ CLE="${APP_KEY:-$ANCIENNE_CLE}"
 echo "APP_KEY=\"$CLE\"" >> .env.tmp
 mv .env.tmp .env
 
-# 2. Dépendances PHP
-[ -f vendor/autoload.php ] || composer install --no-interaction --prefer-dist
+# 2. Dépendances PHP (volume Docker) : réinstallées seulement si composer.lock a changé
+EMPREINTE=$(md5sum composer.lock | cut -d' ' -f1)
+if [ ! -f vendor/autoload.php ] || [ "$(cat vendor/.empreinte 2>/dev/null)" != "$EMPREINTE" ]; then
+  composer install --no-interaction --prefer-dist --optimize-autoloader
+  echo "$EMPREINTE" > vendor/.empreinte
+fi
 
 # 3. Clé de chiffrement (une seule fois, conservée ensuite dans backend/.env)
 if [ -z "$CLE" ]; then

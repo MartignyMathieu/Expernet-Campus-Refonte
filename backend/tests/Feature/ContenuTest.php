@@ -121,4 +121,25 @@ class ContenuTest extends TestCase
         $this->assertSame('evenements', $article->categorie);
         $this->assertSame('<p>Contenu</p>', $article->contenu);
     }
+
+    public function test_formation_continue_a_propos_actualites_et_planning(): void
+    {
+        $this->getJson('/api/formation-continue/a-propos')->assertOk()
+            ->assertJsonCount(4, 'histoire')->assertJsonPath('histoire.0.annee', 2002)
+            ->assertJsonCount(7, 'equipe')->assertJsonPath('certification.nom', 'Qualiopi')
+            ->assertJsonCount(3, 'locaux');
+
+        $actualites = $this->getJson('/api/formation-continue/actualites')->assertOk()->json();
+        $this->assertCount(26, $actualites);
+        $this->assertStringStartsWith('https://expernet.re/', $actualites[0]['url_source']);
+
+        \App\Models\FcStage::query()->limit(2)->update(['prochaine_session' => today()->addDays(10)->toDateString()]);
+        \App\Models\FcStage::query()->skip(2)->limit(1)->get()->each->update(['prochaine_session' => today()->subDay()->toDateString()]);
+        $sessions = $this->getJson('/api/formation-continue/planning')->assertOk()->assertJsonStructure(['note', 'locaux', 'sessions'])->json('sessions');
+        $this->assertNotEmpty($sessions);
+        foreach ($sessions as $session) {
+            $this->assertGreaterThanOrEqual(today()->toDateString(), $session['prochaine_session']);
+        }
+        $this->assertSame(collect($sessions)->pluck('prochaine_session')->sort()->values()->all(), collect($sessions)->pluck('prochaine_session')->all());
+    }
 }

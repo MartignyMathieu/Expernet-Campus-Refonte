@@ -23,11 +23,11 @@ const prochaine = computed(() => semaine.value?.seances.find((s: any) => s.date 
       <section class="carte" aria-labelledby="t-jour">
         <h2 id="t-jour">Aujourd'hui</h2>
         <PlanningSemaine :seances="planning?.seances || []" role="etudiant" />
-        <p v-if="prochaine" class="aide">Prochaine séance : {{ new Date(prochaine.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric' }) }} — {{ prochaine.module }}</p>
+        <p v-if="prochaine" class="aide">Prochaine séance : {{ new Date(prochaine.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric' }) }} - {{ prochaine.module }}</p>
       </section>
       <section class="carte" aria-labelledby="t-notes">
         <h2 id="t-notes">Mes résultats</h2>
-        <p><span class="chiffre">{{ notes?.moyenne ?? '—' }}</span><span class="libelle-chiffre"> / 20 de moyenne</span></p>
+        <p><span class="chiffre">{{ notes?.moyenne ?? '-' }}</span><span class="libelle-chiffre"> / 20 de moyenne</span></p>
         <ul class="liste">
           <li v-for="n in notes?.notes.slice(0, 4)" :key="n.id"><span>{{ n.module.intitule }}</span><strong>{{ Number(n.valeur) }}/20</strong></li>
         </ul>
@@ -49,7 +49,7 @@ const prochaine = computed(() => semaine.value?.seances.find((s: any) => s.date 
       <section v-if="bilan" class="carte" aria-labelledby="t-assiduite" :class="{ critique: bilan.taux !== null && bilan.taux < bilan.seuil }">
         <h2 id="t-assiduite">Mon assiduité</h2>
         <JaugeAssiduite :taux="bilan.taux" :seuil="bilan.seuil" />
-        <p class="aide">{{ bilan.absences }} absence(s) non justifiée(s) · {{ bilan.excuses }} justifiée(s)</p>
+        <p class="aide">{{ nombre(bilan.absences, 'absence non justifiée', 'absences non justifiées') }} · {{ nombre(bilan.excuses, 'justifiée') }}</p>
         <NuxtLink to="/ent/etudiant/assiduite" class="lien-fleche">Détail et justificatifs <Icone nom="suivant" :taille="16" /></NuxtLink>
       </section>
     </div>

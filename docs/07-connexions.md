@@ -12,15 +12,15 @@ Les rôles qui exigent la double authentification se règlent avec `MFA_OBLIGATO
 
 ## Les parcours
 
-1. **Connexion simple (apprenant)** : e-mail et mot de passe, puis redirection vers son espace. Un apprenant peut activer la double authentification de lui-même (*Sécurité du compte*) ; elle lui sera alors demandée à chaque connexion.
-2. **Première connexion d'un formateur ou d'un administrateur** : après le mot de passe, l'espace reste bloqué (`MFA_REQUIRED`) et la page *Sécurité du compte* s'ouvre :
+1. **Connexion simple (apprenant)** : e-mail et mot de passe, puis redirection vers son espace. Un apprenant peut activer la double authentification de lui-même (*Mon profil*, section *Sécurité du compte*) ; elle lui sera alors demandée à chaque connexion.
+2. **Première connexion d'un formateur ou d'un administrateur** : après le mot de passe, l'espace reste bloqué (`MFA_REQUIRED`) et la page *Mon profil* s'ouvre sur la section *Sécurité du compte* :
    1. *Activer la double authentification* ;
    2. scanner le QR code avec Google Authenticator, Microsoft Authenticator ou toute application TOTP (ou saisir la clé affichée) ;
    3. saisir le code à 6 chiffres pour confirmer ;
    4. **noter les 8 codes de secours**, affichés une seule fois.
 3. **Connexion suivante (formateur, administration)** : mot de passe, puis code à 6 chiffres de l'application. Un même code ne sert qu'une fois : juste après l'activation, attendre le code suivant (30 secondes).
 4. **Téléphone indisponible** : *Utiliser un code de secours* sur l'écran du code ; chaque code de secours ne sert qu'une fois.
-5. **Changer de téléphone, ou laisser quelqu'un l'activer sur le sien** (démonstration) : chacun peut, depuis *Sécurité du compte* (menu à son nom), cliquer sur **Désactiver ma double authentification** et confirmer avec son mot de passe. Pour un formateur ou un administrateur, l'espace reste bloqué jusqu'à la réactivation avec un nouveau QR code.
+5. **Changer de téléphone, ou laisser quelqu'un l'activer sur le sien** (démonstration) : chacun peut, depuis *Mon profil*, section *Sécurité du compte* (menu à son nom), cliquer sur **Désactiver ma double authentification** et confirmer avec son mot de passe. Pour un formateur ou un administrateur, l'espace reste bloqué jusqu'à la réactivation avec un nouveau QR code.
 6. **Téléphone perdu ou application réinstallée** : l'administration clique sur *Réinitialiser* (colonne MFA de *Utilisateurs & rôles*). À la connexion suivante, la personne réactive sa double authentification (parcours 2).
 7. **Administrateur bloqué** (ou plus aucun administrateur disponible) : en ligne de commande, sur le serveur :
    ```bash

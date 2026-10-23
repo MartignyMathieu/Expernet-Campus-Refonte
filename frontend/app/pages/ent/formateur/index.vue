@@ -15,13 +15,13 @@ const alertes = computed(() => (promotions.value || []).flatMap((p) => p.alertes
 
 <template>
   <div>
-    <BanniereAccueil ton="banane" :titre="`Bonjour ${user?.prenom || ''}`" :texte="`${jour?.seances.length || 0} séance(s) aujourd'hui · ${alertes.length} alerte(s) d'absentéisme`" image="/images/formations/cda-bac4.webp" />
+    <BanniereAccueil ton="banane" :titre="`Bonjour ${user?.prenom || ''}`" :texte="`${nombre(jour?.seances.length, 'séance')} aujourd'hui · ${nombre(alertes.length, 'alerte')} d'absentéisme`" image="/images/formations/cda-bac4.webp" />
 
     <div class="grille grille-4 indicateurs">
-      <div class="carte"><Icone nom="planning" :taille="26" poids="duotone" class="tuile-icone" /><span class="chiffre">{{ jour?.seances.length ?? 0 }}</span><p class="libelle-chiffre">séance(s) aujourd'hui</p></div>
-      <div class="carte"><Icone nom="groupe" :taille="26" poids="duotone" class="tuile-icone" /><span class="chiffre">{{ promotions?.length ?? 0 }}</span><p class="libelle-chiffre">promotion(s) suivie(s)</p></div>
-      <div class="carte"><Icone nom="assiduite" :taille="26" poids="duotone" class="tuile-icone" /><span class="chiffre">{{ promotions?.[0]?.taux_moyen ?? '—' }}<small v-if="promotions?.[0]?.taux_moyen"> %</small></span><p class="libelle-chiffre">assiduité moyenne</p></div>
-      <div class="carte" :class="{ critique: alertes.length }"><Icone nom="alerte" :taille="26" poids="duotone" class="tuile-icone" /><span class="chiffre">{{ alertes.length }}</span><p class="libelle-chiffre">alerte(s) d'absentéisme</p></div>
+      <div class="carte"><Icone nom="planning" :taille="26" poids="duotone" class="tuile-icone" /><span class="chiffre">{{ jour?.seances.length ?? 0 }}</span><p class="libelle-chiffre">{{ pluriel(jour?.seances.length, 'séance') }} aujourd'hui</p></div>
+      <div class="carte"><Icone nom="groupe" :taille="26" poids="duotone" class="tuile-icone" /><span class="chiffre">{{ promotions?.length ?? 0 }}</span><p class="libelle-chiffre">{{ pluriel(promotions?.length, 'promotion suivie', 'promotions suivies') }}</p></div>
+      <div class="carte"><Icone nom="assiduite" :taille="26" poids="duotone" class="tuile-icone" /><span class="chiffre">{{ promotions?.[0]?.taux_moyen ?? '-' }}<small v-if="promotions?.[0]?.taux_moyen"> %</small></span><p class="libelle-chiffre">assiduité moyenne</p></div>
+      <div class="carte" :class="{ critique: alertes.length }"><Icone nom="alerte" :taille="26" poids="duotone" class="tuile-icone" /><span class="chiffre">{{ alertes.length }}</span><p class="libelle-chiffre">{{ pluriel(alertes.length, 'alerte') }} d'absentéisme</p></div>
     </div>
 
     <div class="grille deux">
@@ -34,7 +34,7 @@ const alertes = computed(() => (promotions.value || []).flatMap((p) => p.alertes
         <p v-if="!alertes.length" class="vide">Aucun étudiant sous le seuil d'alerte.</p>
         <ul class="alertes">
           <li v-for="a in alertes" :key="a.id + a.promotion">
-            <div><strong>{{ a.nom }}</strong><br><span class="aide">{{ a.promotion }} · {{ a.absences }} demi-journée(s) d'absence</span></div>
+            <div><strong>{{ a.nom }}</strong><br><span class="aide">{{ a.promotion }} · {{ nombre(a.absences, 'demi-journée', 'demi-journées') }} d'absence</span></div>
             <span class="pastille pastille-rouge">{{ a.taux }} %</span>
           </li>
         </ul>

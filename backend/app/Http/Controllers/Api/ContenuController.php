@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\FaqQuestion;
+use App\Models\FcActualite;
 use App\Models\FcDomaine;
 use App\Models\FcStage;
 use Illuminate\Http\Request;
@@ -75,6 +76,43 @@ class ContenuController extends Controller
             'similaires' => $similaires,
             'contact' => config('expernet.formation_continue.contact'),
             'liens' => config('expernet.formation_continue.liens'),
+        ]);
+    }
+
+    /** Page « À propos » de l'organisme de formation continue : histoire, équipe, certification, locaux. */
+    public function aProposFormationContinue()
+    {
+        $config = config('expernet.formation_continue');
+
+        return response()->json($config['a_propos'] + [
+            'locaux' => $config['locaux'],
+            'contact' => $config['contact'],
+            'liens' => $config['liens'],
+            'accessibilite' => $config['accessibilite'],
+            'chiffres' => $config['chiffres'],
+        ]);
+    }
+
+    /** Actualités de l'organisme, de la plus récente à la plus ancienne. */
+    public function actualitesFormationContinue()
+    {
+        return response()->json(FcActualite::orderByDesc('publie_le')->orderBy('ordre')
+            ->get(['id', 'slug', 'titre', 'categorie', 'extrait', 'url_source', 'publie_le', 'image', 'theme']));
+    }
+
+    /** Planning inter-entreprises : prochaines sessions programmées, de la plus proche à la plus lointaine. */
+    public function planningFormationContinue()
+    {
+        $sessions = FcStage::with('domaine:id,slug,libelle,icone')
+            ->whereNotNull('prochaine_session')->whereDate('prochaine_session', '>=', today())
+            ->orderBy('prochaine_session')->orderBy('intitule')
+            ->get(['id', 'fc_domaine_id', 'slug', 'intitule', 'duree', 'tarifs', 'prochaine_session']);
+
+        return response()->json([
+            'note' => config('expernet.formation_continue.planning_note'),
+            'locaux' => config('expernet.formation_continue.locaux'),
+            'contact' => config('expernet.formation_continue.contact'),
+            'sessions' => $sessions,
         ]);
     }
 }

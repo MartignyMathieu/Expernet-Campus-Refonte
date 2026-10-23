@@ -1,0 +1,267 @@
+{
+  "source": "https://expernet.re/nos-actualites/",
+  "extrait_le": "2026-10-23",
+  "note": "Ordre chronologique (plus récent en premier). Dates de publication relevées dans les métadonnées des articles ; images d'origine quand l'article en possède une.",
+  "actualites": [
+    {
+      "slug": "comment-contrer-les-cyberattaques",
+      "titre": "Comment contrer les cyberattaques ?",
+      "categorie": "Actualité",
+      "extrait": "Les internautes locaux tapent régulièrement cette question sur les moteurs de recherche pour protéger leur…",
+      "url_source": "https://expernet.re/formation-comment-contrer-une-cyberattaques/",
+      "publie_le": "2026-06-17",
+      "image": "/images/formation-continue/actualites/comment-contrer-les-cyberattaques.webp",
+      "theme": "cybersecurite"
+    },
+    {
+      "slug": "intelligence-artificielle-utile-pour-une-entreprise",
+      "titre": "Intelligence artificielle : est-ce vraiment utile pour une entreprise ?",
+      "categorie": "Actualité",
+      "extrait": "Découvrez les bénéfices concrets, exemples et pistes de formation avec Expernet Campus…",
+      "url_source": "https://expernet.re/intelligence-artificielle-utile-pour-une-entreprise/",
+      "publie_le": "2026-03-05",
+      "image": "/images/formation-continue/actualites/intelligence-artificielle-utile-pour-une-entreprise.webp",
+      "theme": "ia"
+    },
+    {
+      "slug": "formation-continue-levier-evoluer-metier-2026",
+      "titre": "Formation continue : un levier pour évoluer dans son métier en 2026",
+      "categorie": "Actualité",
+      "extrait": "En 2026, l'ensemble des métiers est impacté par la transformation numérique…",
+      "url_source": "https://expernet.re/formation-continue-un-levier-pour-evoluer-dans-son-metier-en-2026/",
+      "publie_le": "2026-02-03",
+      "image": "/images/formation-continue/actualites/formation-continue-levier-evoluer-metier-2026.webp",
+      "theme": "organisme"
+    },
+    {
+      "slug": "la-cybersecurite-un-nouvel-enjeu-majeur",
+      "titre": "La cybersécurité, un nouvel enjeu majeur !",
+      "categorie": "Actualité",
+      "extrait": "Les entreprises ont de nombreuses opportunités dans le monde numérique, avec les nouvelles…",
+      "url_source": "https://expernet.re/la-cybersecurite-un-nouvel-enjeu-majeur/",
+      "publie_le": "2024-04-02",
+      "image": null,
+      "theme": "cybersecurite"
+    },
+    {
+      "slug": "expernet-vous-aide-dans-votre-transition-numerique",
+      "titre": "EXPERNET vous aide dans votre transition numérique",
+      "categorie": "Actualité",
+      "extrait": "Il y a 1 an, marquait la fin de la période de crise sanitaire, qui malgré toutes ses difficultés a…",
+      "url_source": "https://expernet.re/expernet-vous-aide-dans-votre-transition-numerique/",
+      "publie_le": "2024-01-05",
+      "image": null,
+      "theme": "organisme"
+    },
+    {
+      "slug": "la-cybersecurite-dans-les-entreprises-a-la-reunion",
+      "titre": "La cybersécurité dans les entreprises à la Réunion",
+      "categorie": "Actualité",
+      "extrait": "Cette année, diverses structures à la Réunion ont fait l'objet de cyberattaques…",
+      "url_source": "https://expernet.re/la-cybersecurite-dans-les-entreprises-a-la-reunion/",
+      "publie_le": "2023-07-20",
+      "image": null,
+      "theme": "cybersecurite"
+    },
+    {
+      "slug": "depuis-2002-100-000-personnes-formees",
+      "titre": "Depuis 2002 c'est + de 100 000 personnes formées !",
+      "categorie": "Actualité",
+      "extrait": "Plus de 20 ans et plus de 100 000 personnes formées ! Nous l'avons fait, cette étape est significative…",
+      "url_source": "https://expernet.re/depuis-2002-cest-de-100-000-personnes-formees/",
+      "publie_le": "2023-06-19",
+      "image": null,
+      "theme": "organisme"
+    },
+    {
+      "slug": "nouveaute-le-speed-training",
+      "titre": "Nouveauté chez Expernet | Le Speed Training",
+      "categorie": "Actualité",
+      "extrait": "Le speed training est différent du Rapid Learning car il vise à fournir une formation intensive et ciblée…",
+      "url_source": "https://expernet.re/nouveaute-chez-expernet-le-speed-training/",
+      "publie_le": "2023-04-26",
+      "image": null,
+      "theme": "organisme"
+    },
+    {
+      "slug": "formation-excel-a-la-reunion",
+      "titre": "Formation Excel à la Réunion",
+      "categorie": "Actualité",
+      "extrait": "Face à l'avancée de la technologie et des techniques d'entreprise, les compétences requises dans le secteur du travail…",
+      "url_source": "https://expernet.re/formation-excel-a-la-reunion/",
+      "publie_le": "2020-11-28",
+      "image": null,
+      "theme": "bureautique"
+    },
+    {
+      "slug": "pourquoi-se-former-a-excel-a-la-reunion",
+      "titre": "Pourquoi se former à Excel à la Réunion ?",
+      "categorie": "Actualité",
+      "extrait": "Les tâches concernant la comptabilité et finance se trouvent aujourd'hui au cœur de chaque entreprise.",
+      "url_source": "https://expernet.re/pourquoi-se-former-a-excel-a-la-reunion/",
+      "publie_le": "2020-11-22",
+      "image": null,
+      "theme": "bureautique"
+    },
+    {
+      "slug": "retour-experience-fotakabine-alternant",
+      "titre": "Retour d'expérience : Fotakabine et le recrutement d'un alternant de l'Ecole Expernet",
+      "categorie": "Actualité",
+      "extrait": "L'alternance est l'opportunité de pouvoir acquérir une expérience professionnelle tout en continuant d'apprendre…",
+      "url_source": "https://expernet.re/retour-experience-fotakabine-et-le-recrutement-dun-alternant-de-lecole-expernet/",
+      "publie_le": "2020-11-16",
+      "image": null,
+      "theme": "ecole"
+    },
+    {
+      "slug": "nos-formations-it-en-ligne",
+      "titre": "Nos Formations IT en ligne",
+      "categorie": "Actualité",
+      "extrait": "Depuis le 14 Avril, les formations à distance sont prises en charge à 100% par l'Etat pour les salariés en…",
+      "url_source": "https://expernet.re/nos-formations-it-en-ligne/",
+      "publie_le": "2020-04-25",
+      "image": null,
+      "theme": "organisme"
+    },
+    {
+      "slug": "decret-chomage-partiel-formation-a-distance",
+      "titre": "Décret « Chômage partiel » : la formation à distance 100% prise en charge",
+      "categorie": "Actualité",
+      "extrait": "Depuis ce mardi 14 avril 2020, le gouvernement a fait une annonce forte : « L'État prendra en charge 100 %…",
+      "url_source": "https://expernet.re/decret-chomage-partiel-la-formation-a-distance-100-prise-en-charge/",
+      "publie_le": "2020-04-19",
+      "image": null,
+      "theme": "organisme"
+    },
+    {
+      "slug": "nos-formations-bureautique-en-ligne",
+      "titre": "Nos formations bureautique en ligne",
+      "categorie": "Actualité",
+      "extrait": "Partenaires des solutions digitales ENI, nous vous proposons une offre de formation 100% à distance.",
+      "url_source": "https://expernet.re/nos-formations-bureautique-en-ligne/",
+      "publie_le": "2020-03-24",
+      "image": null,
+      "theme": "bureautique"
+    },
+    {
+      "slug": "idees-recues-metier-developpeur",
+      "titre": "Idées reçues sur le métier de développeur informatique",
+      "categorie": "Actualité",
+      "extrait": "Dans notre monde actuel leur rôle est tout bonnement E.S.S.E.N.T.I.E.L ! C'est grâce à eux que nous naviguons sur la…",
+      "url_source": "https://expernet.re/idees-recues-sur-le-metier-de-developpeur-informatique/",
+      "publie_le": "2020-01-02",
+      "image": null,
+      "theme": "ecole"
+    },
+    {
+      "slug": "celebration-premiers-diplomes-ecole-expernet",
+      "titre": "Célébration des premiers diplômés de l'école Expernet",
+      "categorie": "Actualité",
+      "extrait": "L'aventure de l'école Expernet a débuté en 2017 sous l'impulsion du directeur Marc-Henri Ravaux et de la responsable Nathalie Hoarau…",
+      "url_source": "https://expernet.re/celebration-des-premiers-diplomes-de-lecole-expernet/",
+      "publie_le": "2019-12-01",
+      "image": null,
+      "theme": "ecole"
+    },
+    {
+      "slug": "ecole-expernet-job-dating",
+      "titre": "L'école EXPERNET organise son JOB DATING",
+      "categorie": "Évènements",
+      "extrait": "Vous recherchez votre futur collaborateur en alternance : Administrateur Système et Réseau (BAC+4), Concepteur Développeur d'Application (BAC+4)…",
+      "url_source": "https://expernet.re/lecole-expernet-organise-son-job-dating/",
+      "publie_le": "2019-08-14",
+      "image": null,
+      "theme": "ecole"
+    },
+    {
+      "slug": "decouvrez-notre-ecole-informatique-video",
+      "titre": "Découvrez en plus sur notre Ecole Informatique ! (Vidéo)",
+      "categorie": "Actualité",
+      "extrait": "Stéphanie vous en dit plus sur notre Ecole Informatique ! Merci encore à Télé Kréol pour l'interview…",
+      "url_source": "https://expernet.re/decouvrez-en-plus-sur-notre-ecole-informatique-video/",
+      "publie_le": "2019-02-28",
+      "image": null,
+      "theme": "ecole"
+    },
+    {
+      "slug": "reforme-formation-professionnelle-apprentissage",
+      "titre": "Réforme de la Formation Professionnelle et de l'Apprentissage - Ce qui nous attend !",
+      "categorie": "Actualité",
+      "extrait": "La réforme de la formation professionnelle et de l'apprentissage est en marche. Mais concrètement, qu'est-ce qui nous attend ?…",
+      "url_source": "https://expernet.re/reforme-de-la-formation-professionnelle-et-de-lapprentissage-ce-qui-nous-attend/",
+      "publie_le": "2018-11-05",
+      "image": null,
+      "theme": "organisme"
+    },
+    {
+      "slug": "expernet-ecole-informatique-presse-jir",
+      "titre": "Expernet école informatique (parution presse du JIR)",
+      "categorie": "Actualité",
+      "extrait": "Retrouvez ici l'article paru concernant le lancement de notre école d'informatique en partenariat avec ENI…",
+      "url_source": "https://expernet.re/expernet-ecole-informatique-parution-presse-du-jir/",
+      "publie_le": "2018-10-05",
+      "image": null,
+      "theme": "ecole"
+    },
+    {
+      "slug": "cyberattaque-wannacry",
+      "titre": "Cyberattaque : Wannacry",
+      "categorie": "Actualité",
+      "extrait": "La cyberattaque n'épargne personne, La Réunion est aussi touchée ! Pour y faire face et mieux préparer l'avenir, EXPERNET…",
+      "url_source": "https://expernet.re/cyberattaque-wannacry/",
+      "publie_le": "2018-10-05",
+      "image": null,
+      "theme": "cybersecurite"
+    },
+    {
+      "slug": "premiere-formation-bac4-informatique-ile",
+      "titre": "Pour la 1ère fois une formation bac+4 en informatique sur l'île",
+      "categorie": "Actualité",
+      "extrait": "Communiqué de presse, Le Port, 31.03.2017 : Expernet lance la première école supérieure des métiers du numérique à La Réunion…",
+      "url_source": "https://expernet.re/pour-la-1ere-une-formation-bac4-en-informatique-sur-lile/",
+      "publie_le": "2018-10-05",
+      "image": null,
+      "theme": "ecole"
+    },
+    {
+      "slug": "cybersecurite-et-vos-collaborateurs",
+      "titre": "La cyber sécurité et vos collaborateurs",
+      "categorie": "Actualité",
+      "extrait": "« Un système est aussi sûr que son lien le plus faible » : une information vérifiable quand on sait que…",
+      "url_source": "https://expernet.re/la-cyber-securite-et-vos-collaborateurs/",
+      "publie_le": "2018-10-05",
+      "image": null,
+      "theme": "cybersecurite"
+    },
+    {
+      "slug": "lancement-solutions-e-learning",
+      "titre": "Lancement de Solutions E-Learning par Expernet",
+      "categorie": "Actualité",
+      "extrait": "Dans le souci de vous offrir une offre complète, Expernet lance ses solutions de E-Learning et de Blended Learning…",
+      "url_source": "https://expernet.re/lancement-de-solutions-e-learning-par-expernet/",
+      "publie_le": "2018-10-05",
+      "image": null,
+      "theme": "organisme"
+    },
+    {
+      "slug": "expernet-centre-habilite-pcie",
+      "titre": "Expernet devient centre habilité PCIE !",
+      "categorie": "Actualité",
+      "extrait": "En juin 2014, nous sommes devenus centre de formation habilité PCIE.",
+      "url_source": "https://expernet.re/expernet-devient-centre-habilite-pcie/",
+      "publie_le": "2018-10-05",
+      "image": null,
+      "theme": "organisme"
+    },
+    {
+      "slug": "expernet-qualification-isq-opqf",
+      "titre": "Expernet obtient la qualification ISQ-OPQF",
+      "categorie": "Actualité",
+      "extrait": "EXPERNET obtient la qualification ISQ-OPQF dans le domaine des Nouvelles Technologies.",
+      "url_source": "https://expernet.re/expernet-obtient-la-qualification-isp-opqf/",
+      "publie_le": "2018-10-05",
+      "image": null,
+      "theme": "organisme"
+    }
+  ]
+}

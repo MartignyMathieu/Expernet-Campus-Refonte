@@ -18,7 +18,7 @@ async function ouvrir() {
 }
 async function cloturer() {
   if (!confirmerCloture.value) { confirmerCloture.value = true; return }
-  try { const r: any = await api(`/api/seances/${route.params.id}/emargement/cloturer`, { method: 'POST' }); info.value = `Séance clôturée : ${r.absents} absent(s) enregistré(s).`; code.value = ''; await refresh() }
+  try { const r: any = await api(`/api/seances/${route.params.id}/emargement/cloturer`, { method: 'POST' }); info.value = `Séance clôturée : ${nombre(r.absents, 'absent enregistré', 'absents enregistrés')}.`; code.value = ''; await refresh() }
   catch (e: any) { erreur.value = e?.data?.message || 'Clôture impossible.' } finally { confirmerCloture.value = false }
 }
 const confirmerCloture = ref(false)

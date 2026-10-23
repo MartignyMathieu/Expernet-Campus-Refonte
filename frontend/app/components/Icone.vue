@@ -1,6 +1,6 @@
 <!--
   Icônes du projet : jeu Phosphor Icons (licence MIT), cohérent et dessiné par des designers.
-  Usage : <Icone nom="planning" /> — décoratives par défaut (aria-hidden), le texte voisin porte le sens.
+  Usage : <Icone nom="planning" /> - décoratives par défaut (aria-hidden), le texte voisin porte le sens.
 -->
 <script setup lang="ts">
 import {

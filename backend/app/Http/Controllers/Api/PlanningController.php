@@ -34,6 +34,8 @@ class PlanningController extends Controller
             'heure_fin' => substr($s->heure_fin, 0, 5),
             'lieu' => $s->lieu,
             'module' => $s->module->intitule,
+            'module_id' => $s->module_id,
+            'promotion_id' => $s->promotion_id,
             'formateur' => $s->formateur->nomComplet(),
             'promotion' => $s->promotion->libelle,
             'emargement' => [
@@ -58,7 +60,7 @@ class PlanningController extends Controller
 
         $lignes = [
             'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Expernet Campus//Planning ENT//FR', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
-            'X-WR-CALNAME:'.$echapper('Expernet Campus — '.$user->nomComplet()), 'X-WR-TIMEZONE:'.$tz,
+            'X-WR-CALNAME:'.$echapper('Expernet Campus - '.$user->nomComplet()), 'X-WR-TIMEZONE:'.$tz,
             // Fuseau sans changement d'heure (La Réunion, Mayotte) : un seul décalage suffit.
             'BEGIN:VTIMEZONE', 'TZID:'.$tz, 'BEGIN:STANDARD', 'DTSTART:19700101T000000',
             'TZOFFSETFROM:'.now($tz)->format('O'), 'TZOFFSETTO:'.now($tz)->format('O'), 'END:STANDARD', 'END:VTIMEZONE',

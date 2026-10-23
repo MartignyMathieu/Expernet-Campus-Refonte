@@ -16,7 +16,7 @@ use App\Http\Controllers\Api\ProfilController;
 use Illuminate\Support\Facades\Route;
 
 /*
-| API REST Expernet — documentée dans public/openapi.json (Swagger UI : /api/docs).
+| API REST Expernet - documentée dans public/openapi.json (Swagger UI : /api/docs).
 | Toutes les routes sont préfixées par /api.
 */
 
@@ -28,6 +28,9 @@ Route::get('/faq', [ContenuController::class, 'faq']);
 Route::get('/articles', [ContenuController::class, 'articles']);
 Route::get('/articles/{article}', [ContenuController::class, 'article']);
 Route::get('/formation-continue', [ContenuController::class, 'formationContinue']);
+Route::get('/formation-continue/a-propos', [ContenuController::class, 'aProposFormationContinue']);
+Route::get('/formation-continue/actualites', [ContenuController::class, 'actualitesFormationContinue']);
+Route::get('/formation-continue/planning', [ContenuController::class, 'planningFormationContinue']);
 Route::get('/formation-continue/{stage}', [ContenuController::class, 'stageFormationContinue']);
 Route::middleware('throttle:public-forms')->group(function () {
     Route::post('/candidatures', [CandidatureController::class, 'store']);
@@ -82,6 +85,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // Documents
         Route::get('/documents/espaces', [DocumentController::class, 'espaces'])->middleware('permission:documents.view');
         Route::get('/promotions/{promotion}/documents', [DocumentController::class, 'index'])->middleware('permission:documents.view');
+        Route::get('/promotions/{promotion}/modules', [DocumentController::class, 'modules'])->middleware('permission:documents.view');
         // Droit de dépôt vérifié par espace (documents.upload pour l'équipe, documents.rendre pour les rendus)
         Route::post('/promotions/{promotion}/documents', [DocumentController::class, 'store'])->middleware(['permission:documents.view', 'throttle:30,1']);
         Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])->middleware('permission:documents.view');

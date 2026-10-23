@@ -7,7 +7,7 @@ const { data } = await useAsyncData('notes', () => api<any>('/api/me/notes'))
 <template>
   <div>
     <h1>Mes notes</h1>
-    <p><span class="chiffre">{{ data?.moyenne ?? '—' }}</span> <span class="libelle-chiffre">/ 20 de moyenne générale pondérée</span></p>
+    <p><span class="chiffre">{{ data?.moyenne ?? '-' }}</span> <span class="libelle-chiffre">/ 20 de moyenne générale pondérée</span></p>
     <div class="carte tableau-scroll">
       <table class="tableau">
         <caption class="sr-only">Liste de mes évaluations</caption>

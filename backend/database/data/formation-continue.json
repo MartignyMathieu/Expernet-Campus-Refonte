@@ -13,13 +13,13 @@
    "Utilisation de Padlet"
   ],
   "eva": [
-   "– Des acquis",
+   "- Des acquis",
    "Fiche de renseignements en amont et questions",
    "Evaluations formatives réalisées à l’aide de grilles critériées ;",
    "Attestation de fin de formation mentionnant l’atteinte des objectifs de la formation",
    "Evaluation différée",
-   "– Evaluation satisfaction",
-   "– Rédaction d’un bilan d’action remis au commanditaire en cas de formation intra-entreprise"
+   "- Evaluation satisfaction",
+   "- Rédaction d’un bilan d’action remis au commanditaire en cas de formation intra-entreprise"
   ]
  },
  "domaines": [
@@ -60,12 +60,12 @@
   },
   {
    "slug": "pao-publication-assistee-par-ordinateur",
-   "libelle": "PAO — Publication assistée par ordinateur",
+   "libelle": "PAO - Publication assistée par ordinateur",
    "icone": "pen"
   },
   {
    "slug": "cao-conception-assistee-par-ordinateur",
-   "libelle": "CAO — Conception assistée par ordinateur",
+   "libelle": "CAO - Conception assistée par ordinateur",
    "icone": "cube"
   },
   {
@@ -687,7 +687,7 @@
     "## Recommandations",
     "Automatisation et sécurité",
     "Bonnes pratiques et optimisation PS7",
-    "Projet final – Cas pratiques",
+    "Projet final - Cas pratiques",
     "## Création et impression de pages de dessin",
     "Opérations sur les pages",
     "Changer la mise en page",
@@ -801,26 +801,26 @@
    ],
    "programme": [
     "## Fondamentaux, sécurité et migration",
-    "Module 1.1 – Vue d’ensemble SQL Server 2025",
-    "Module 1.2 – Installation & Configuration",
-    "Module 1.3 – Breaking Changes & Migration",
-    "Module 1.4 – Sécurité Zero Trust & Microsoft Entra",
-    "Module 1.5 – Gestion des Bases de Données & Features Preview",
+    "Module 1.1 - Vue d’ensemble SQL Server 2025",
+    "Module 1.2 - Installation & Configuration",
+    "Module 1.3 - Breaking Changes & Migration",
+    "Module 1.4 - Sécurité Zero Trust & Microsoft Entra",
+    "Module 1.5 - Gestion des Bases de Données & Features Preview",
     "## Performance et optimisation",
-    "Module 2.1 – Optimisation des Requêtes Avancée",
-    "Module 2.2 – Gestion des Verrous & Optimized Locking",
-    "Module 2.3 – Sauvegarde, Restauration & Compression",
-    "Module 2.4 – Surveillance & Diagnostic Avancé",
+    "Module 2.1 - Optimisation des Requêtes Avancée",
+    "Module 2.2 - Gestion des Verrous & Optimized Locking",
+    "Module 2.3 - Sauvegarde, Restauration & Compression",
+    "Module 2.4 - Surveillance & Diagnostic Avancé",
     "## Haute disponibilité et cloud hybride",
-    "Module 3.1 – Always On Availability Groups",
-    "Module 3.2 – Solutions Hybrides & Azure Arc",
-    "Module 3.3 – Microsoft Fabric Mirroring & Analytique Temps Réel",
-    "Module 3.4 – TempDB Resource Governor & Maintenance",
+    "Module 3.1 - Always On Availability Groups",
+    "Module 3.2 - Solutions Hybrides & Azure Arc",
+    "Module 3.3 - Microsoft Fabric Mirroring & Analytique Temps Réel",
+    "Module 3.4 - TempDB Resource Governor & Maintenance",
     "## IA native et projet final",
-    "Module 4.1 – Intelligence Artificielle Native dans SQL Server 2025",
-    "Module 4.2 – Développeurs : Nouveautés T-SQL & Streaming",
-    "Module 4.3 – Outils Modernes & DevOps",
-    "Module 4.4 – PROJET FINAL INTÉGRATEUR"
+    "Module 4.1 - Intelligence Artificielle Native dans SQL Server 2025",
+    "Module 4.2 - Développeurs : Nouveautés T-SQL & Streaming",
+    "Module 4.3 - Outils Modernes & DevOps",
+    "Module 4.4 - PROJET FINAL INTÉGRATEUR"
    ],
    "moyens": null,
    "methodes": null,
@@ -1004,7 +1004,7 @@
   },
   {
    "slug": "lecture-de-plan-beton",
-   "intitule": "Lecture de plan – Béton",
+   "intitule": "Lecture de plan - Béton",
    "domaine": "cao-conception-assistee-par-ordinateur",
    "sous_theme": null,
    "public": [
@@ -1090,33 +1090,33 @@
     "Disposer d’un anglais technique opérationnel, la documentation et les messages système étant en anglais."
    ],
    "programme": [
-    "## Jour 1 – Architecture avancée & Accès Zero Trust",
-    "## Module 1 – Haute Disponibilité",
+    "## Jour 1 - Architecture avancée & Accès Zero Trust",
+    "## Module 1 - Haute Disponibilité",
     "Active-Passive / Active-Active",
     "Session sync",
     "Split-brain",
     "Lab HA",
-    "## Module 2 – SSL Inspection Avancée",
+    "## Module 2 - SSL Inspection Avancée",
     "Certificate vs Deep Inspection",
     "Flow vs Proxy",
     "Lab Deep Inspection",
-    "## Module 3 – ZTNA",
+    "## Module 3 - ZTNA",
     "FortiClient EMS",
     "ZTNA Tags",
     "Posture Check",
     "ZTNA Proxy vs Server",
     "Lab accès conditionnel",
-    "## Jour 2 – VPN Avancé, Logs & Troubleshooting",
-    "## Module 4 – VPN Expert",
+    "## Jour 2 - VPN Avancé, Logs & Troubleshooting",
+    "## Module 4 - VPN Expert",
     "IPsec IKEv2",
     "ADVPN Hub-and-Spoke",
     "VPN + SD-WAN",
     "Redondance tunnels",
-    "## Module 5 – Logs & Analyse",
+    "## Module 5 - Logs & Analyse",
     "FortiAnalyzer",
     "Recherche d’incidents",
     "Conformité",
-    "## Module 6 – Troubleshooting CLI",
+    "## Module 6 - Troubleshooting CLI",
     "Debug Flow",
     "Sniffer",
     "Cas réels :",
@@ -1178,43 +1178,43 @@
     "Une compréhension de l’anglais technique, l’interface PAN-OS et la documentation étant en anglais."
    ],
    "programme": [
-    "## Niveau 1 – Administration des NGFW Palo Alto (PAN-OS)",
-    "## Jour 1 – Bases Palo Alto & Réseau",
-    "## Module 1 – Découverte de l’écosystème Palo Alto Networks",
+    "## Niveau 1 - Administration des NGFW Palo Alto (PAN-OS)",
+    "## Jour 1 - Bases Palo Alto & Réseau",
+    "## Module 1 - Découverte de l’écosystème Palo Alto Networks",
     "Positionnement des NGFW Palo Alto",
     "Concepts clés : App-ID, User-ID, Content-ID",
     "Accès à l’interface Web PAN-OS",
     "Licences et abonnements (Threat Prevention, URL Filtering)",
     "Modes de déploiement : Layer 3, Layer 2, Virtual Wire",
-    "## Module 2 – Interfaces, Zones & Routage",
+    "## Module 2 - Interfaces, Zones & Routage",
     "Interfaces physiques et logiques",
     "Zones de sécurité",
     "VLANs (notions)",
     "Routage statique",
-    "Introduction au routage dynamique (OSPF – notions)",
+    "Introduction au routage dynamique (OSPF - notions)",
     "Lab : architecture LAN / WAN / DMZ",
-    "## Jour 2 – Politiques & Sécurité Essentielle",
-    "## Module 3 – Politiques de Sécurité & NAT",
+    "## Jour 2 - Politiques & Sécurité Essentielle",
+    "## Module 3 - Politiques de Sécurité & NAT",
     "Structure d’une règle de sécurité",
     "App-ID, Service et Action",
     "Ordre d’évaluation des règles",
     "Source NAT / Destination NAT",
     "Publication de services",
     "Lab : accès Internet et publication serveur",
-    "## Module 4 – Profils de Sécurité",
+    "## Module 4 - Profils de Sécurité",
     "Antivirus",
     "Anti-Spyware",
     "Vulnerability Protection",
     "URL Filtering",
     "Application des profils aux règles",
     "Lab : politique Internet sécurisée",
-    "## Jour 3 – Accès Distant & Exploitation",
-    "## Module 5 – VPN Utilisateur avec GlobalProtect",
+    "## Jour 3 - Accès Distant & Exploitation",
+    "## Module 5 - VPN Utilisateur avec GlobalProtect",
     "Principe du VPN SSL GlobalProtect",
     "Portail vs Gateway",
-    "Groupes utilisateurs (LDAP/Local – notions)",
+    "Groupes utilisateurs (LDAP/Local - notions)",
     "Lab : accès distant utilisateur sécurisé",
-    "## Module 6 – Supervision et Exploitation",
+    "## Module 6 - Supervision et Exploitation",
     "Logs : Traffic, Threat, URL",
     "Filtres et analyse des événements",
     "Monitor et dashboards",
@@ -1385,7 +1385,7 @@
     "Définition du contexte · Exigences applicables",
     "Identification des parties prenantes et leurs attentes",
     "Analyse des écarts et évaluation de l’état actuel",
-    "Exercice 2 : Contexte, exigences, parties prenantes — Exercice 3 : Analyse des écarts",
+    "Exercice 2 : Contexte, exigences, parties prenantes - Exercice 3 : Analyse des écarts",
     "## Planification et conception du SMSI",
     "Etablissement du plan de traitement des risques · Conception du SMSI",
     "Gestion de la documentation · Communication interne et externe · Sensibilisation",
@@ -1564,41 +1564,41 @@
     "Une compréhension de l’anglais technique, l’interface FortiOS et la documentation étant majoritairement en anglais."
    ],
    "programme": [
-    "## Niveau 1 – Bases FortiGate & Sécurité Essentielle",
-    "## Jour 1 – Bases FortiGate & Réseau",
-    "Module 1 – Écosystème Fortinet",
+    "## Niveau 1 - Bases FortiGate & Sécurité Essentielle",
+    "## Jour 1 - Bases FortiGate & Réseau",
+    "Module 1 - Écosystème Fortinet",
     "Security Fabric (vue globale)",
     "FortiGate dans la gamme",
     "Accès GUI / CLI",
     "Licences, FortiCare, firmware",
     "Modes NAT / Transparent",
-    "Module 2 – Interfaces, Zones & Routage",
+    "Module 2 - Interfaces, Zones & Routage",
     "Interfaces, VLANs, LACP",
     "Zones et segmentation",
     "Routage statique",
     "OSPF (intro uniquement)",
     "Lab : LAN / WAN / DMZ",
     "##",
-    "Jour 2 – Politiques & Sécurité Essentielle",
-    "Module 3 – Politiques & NAT",
+    "Jour 2 - Politiques & Sécurité Essentielle",
+    "Module 3 - Politiques & NAT",
     "Règles firewall",
     "Objets & groupes",
     "VIP / Port forwarding",
     "Central NAT (intro)",
     "Lab : publication serveur",
-    "Module 4 – Profils UTM",
+    "Module 4 - Profils UTM",
     "Web Filter",
     "Application Control",
     "Antivirus",
     "IPS",
     "Lab : politique Internet sécurisée",
-    "## Jour 3 – SD-WAN & VPN Utilisateur",
-    "Module 5 – SD-WAN Essentiel",
+    "## Jour 3 - SD-WAN & VPN Utilisateur",
+    "Module 5 - SD-WAN Essentiel",
     "Membres SD-WAN",
     "Health-check",
     "Load balancing",
     "Lab : 2 liens WAN",
-    "Module 6 – VPN SSL",
+    "Module 6 - VPN SSL",
     "Tunnel vs Web",
     "Groupes utilisateurs",
     "MFA (présentation)",
@@ -1811,47 +1811,47 @@
     "Disposer d’un anglais technique opérationnel, la documentation et les messages système étant en anglais"
    ],
    "programme": [
-    "Niveau 2 – Administration Avancée, Accès Zero Trust et",
+    "Niveau 2 - Administration Avancée, Accès Zero Trust et",
     "Troubleshooting",
-    "## Jour 1 – Architecture Avancée et Inspection SSL",
-    "## Module 1 – Haute Disponibilité (HA) et Redondance",
+    "## Jour 1 - Architecture Avancée et Inspection SSL",
+    "## Module 1 - Haute Disponibilité (HA) et Redondance",
     "Concepts Active/Passive et Active/Active",
     "Session sync et failover",
     "Scénarios multi-sites et VPN redondant",
     "Lab : Mise en place HA Active/Passive entre deux VM",
-    "## Module 2 – Inspection SSL Avancée",
+    "## Module 2 - Inspection SSL Avancée",
     "Certificate Inspection vs Full Decryption",
     "Gestion des exceptions (banques, RGPD…)",
     "Impact sur la performance et tuning",
     "Lab : Déchiffrement SSL avec exceptions configurées",
-    "## Module 3 – Accès Zero Trust et GlobalProtect avancé",
+    "## Module 3 - Accès Zero Trust et GlobalProtect avancé",
     "Architecture ZTNA / Posture check",
     "FortiClient équivalent : GlobalProtect / Endpoint Management",
     "Politiques d’accès conditionnel selon utilisateur, groupe et posture",
     "Lab : Accès conditionnel utilisateur ZTNA",
-    "## Jour 2 – VPN Avancé, Panorama et Logs",
-    "## Module 4 – VPN site-to-site et IPsec avancé",
+    "## Jour 2 - VPN Avancé, Panorama et Logs",
+    "## Module 4 - VPN site-to-site et IPsec avancé",
     "IPsec IKEv2 et phase 1/2",
     "Hub-and-Spoke et ADVPN",
     "Redondance tunnels + SD-WAN",
     "Lab : VPN site-to-site multi-tunnel avec failover",
-    "## Module 5 – Panorama et gestion centralisée",
+    "## Module 5 - Panorama et gestion centralisée",
     "Templates et policies globales",
     "Gestion multi-firewalls",
     "Logs centralisés, reporting et conformité",
     "Lab : Gestion de plusieurs NGFW via Panorama",
-    "## Module 6 – Analyse avancée et Troubleshooting",
+    "## Module 6 - Analyse avancée et Troubleshooting",
     "Commandes CLI essentielles et debug flow",
     "Packet capture et traffic log analysis",
     "Résolution de problèmes complexes (règles bloquantes, VPN qui ne monte pas, perf dégradée)",
     "Lab : Cas pratiques de troubleshooting avancé",
-    "## Jour 3 – Optimisation, Automatisation et Maintenance (optionnel)",
-    "## Module 7 – Optimisation et automatisation",
+    "## Jour 3 - Optimisation, Automatisation et Maintenance (optionnel)",
+    "## Module 7 - Optimisation et automatisation",
     "Tuning de performance : App-ID, User-ID, SSL Proxy",
     "Scripts d’automatisation simples (Panorama, API REST)",
     "Réponses automatisées aux incidents",
     "Lab : Automatisation d’une action de blocage IP suite à alerte",
-    "## Module 8 – Sauvegarde et maintenance avancée",
+    "## Module 8 - Sauvegarde et maintenance avancée",
     "Backup / restore configuration",
     "Mise à jour PAN-OS sécurisée",
     "Documentation et runbooks",
@@ -2038,7 +2038,7 @@
   },
   {
    "slug": "android",
-   "intitule": "Android – développer des applications mobiles",
+   "intitule": "Android - développer des applications mobiles",
    "domaine": "langages-et-developpement",
    "sous_theme": null,
    "public": [
@@ -2089,7 +2089,7 @@
   },
   {
    "slug": "ajax-developpement-pour-le-web-2-0",
-   "intitule": "AJAX – Développer pour le web 2.0",
+   "intitule": "AJAX - Développer pour le web 2.0",
    "domaine": "langages-et-developpement",
    "sous_theme": null,
    "public": [
@@ -2700,7 +2700,7 @@
   },
   {
    "slug": "blender-initiation-a-la-3d",
-   "intitule": "Blender – Initiation à la 3D",
+   "intitule": "Blender - Initiation à la 3D",
    "domaine": "cao-conception-assistee-par-ordinateur",
    "sous_theme": null,
    "public": [
@@ -2855,7 +2855,7 @@
   },
   {
    "slug": "access-perfectionnement",
-   "intitule": "Access – Perfectionnement",
+   "intitule": "Access - Perfectionnement",
    "domaine": "bureautique",
    "sous_theme": "Access",
    "public": [
@@ -2920,7 +2920,7 @@
   },
   {
    "slug": "access-initiation",
-   "intitule": "Access – Initiation",
+   "intitule": "Access - Initiation",
    "domaine": "bureautique",
    "sous_theme": "Access",
    "public": [
@@ -2981,7 +2981,7 @@
   },
   {
    "slug": "access-langage-vba",
-   "intitule": "Access – langage VBA",
+   "intitule": "Access - langage VBA",
    "domaine": "bureautique",
    "sous_theme": null,
    "public": [
@@ -3099,7 +3099,7 @@
   },
   {
    "slug": "dpo",
-   "intitule": "DPO – Délégué à la Protection des Données",
+   "intitule": "DPO - Délégué à la Protection des Données",
    "domaine": "cybersecurite",
    "sous_theme": null,
    "public": [
@@ -3134,7 +3134,7 @@
     "Transferts de données hors UE",
     "Codes de conduite et Certifications",
     "Les autorités de contrôle et la CNIL",
-    "Voies de recours – Responsabilité",
+    "Voies de recours - Responsabilité",
     "Contrôles CNIL et sanctions",
     "Situations particulières de traitement",
     "## Journée 3",
@@ -3221,7 +3221,7 @@
   },
   {
    "slug": "canva-ia-creez-vos-visuels-facilement",
-   "intitule": "CANVA IA – Créez vos visuels facilement",
+   "intitule": "CANVA IA - Créez vos visuels facilement",
    "domaine": "intelligence-artificielle",
    "sous_theme": null,
    "public": [
@@ -3266,7 +3266,7 @@
     "Ajout de matière",
     "Optimisation de la qualité",
     "Outils magiques",
-    "Rédaction de prompt – text to image",
+    "Rédaction de prompt - text to image",
     "…",
     "## L’IA pour les vidéos",
     "Création d’une animation",
@@ -3286,7 +3286,7 @@
   },
   {
    "slug": "adobe-illustrator-perfectionnement",
-   "intitule": "ADOBE ILLUSTRATOR – Perfectionnement",
+   "intitule": "ADOBE ILLUSTRATOR - Perfectionnement",
    "domaine": "pao-publication-assistee-par-ordinateur",
    "sous_theme": null,
    "public": [
@@ -3470,7 +3470,7 @@
   },
   {
    "slug": "gns3-simulation-de-reseautage",
-   "intitule": "GNS3 – Simulation de réseautage",
+   "intitule": "GNS3 - Simulation de réseautage",
    "domaine": "reseaux",
    "sous_theme": null,
    "public": [
@@ -3621,7 +3621,7 @@
     "Définir et comprendre la typologie du marketing viral",
     "Utiliser des nouvelles techniques: content marketing et inbound marketing",
     "Le storytelling : une tendance fiable ?",
-    "Utiliser la méthode PEOM (owned – earned et paid media)",
+    "Utiliser la méthode PEOM (owned - earned et paid media)",
     "Exemples de campagnes réussies et ratées",
     "## Utiliser les bonnes pratiques des réseaux sociaux",
     "Visualiser les incidences et chiffres clés des réseaux sociaux",
@@ -3694,7 +3694,7 @@
     "Rôle du Community Manager",
     "Animer sa communauté",
     "Créations de contenus",
-    "## Stratégie e-mailing – Newsletter",
+    "## Stratégie e-mailing - Newsletter",
     "Les avantages et limites de l’e-mailing",
     "Les principaux outils",
     "Constituer sa base de données",
@@ -3869,7 +3869,7 @@
   },
   {
    "slug": "referencement-naturel-seo",
-   "intitule": "Référencement naturel – SEO",
+   "intitule": "Référencement naturel - SEO",
    "domaine": "communication-digitale",
    "sous_theme": null,
    "public": [
@@ -4214,7 +4214,7 @@
     "Installer et configurer la solution de voix sur IP Open Source Asterisk"
    ],
    "prerequis": [
-    "Une connaissance générale des réseaux (exemple : avoir suivi le cours Réseaux et TCP/IP – Les fondamentaux)"
+    "Une connaissance générale des réseaux (exemple : avoir suivi le cours Réseaux et TCP/IP - Les fondamentaux)"
    ],
    "programme": [
     "## Présentation et contexte de la VoIP",
@@ -4371,7 +4371,7 @@
   },
   {
    "slug": "glpi",
-   "intitule": "GLPI – OCS INVENTORY NG",
+   "intitule": "GLPI - OCS INVENTORY NG",
    "domaine": "linux-open-source",
    "sous_theme": null,
    "public": [
@@ -4724,7 +4724,7 @@
   },
   {
    "slug": "libreoffice-openoffice-calc-initiation",
-   "intitule": "LibreOffice/OpenOffice CALC – Initiation",
+   "intitule": "LibreOffice/OpenOffice CALC - Initiation",
    "domaine": "bureautique",
    "sous_theme": "Libre Office",
    "public": [
@@ -4782,7 +4782,7 @@
   },
   {
    "slug": "libreoffice-openoffice-writer-perfectionnement",
-   "intitule": "LibreOffice/OpenOffice Writer – Perfectionnement",
+   "intitule": "LibreOffice/OpenOffice Writer - Perfectionnement",
    "domaine": "bureautique",
    "sous_theme": "Libre Office",
    "public": [
@@ -4837,7 +4837,7 @@
   },
   {
    "slug": "linux-administration-niveau-2",
-   "intitule": "Linux Administration – Niveau 2",
+   "intitule": "Linux Administration - Niveau 2",
    "domaine": "linux-open-source",
    "sous_theme": null,
    "public": [
@@ -4911,7 +4911,7 @@
   },
   {
    "slug": "bootstrap-2",
-   "intitule": "LibreOffice/OpenOffice Writer – Initiation",
+   "intitule": "LibreOffice/OpenOffice Writer - Initiation",
    "domaine": "bureautique",
    "sous_theme": "Libre Office",
    "public": [
@@ -4942,7 +4942,7 @@
     "Propriétés du document",
     "## Manipuler le texte",
     "Saisir et modifier le texte",
-    "Déplacer des zones de texte – couper / copier / coller",
+    "Déplacer des zones de texte - couper / copier / coller",
     "Rechercher et remplacer du texte",
     "Gérer la correction orthographique",
     "## Mise en forme",
@@ -5159,7 +5159,7 @@
   },
   {
    "slug": "linux-administration-niveau-1",
-   "intitule": "Linux Administration – Niveau 1",
+   "intitule": "Linux Administration - Niveau 1",
    "domaine": "linux-open-source",
    "sous_theme": null,
    "public": [
@@ -5304,7 +5304,7 @@
   },
   {
    "slug": "revit-perfectionnement",
-   "intitule": "REVIT – Perfectionnement",
+   "intitule": "REVIT - Perfectionnement",
    "domaine": "cao-conception-assistee-par-ordinateur",
    "sous_theme": null,
    "public": [
@@ -5361,7 +5361,7 @@
   },
   {
    "slug": "revit-initiation",
-   "intitule": "REVIT – Initiation",
+   "intitule": "REVIT - Initiation",
    "domaine": "cao-conception-assistee-par-ordinateur",
    "sous_theme": null,
    "public": [
@@ -5424,7 +5424,7 @@
   },
   {
    "slug": "autocad-2d-perfectionnement",
-   "intitule": "AUTOCAD 2D – Perfectionnement",
+   "intitule": "AUTOCAD 2D - Perfectionnement",
    "domaine": "cao-conception-assistee-par-ordinateur",
    "sous_theme": null,
    "public": [
@@ -5692,7 +5692,7 @@
   },
   {
    "slug": "adobe-illustrator-initiation",
-   "intitule": "ADOBE ILLUSTRATOR – Initiation",
+   "intitule": "ADOBE ILLUSTRATOR - Initiation",
    "domaine": "pao-publication-assistee-par-ordinateur",
    "sous_theme": null,
    "public": [
@@ -5718,14 +5718,14 @@
     "La logique des calques",
     "La Plume",
     "## L’espace de travail",
-    "Outils – Palettes – Les calques – Zoom",
+    "Outils - Palettes - Les calques - Zoom",
     "Repères et grille",
     "## Dessin Vectoriel dans Illustrator",
     "Formes simples",
     "Plume, crayon, pinceau",
     "La sélection directe",
-    "Le crayon – Le pinceau et ses formes",
-    "Les symboles – Styles graphiques",
+    "Le crayon - Le pinceau et ses formes",
+    "Les symboles - Styles graphiques",
     "## Notion d’objet dans Illustrator",
     "Fond et les contours",
     "Les plans successifs",
@@ -5734,9 +5734,9 @@
     "Verrouillage et le déverrouillage",
     "Masquage et ré affichage d’objets",
     "## Les repères",
-    "Afficher la règle – Déplacer les repères",
+    "Afficher la règle - Déplacer les repères",
     "Verrouiller / déverrouiller un repère",
-    "Masquer les repères – Effacer les repères",
+    "Masquer les repères - Effacer les repères",
     "Créer un repère en diagonale",
     "Convertir un objet en repère",
     "Convertir un repère en tracé",
@@ -5754,8 +5754,8 @@
     "Vectorisation de texte",
     "Effets de perspective",
     "## Coloration dans Illustrator",
-    "Nuanciers – Motifs de fond",
-    "Styles – Dégradés",
+    "Nuanciers - Motifs de fond",
+    "Styles - Dégradés",
     "## Gestion des Calques",
     "Superposition de tracés",
     "Empilement de calques",
@@ -5770,7 +5770,7 @@
     "Réunion de plusieurs tracés",
     "Soustraction de plusieurs tracés",
     "Intersection de plusieurs tracés",
-    "Exclusion – Division – Pochoir",
+    "Exclusion - Division - Pochoir",
     "## Adobe Bridge",
     "Présentation du centre de contrôle",
     "Navigateur de fichier",
@@ -6351,13 +6351,13 @@
    ],
    "evaluation": [
     "Quiz Kahoot, évaluation sur les travaux pratiques",
-    "– Des acquis",
+    "- Des acquis",
     "Fiche de renseignements en amont et questions",
     "Evaluations formatives réalisées à l’aide de grilles critériées ;",
     "Attestation de fin de formation mentionnant l’atteinte des objectifs de la formation",
     "Evaluation différée",
-    "– Evaluation satisfaction",
-    "– Rédaction d’un bilan d’action remis au commanditaire en cas de formation intra-entreprise"
+    "- Evaluation satisfaction",
+    "- Rédaction d’un bilan d’action remis au commanditaire en cas de formation intra-entreprise"
    ],
    "programme_pdf": "https://expernet.re/wp-content/uploads/2025/05/PROGRAMME-ADMINISTRATION-WINDOWS-11.pdf",
    "url_source": "https://expernet.re/formation/windows-11-installation-configuration-et-deploiement/"
@@ -6482,14 +6482,14 @@
     "Attestation de fin de formation mentionnant l’atteinte des objectifs de la formation",
     "Evaluation différée",
     "Evaluation satisfaction",
-    "Rédaction d’un bilan d’action remis au commanditaire en cas de formation intra–entreprise"
+    "Rédaction d’un bilan d’action remis au commanditaire en cas de formation intra-entreprise"
    ],
    "programme_pdf": "https://expernet.re/wp-content/uploads/2025/05/PROGRAMME-INVESTIGATION-NUMERIQUE.pdf",
    "url_source": "https://expernet.re/formation/investigation-numerique/"
   },
   {
    "slug": "libreoffice-openoffice-calc-perfectionnement",
-   "intitule": "LibreOffice/OpenOffice CALC – Perfectionnement",
+   "intitule": "LibreOffice/OpenOffice CALC - Perfectionnement",
    "domaine": "bureautique",
    "sous_theme": "Libre Office",
    "public": [
@@ -6886,7 +6886,7 @@
   },
   {
    "slug": "php-mysql-perfectionnement",
-   "intitule": "PHP/MySQL – Perfectionnement",
+   "intitule": "PHP/MySQL - Perfectionnement",
    "domaine": "langages-et-developpement",
    "sous_theme": null,
    "public": [
@@ -6941,13 +6941,13 @@
    "moyens": null,
    "methodes": null,
    "evaluation": [
-    "– Des acquis",
+    "- Des acquis",
     "Fiche de renseignements en amont et questions",
     "Evaluations formatives réalisées à l’aide de grilles critériées ;",
     "Attestation de fin de formation mentionnant l’atteinte des objectifs de la formation",
     "Evaluation différée",
-    "– Evaluation satisfaction",
-    "– Rédaction d’un bilan d’action remis au commanditaire en cas de formation intra-entrepris"
+    "- Evaluation satisfaction",
+    "- Rédaction d’un bilan d’action remis au commanditaire en cas de formation intra-entrepris"
    ],
    "programme_pdf": null,
    "url_source": "https://expernet.re/formation/php-mysql-perfectionnement/"
@@ -7085,7 +7085,7 @@
   },
   {
    "slug": "gimp-initiation",
-   "intitule": "Gimp – Initiation",
+   "intitule": "Gimp - Initiation",
    "domaine": "pao-publication-assistee-par-ordinateur",
    "sous_theme": null,
    "public": [
@@ -7213,14 +7213,14 @@
    "moyens": null,
    "methodes": null,
    "evaluation": [
-    "– Des acquis",
+    "- Des acquis",
     "Fiche de renseignements en amont et questions",
     "Evaluations formatives réalisées à l’aide de grilles critériées ;",
     "Attestation de fin de formation mentionnant l’atteinte des objectifs de la formation",
     "Evaluation différée",
     "Le formateur évalue la progression pédagogique du participant tout au long de la formation au moyen de QCM, mises en situation, travaux pratiques…",
-    "– Evaluation satisfaction",
-    "– Rédaction d’un bilan d’action remis au commanditaire en cas de formation intra-entreprise"
+    "- Evaluation satisfaction",
+    "- Rédaction d’un bilan d’action remis au commanditaire en cas de formation intra-entreprise"
    ],
    "programme_pdf": "https://expernet.re/wp-content/uploads/2025/05/PROGRAMME-CENTRE-D-ADMINISTRATION-MICROSOFT-365.pdf",
    "url_source": "https://expernet.re/formation/centre-administration-microsoft-365/"
@@ -7277,8 +7277,8 @@
     "Évaluations formatives réalisées à l’aide de grilles critériées ;",
     "Attestation de fin de formation mentionnant l’atteinte des objectifs de la formation",
     "Évaluation différée",
-    "– Évaluation satisfaction",
-    "– Rédaction d’un bilan d’action remis au commanditaire en cas de formation intra-entreprise"
+    "- Évaluation satisfaction",
+    "- Rédaction d’un bilan d’action remis au commanditaire en cas de formation intra-entreprise"
    ],
    "programme_pdf": "https://expernet.re/wp-content/uploads/2025/05/PROGRAMME-RED-TEAM.pdf",
    "url_source": "https://expernet.re/formation/red-team/"
@@ -7642,14 +7642,14 @@
     "La logique des calques",
     "La Plume",
     "## L’espace de travail",
-    "Outils – Palettes – Les calques – Zoom",
+    "Outils - Palettes - Les calques - Zoom",
     "Repères et grille",
     "## Dessin Vectoriel dans Illustrator",
     "Formes simples",
     "Plume, crayon, pinceau",
     "La sélection directe",
-    "Le crayon – Le pinceau et ses formes",
-    "Les symboles – Styles graphiques",
+    "Le crayon - Le pinceau et ses formes",
+    "Les symboles - Styles graphiques",
     "## Notion d’objet dans Illustrator",
     "Fond et les contours",
     "Les plans successifs",
@@ -7658,9 +7658,9 @@
     "Verrouillage et le déverrouillage",
     "Masquage et ré affichage d’objets",
     "## Les repères",
-    "Afficher la règle – Déplacer les repères",
+    "Afficher la règle - Déplacer les repères",
     "Verrouiller / déverrouiller un repère",
-    "Masquer les repères – Effacer les repères",
+    "Masquer les repères - Effacer les repères",
     "Créer un repère en diagonale",
     "Convertir un objet en repère",
     "Convertir un repère en tracé",
@@ -7678,8 +7678,8 @@
     "Vectorisation de texte",
     "Effets de perspective",
     "## Coloration dans Illustrator",
-    "Nuanciers – Motifs de fond",
-    "Styles – Dégradés",
+    "Nuanciers - Motifs de fond",
+    "Styles - Dégradés",
     "## Gestion des Calques",
     "Superposition de tracés",
     "Empilement de calques",
@@ -7694,7 +7694,7 @@
     "Réunion de plusieurs tracés",
     "Soustraction de plusieurs tracés",
     "Intersection de plusieurs tracés",
-    "Exclusion – Division – Pochoir",
+    "Exclusion - Division - Pochoir",
     "## Adobe Bridge",
     "Présentation du centre de contrôle",
     "Navigateur de fichier",
@@ -7729,7 +7729,7 @@
   },
   {
    "slug": "photoshop-perfectionnement",
-   "intitule": "Photoshop – Perfectionnement",
+   "intitule": "Photoshop - Perfectionnement",
    "domaine": "pao-publication-assistee-par-ordinateur",
    "sous_theme": null,
    "public": [
@@ -7845,7 +7845,7 @@
   },
   {
    "slug": "php-mysql-initiation",
-   "intitule": "PHP/MySQL – Initiation",
+   "intitule": "PHP/MySQL - Initiation",
    "domaine": "langages-et-developpement",
    "sous_theme": null,
    "public": [
@@ -8286,7 +8286,7 @@
   },
   {
    "slug": "itil-4-les-fondamentaux",
-   "intitule": "ITIL 4 – LES FONDAMENTAUX",
+   "intitule": "ITIL 4 - LES FONDAMENTAUX",
    "domaine": "gestion-de-projets",
    "sous_theme": null,
    "public": [],
@@ -8656,7 +8656,7 @@
   },
   {
    "slug": "powerpoint-perfectionnement",
-   "intitule": "Powerpoint – Perfectionnement",
+   "intitule": "Powerpoint - Perfectionnement",
    "domaine": "bureautique",
    "sous_theme": "Microsoft Office",
    "public": [
@@ -8770,16 +8770,16 @@
     "## Découverte de Word",
     "Les nouveautés de l’interface",
     "Les nouvelles fonctionnalités de mise en forme de texte",
-    "Les styles prédéfinis – Les thèmes – Le mode Lecture plein écran",
+    "Les styles prédéfinis - Les thèmes - Le mode Lecture plein écran",
     "Les nouvelles fonctionnalités de mise en forme graphique et d’insertion",
-    "La manipulation des images : Les SmartArt – Les QuickPart – Les zones de texte",
+    "La manipulation des images : Les SmartArt - Les QuickPart - Les zones de texte",
     "En-têtes et pieds de page",
     "Impression",
     "## Découverte d’Excel",
     "Les nouveautés de l’interface",
-    "Le mode d’affichage : Mise en Page – La barre de formule – L’insertion d nouvelles feuilles",
+    "Le mode d’affichage : Mise en Page - La barre de formule - L’insertion d nouvelles feuilles",
     "La saisie semi-automatique des formules",
-    "Les nouvelles fonctionnalités de mise en forme : Les thèmes – Les styles de cellule – La mise en forme conditionnelle – Le tri et le filtre par couleurs",
+    "Les nouvelles fonctionnalités de mise en forme : Les thèmes - Les styles de cellule - La mise en forme conditionnelle - Le tri et le filtre par couleurs",
     "Les graphiques sous Excel",
     "## Découverte de Powerpoint",
     "Les nouveautés de l’interface",
@@ -8796,7 +8796,7 @@
   },
   {
    "slug": "powerpoint-initiation",
-   "intitule": "Powerpoint – Initiation",
+   "intitule": "Powerpoint - Initiation",
    "domaine": "bureautique",
    "sous_theme": "Microsoft Office",
    "public": [
@@ -8909,7 +8909,7 @@
     "## Les notes",
     "Création de notes",
     "Gestion et personnalisation des notes",
-    "Liaisons notes – courriers – tâches"
+    "Liaisons notes - courriers - tâches"
    ],
    "moyens": null,
    "methodes": null,
@@ -8977,7 +8977,7 @@
   },
   {
    "slug": "word-perfectionnement",
-   "intitule": "Word – Perfectionnement",
+   "intitule": "Word - Perfectionnement",
    "domaine": "bureautique",
    "sous_theme": "Microsoft Office",
    "public": [
@@ -9040,7 +9040,7 @@
   },
   {
    "slug": "word-initiation",
-   "intitule": "Word – Initiation",
+   "intitule": "Word - Initiation",
    "domaine": "bureautique",
    "sous_theme": "Microsoft Office",
    "public": [
@@ -9101,7 +9101,7 @@
   },
   {
    "slug": "excel-fonctions-essentielles-perf-tcd",
-   "intitule": "Excel – Fonctions Essentielles Perf & TCD",
+   "intitule": "Excel - Fonctions Essentielles Perf & TCD",
    "domaine": "bureautique",
    "sous_theme": "Microsoft Office",
    "public": [
@@ -9169,7 +9169,7 @@
   },
   {
    "slug": "excel-base-de-donnees-tableaux-croises-dynamiques",
-   "intitule": "Excel – Base de données & Tableaux Croisés Dynamiques",
+   "intitule": "Excel - Base de données & Tableaux Croisés Dynamiques",
    "domaine": "bureautique",
    "sous_theme": "Microsoft Office",
    "public": [
@@ -9291,15 +9291,15 @@
     "Evaluations formatives réalisées à l’aide de grilles critériées ;",
     "Attestation de fin de formation mentionnant l’atteinte des objectifs de la formation",
     "Evaluation différée",
-    "– Evaluation satisfaction",
-    "– Rédaction d’un bilan d’action remis au commanditaire en cas de formation intra-entrepris"
+    "- Evaluation satisfaction",
+    "- Rédaction d’un bilan d’action remis au commanditaire en cas de formation intra-entrepris"
    ],
    "programme_pdf": "https://expernet.re/wp-content/uploads/2025/05/PROGRAMME-EXCEL-PERFECTIONNEMENT.pdf",
    "url_source": "https://expernet.re/formation/excel-perfectionnement/"
   },
   {
    "slug": "excel-initiation",
-   "intitule": "Excel – Initiation",
+   "intitule": "Excel - Initiation",
    "domaine": "bureautique",
    "sous_theme": "Microsoft Office",
    "public": [
@@ -9419,7 +9419,7 @@
   },
   {
    "slug": "windows-11-utilisateurs",
-   "intitule": "WINDOWS 11 – Utilisateurs",
+   "intitule": "WINDOWS 11 - Utilisateurs",
    "domaine": "remise-a-niveau-numerique",
    "sous_theme": null,
    "public": [
@@ -9521,7 +9521,7 @@
     "## Jour 2",
     "Les translations d’adresses (NAT)",
     "Les VPN site à site (BOVPN) et nomade (MUVPN) : Configuration de base",
-    "Le contrôle du spam et des sites visités (SpamBlocket – WebBlocker – RED)",
+    "Le contrôle du spam et des sites visités (SpamBlocket - WebBlocker - RED)",
     "Le contrôle applicatif",
     "Les authentifications",
     "Configuration de base",
@@ -9541,7 +9541,7 @@
   },
   {
    "slug": "adobe-express-fonctions-essentielles-et-usages-principaux",
-   "intitule": "Adobe Express – Fonctions essentielles et usages principaux",
+   "intitule": "Adobe Express - Fonctions essentielles et usages principaux",
    "domaine": "pao-publication-assistee-par-ordinateur",
    "sous_theme": null,
    "public": [
@@ -9620,7 +9620,7 @@
     "Savoir naviguer sur le web"
    ],
    "programme": [
-    "## Jour 1 : Google Ads – Campagne SEARCH",
+    "## Jour 1 : Google Ads - Campagne SEARCH",
     "## PRESENTATION DE GOOGLE GOOGLE ADS",
     "Pourquoi utiliser Google Google Ads ?",
     "Les différents types d’annonces",
@@ -9639,7 +9639,7 @@
     "Réaliser des optimisations d’enchères",
     "Appliquer les recommandations utiles",
     "Savoir analyser ses résultats",
-    "## Jour 2 : Google Ads – Campagne Dynamique et DISPLAY",
+    "## Jour 2 : Google Ads - Campagne Dynamique et DISPLAY",
     "## CAMPAGNE DYNAMIQUE",
     "Mise en place d’une campagne dynamique",
     "## LE RESEAU DISPLAY & YOUTUBE",
@@ -9685,10 +9685,10 @@
    "prerequis": [],
    "programme": [
     "Jour 1- Facebook",
-    "Jour 2 – Instagram / Publicités Meta",
-    "Jour 3 – Linkedin",
-    "Jour 4 – Canva",
-    "Jour 5 – Tik Tok / CapCut (montage Vidéo)",
+    "Jour 2 - Instagram / Publicités Meta",
+    "Jour 3 - Linkedin",
+    "Jour 4 - Canva",
+    "Jour 5 - Tik Tok / CapCut (montage Vidéo)",
     "## JOUR 1 FACEBOOK",
     "Facebook à la Réunion représente plus de 600 000 profils… avec une telle audience vous ne pouvez pas vous passer de maîtriser ce réseau social !",
     "## Prise en main :",
@@ -9898,7 +9898,7 @@
   },
   {
    "slug": "adobe-photoshop-initiation",
-   "intitule": "Adobe Photoshop – Initiation",
+   "intitule": "Adobe Photoshop - Initiation",
    "domaine": "pao-publication-assistee-par-ordinateur",
    "sous_theme": null,
    "public": [
@@ -9957,7 +9957,7 @@
     "## Les couleurs",
     "Les modes colorimétries",
     "Le sélecteur de couleurs",
-    "Travail des couleurs en mode TSL – RVB – LAB",
+    "Travail des couleurs en mode TSL - RVB - LAB",
     "Travail des couleurs en mode CMJN, BICHROMIE ou TRICHROMIE",
     "La gestion des couleurs avec le Nuancier",
     "L’outil pipette, le pot de peinture",

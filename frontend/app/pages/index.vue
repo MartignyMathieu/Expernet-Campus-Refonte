@@ -8,7 +8,7 @@ const onglet = ref<'informatique' | 'marketing'>('informatique')
 useSeoMeta({
   title: 'École informatique et marketing digital en alternance à La Réunion',
   description: 'Expernet Campus forme en alternance du BAC+2 au BAC+5 aux métiers de l\'informatique, de la cybersécurité et du marketing digital, au Port (La Réunion) et à Mayotte.',
-  ogTitle: 'Expernet Campus — Informatique & Marketing Digital en alternance',
+  ogTitle: 'Expernet Campus - Informatique & Marketing Digital en alternance',
   ogType: 'website',
 })
 useHead({
@@ -25,7 +25,7 @@ function chercher() { navigateTo({ path: '/formations', query: recherche.value ?
 const liste = computed(() => formations.value?.data.filter((f) => f.filiere?.code === onglet.value) || [])
 const nb = (code: string) => formations.value?.data.filter((f) => f.filiere?.code === code).length || 0
 const partenaires = [
-  { src: '/images/partenaires/ipi.png', nom: 'IPI — École d\'informatique' },
+  { src: '/images/partenaires/ipi.png', nom: 'IPI - École d\'informatique' },
   { src: '/images/partenaires/eni.png', nom: 'ENI École Informatique' },
   { src: '/images/partenaires/esd.png', nom: 'ESD Cybersecurity Academy' },
   { src: '/images/partenaires/digital-campus.png', nom: 'Digital Campus' },

@@ -34,7 +34,7 @@ async function signer() {
   <div class="page">
     <NuxtLink to="/ent/etudiant" class="lien-retour"><Icone nom="retour" :taille="16" /> Aujourd'hui</NuxtLink>
     <h1>Émargement</h1>
-    <p v-if="seance" class="aide">{{ seance.module }} · {{ seance.heure_debut }}–{{ seance.heure_fin }} · {{ seance.formateur }}</p>
+    <p v-if="seance" class="aide">{{ seance.module }} · {{ seance.heure_debut }}-{{ seance.heure_fin }} · {{ seance.formateur }}</p>
 
     <div v-if="resultat" class="carte confirmation" role="status">
       <h2 class="titre-icone"><Icone nom="valide" :taille="28" poids="fill" class="ok" /> Présence enregistrée</h2>

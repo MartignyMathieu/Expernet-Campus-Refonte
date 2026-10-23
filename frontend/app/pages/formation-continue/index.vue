@@ -41,10 +41,11 @@ function choisirDomaine(slug: string) {
   <div v-if="data">
     <EntetePage titre="Formation continue" sur-titre="Expernet · organisme de formation depuis 2002" :texte="`Salariés, demandeurs d'emploi, entreprises : ${total} formations courtes en informatique et en marketing digital, à La Réunion et à Mayotte.`" image="/images/campus/filiere-informatique.webp">
       <div class="cta-entete">
-        <NuxtLink to="/contact?sujet=Demande de devis — formation continue" class="btn btn-primaire">Demander un devis</NuxtLink>
-        <a :href="data.liens.planning" class="btn btn-contour-blanc" target="_blank" rel="noopener">Planning des sessions <Icone nom="externe" :taille="16" /></a>
+        <NuxtLink to="/contact?sujet=Demande de devis - formation continue" class="btn btn-primaire">Demander un devis</NuxtLink>
+        <NuxtLink to="/formation-continue/planning" class="btn btn-contour-blanc">Planning des sessions</NuxtLink>
       </div>
     </EntetePage>
+    <NavFormationContinue />
 
     <section class="conteneur chiffres" aria-label="Expernet formation continue en chiffres">
       <div v-for="c in data.chiffres" :key="c.libelle"><Compteur :valeur="c.valeur" :suffixe="c.suffixe || ''" /><span class="libelle-chiffre">{{ c.libelle }}</span></div>
@@ -64,7 +65,7 @@ function choisirDomaine(slug: string) {
 
     <section v-if="prochaines.length" class="conteneur bloc" aria-labelledby="t-sessions">
       <p class="sur-titre">Inter-entreprises</p>
-      <h2 id="t-sessions">Prochaines sessions</h2>
+      <div class="titre-lien"><h2 id="t-sessions">Prochaines sessions</h2><NuxtLink to="/formation-continue/planning" class="lien-planning">Tout le planning <Icone nom="suivant" :taille="16" /></NuxtLink></div>
       <ul class="sessions">
         <li v-for="(s, i) in prochaines" :key="s.slug" v-apparition="i % 3">
           <NuxtLink :to="`/formation-continue/${s.slug}`" class="session">
@@ -88,7 +89,7 @@ function choisirDomaine(slug: string) {
       <div class="domaines" role="group" aria-label="Filtrer par domaine">
         <button class="puce" :class="{ actif: !filtres.domaine }" :aria-pressed="!filtres.domaine" @click="filtres.domaine = ''">Tous les domaines</button>
         <button v-for="d in domaines" :key="d.slug" class="puce" :class="{ actif: filtres.domaine === d.slug }" :aria-pressed="filtres.domaine === d.slug" @click="choisirDomaine(d.slug)">
-          <Icone :nom="d.icone" :taille="16" />{{ d.libelle.split(' — ')[0] }}<small>{{ d.stages.length }}</small>
+          <Icone :nom="d.icone" :taille="16" />{{ d.libelle.split(' - ')[0] }}<small>{{ d.stages.length }}</small>
         </button>
       </div>
 
@@ -96,7 +97,7 @@ function choisirDomaine(slug: string) {
       <TransitionGroup tag="ul" name="liste" class="stages">
         <li v-for="s in resultats.slice(0, affiches)" :key="s.slug">
           <article class="stage">
-            <p class="stage-domaine"><Icone :nom="s.domaine.icone" :taille="15" />{{ s.sous_theme || s.domaine.libelle.split(' — ')[0] }}</p>
+            <p class="stage-domaine"><Icone :nom="s.domaine.icone" :taille="15" />{{ s.sous_theme || s.domaine.libelle.split(' - ')[0] }}</p>
             <h3><NuxtLink :to="`/formation-continue/${s.slug}`" class="lien-etire">{{ s.intitule }}</NuxtLink></h3>
             <p class="stage-bas">
               <span><Icone nom="horloge" :taille="15" />{{ s.duree }}</span>
@@ -122,7 +123,7 @@ function choisirDomaine(slug: string) {
       <div v-apparition="1" class="carte info">
         <span class="info-icone"><Icone nom="adresse" :taille="26" /></span>
         <h3>Nos locaux</h3>
-        <ul><li v-for="l in data.locaux" :key="l.ville"><strong>{{ l.ville }}</strong> — {{ l.adresse }}</li></ul>
+        <ul><li v-for="l in data.locaux" :key="l.ville"><strong>{{ l.ville }}</strong> - {{ l.adresse }}</li></ul>
       </div>
       <div v-apparition="2" class="carte info">
         <span class="info-icone"><Icone nom="accessibilite" :taille="26" /></span>
@@ -137,11 +138,13 @@ function choisirDomaine(slug: string) {
 
 <style scoped>
 .cta-entete { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
-.chiffres { animation: monter .7s .2s cubic-bezier(.2,.7,.2,1) both; position: relative; z-index: 2; margin-top: -36px; display: grid; grid-template-columns: repeat(4, 1fr); background: #fff; border-radius: var(--rayon); box-shadow: var(--ombre-forte); overflow: hidden; }
+.chiffres { animation: monter .7s .2s cubic-bezier(.2,.7,.2,1) both; position: relative; z-index: 2; margin-top: var(--esp-5); display: grid; grid-template-columns: repeat(4, 1fr); background: #fff; border-radius: var(--rayon); box-shadow: var(--ombre-forte); overflow: hidden; }
 .chiffres > div { padding: 24px; display: grid; gap: 6px; border-right: 1px solid var(--gris-bord); }
 .chiffres > div:last-child { border-right: 0; }
 .chiffres .chiffre { color: var(--primaire-fonce); }
 .bloc { margin-top: var(--esp-6); }
+.titre-lien { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.lien-planning { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
 .format { display: grid; gap: 10px; align-content: start; }
 .format h3, .format p { margin: 0; }
 .format p { color: var(--texte-doux); }

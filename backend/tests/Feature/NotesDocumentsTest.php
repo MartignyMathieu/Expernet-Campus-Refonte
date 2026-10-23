@@ -149,4 +149,24 @@ class NotesDocumentsTest extends TestCase
         $autre = $this->deposer('plan.pdf', 'application/pdf');
         $this->actingAs($this->admin)->deleteJson("/api/documents/{$autre}")->assertNoContent();
     }
+
+    public function test_documents_rattaches_au_module_d_une_seance(): void
+    {
+        $this->actingAs($this->etudiant)->getJson("/api/promotions/{$this->promotion->id}/modules")->assertOk()
+            ->assertJsonCount(1)->assertJsonPath('0.id', $this->module->id);
+        $this->actingAs($this->etudiantHorsPromo)->getJson("/api/promotions/{$this->promotion->id}/modules")->assertForbidden();
+
+        // La séance du planning porte l'identifiant de son module (lien vers les documents)
+        $this->actingAs($this->etudiant)->getJson('/api/planning')->assertJsonPath('seances.0.module_id', $this->module->id);
+
+        $url = "/api/promotions/{$this->promotion->id}/documents";
+        $this->actingAs($this->formateur)->postJson($url, ['titre' => 'TP module', 'espace' => 'exercices', 'module_id' => $this->module->id, 'fichier' => UploadedFile::fake()->create('tp.pdf', 10, 'application/pdf')])
+            ->assertCreated()->assertJsonPath('module_id', $this->module->id);
+
+        $autre = \App\Models\Module::create(['formation_id' => \App\Models\Formation::create([
+            'filiere_id' => \App\Models\Filiere::first()->id, 'slug' => 'autre', 'intitule' => 'Autre', 'accroche' => 'x', 'niveau_rncp' => 5,
+        ])->id, 'code' => 'X', 'intitule' => 'Module étranger']);
+        $this->actingAs($this->formateur)->postJson($url, ['titre' => 'X', 'module_id' => $autre->id, 'fichier' => UploadedFile::fake()->create('x.pdf', 10, 'application/pdf')])
+            ->assertStatus(422)->assertJsonValidationErrors('module_id');
+    }
 }

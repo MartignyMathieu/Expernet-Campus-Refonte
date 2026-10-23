@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\FcActualite;
 use App\Models\FcDomaine;
 use App\Models\FcStage;
 use Illuminate\Database\Seeder;
@@ -14,6 +15,8 @@ use Illuminate\Database\Seeder;
 class FormationContinueSeeder extends Seeder
 {
     public const FICHIER = 'data/formation-continue.json';
+
+    public const ACTUALITES = 'data/fc-actualites.json';
 
     public function run(): void
     {
@@ -37,6 +40,15 @@ class FormationContinueSeeder extends Seeder
                 'prochaine_session' => $s['prochaine_session'], 'objectifs' => $s['objectifs'], 'prerequis' => $s['prerequis'],
                 'programme' => $s['programme'], 'moyens' => $s['moyens'], 'methodes' => $s['methodes'], 'evaluation' => $s['evaluation'],
                 'programme_pdf' => $s['programme_pdf'], 'url_source' => $s['url_source'],
+            ]);
+        }
+
+        // Actualités de l'organisme (ordre du site d'origine)
+        $actualites = json_decode(file_get_contents(database_path(self::ACTUALITES)), true, flags: JSON_THROW_ON_ERROR)['actualites'];
+        foreach ($actualites as $i => $a) {
+            FcActualite::updateOrCreate(['slug' => $a['slug']], [
+                'titre' => $a['titre'], 'categorie' => $a['categorie'], 'extrait' => $a['extrait'], 'url_source' => $a['url_source'], 'ordre' => $i,
+                'publie_le' => $a['publie_le'] ?? null, 'image' => $a['image'] ?? null, 'theme' => $a['theme'] ?? 'organisme',
             ]);
         }
     }

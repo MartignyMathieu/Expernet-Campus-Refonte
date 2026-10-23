@@ -18,12 +18,12 @@
 <body>
   <div class="bandeau">
     <h1>Attestation d'assiduité</h1>
-    <div class="meta">Expernet Campus — Parc 2000, 97420 Le Port</div>
+    <div class="meta">Expernet Campus - Parc 2000, 97420 Le Port</div>
   </div>
 
   <p>Nous attestons que <strong>{{ $etudiant->nomComplet() }}</strong>, inscrit(e) en
      <strong>{{ $promotion->formation->intitule }}</strong> (promotion {{ $promotion->libelle }}),
-     a été présent(e) à <strong>{{ $presents }}</strong> demi-journée(s) sur {{ $lignes->count() }} séance(s) enregistrée(s).</p>
+     a été présent(e) à <strong>{{ $presents }}</strong> {{ $presents > 1 ? 'demi-journées' : 'demi-journée' }} sur {{ $lignes->count() }} {{ $lignes->count() > 1 ? 'séances enregistrées' : 'séance enregistrée' }}.</p>
 
   <table>
     <thead><tr><th>Date</th><th>Créneau</th><th>Module</th><th>Statut</th><th>Signé le</th><th>Empreinte SHA-256</th></tr></thead>
@@ -34,8 +34,8 @@
         <td>{{ $l->seance->creneau === 'matin' ? 'Matin' : 'Après-midi' }}</td>
         <td>{{ $l->seance->module->intitule }}</td>
         <td>{{ ucfirst($l->statut) }}</td>
-        <td>{{ $l->signe_at?->format('d/m/Y H:i:s') ?? '—' }}</td>
-        <td class="hash">{{ $l->empreinte ?? '—' }}</td>
+        <td>{{ $l->signe_at?->format('d/m/Y H:i:s') ?? '-' }}</td>
+        <td class="hash">{{ $l->empreinte ?? '-' }}</td>
       </tr>
     @endforeach
     </tbody>

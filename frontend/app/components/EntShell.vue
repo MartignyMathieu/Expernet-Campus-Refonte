@@ -23,7 +23,7 @@ watch(() => route.fullPath, majNonLus)
   <div class="ent" :class="'theme-' + (theme || 'standard')">
     <a href="#contenu" class="lien-evitement">Aller au contenu</a>
     <aside class="barre" aria-label="Navigation de l'espace">
-      <NuxtLink :to="accueilRole()" class="logo"><img src="/images/brand/logo-expernet.png" alt="Expernet Campus — accueil de mon espace" width="900" height="241"></NuxtLink>
+      <NuxtLink :to="accueilRole()" class="logo"><img src="/images/brand/logo-expernet.png" alt="Expernet Campus - accueil de mon espace" width="900" height="241"></NuxtLink>
       <p class="espace"><span class="point" aria-hidden="true" />{{ titre }}</p>
       <nav>
         <ul>
@@ -32,7 +32,7 @@ watch(() => route.fullPath, majNonLus)
               <IconsIconBanane v-if="theme === 'banane'" :variante="e.icone as any" :taille="30" />
               <Icone v-else :nom="e.icone" :taille="22" :poids="actif(e.to) ? 'fill' : 'regular'" />
               <span>{{ e.libelle }}</span>
-              <span v-if="e.icone === 'messages' && nonLus" :key="nonLus" class="badge-nav" :aria-label="`${nonLus} message(s) non lu(s)`">{{ nonLus > 99 ? '99+' : nonLus }}</span>
+              <span v-if="e.icone === 'messages' && nonLus" :key="nonLus" class="badge-nav" :aria-label="`${nombre(nonLus, 'message')} ${pluriel(nonLus, 'non lu', 'non lus')}`">{{ nonLus > 99 ? '99+' : nonLus }}</span>
             </NuxtLink>
           </li>
         </ul>
@@ -54,7 +54,6 @@ watch(() => route.fullPath, majNonLus)
           </button>
           <div v-show="menuProfil" id="menu-profil" class="menu-profil">
             <NuxtLink to="/ent/profil" @click="menuProfil = false"><Icone nom="utilisateur" /> Mon profil</NuxtLink>
-            <NuxtLink to="/ent/securite" @click="menuProfil = false"><Icone nom="securite" /> Sécurité du compte</NuxtLink>
             <button @click="deconnexion"><Icone nom="deconnexion" /> Se déconnecter</button>
           </div>
         </div>

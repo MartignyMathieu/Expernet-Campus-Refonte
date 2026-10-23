@@ -80,7 +80,7 @@ class DemoSeeder extends Seeder
 
                 if ($jour->lt(Carbon::today()) && $seance->cloturee_at === null) {
                     foreach ($etudiants as $k => $e) {
-                        // Absentéisme simulé : « Tom » s'absente souvent, « Hugo » ponctuellement — pour démontrer les alertes.
+                        // Absentéisme simulé : « Tom » s'absente souvent, « Hugo » ponctuellement - pour démontrer les alertes.
                         $absent = ($k === 7 && $j % 3 !== 0) || ($k === 5 && $j % 5 === 0);
                         if (! $absent) {
                             $t = $jour->copy()->setTimeFromTimeString($hd)->addMinutes(3 + $k);
@@ -113,8 +113,8 @@ class DemoSeeder extends Seeder
         $this->espacesDemo($promo, $admin, $f1, $f2, $etudiants[0], $modules);
 
         // Session d'examen + jury
-        $examen = SessionExamen::updateOrCreate(['promotion_id' => $promo->id, 'intitule' => 'Évaluation intermédiaire — AT1'], [
-            'debut' => Carbon::today()->addWeeks(3)->setTime(8, 30), 'fin' => Carbon::today()->addWeeks(3)->setTime(12, 0), 'lieu' => 'Le Port — Salle 528',
+        $examen = SessionExamen::updateOrCreate(['promotion_id' => $promo->id, 'intitule' => 'Évaluation intermédiaire - AT1'], [
+            'debut' => Carbon::today()->addWeeks(3)->setTime(8, 30), 'fin' => Carbon::today()->addWeeks(3)->setTime(12, 0), 'lieu' => 'Le Port - Salle 528',
         ]);
         $examen->jury()->sync([$f1->id => ['fonction' => 'president'], $f2->id => ['fonction' => 'membre']]);
 
@@ -138,7 +138,7 @@ class DemoSeeder extends Seeder
             $chemin = 'messagerie/'.$groupe->id.'/consignes-tp-note.pdf';
             Storage::disk('local')->put($chemin, \Barryvdh\DomPDF\Facade\Pdf::loadHTML(
                 '<html><head><meta charset="utf-8"><title>Consignes TP noté</title></head><body>'
-                .'<h1 style="font-family:sans-serif;color:#0D5A8A">TP noté — API REST sécurisée</h1>'
+                .'<h1 style="font-family:sans-serif;color:#0D5A8A">TP noté - API REST sécurisée</h1>'
                 .'<p style="font-family:sans-serif">Promotion CDA 2026-2028 · vendredi après-midi · en binôme</p>'
                 .'<ol style="font-family:sans-serif"><li>Exposer une ressource CRUD documentée (OpenAPI).</li><li>Protéger les routes (authentification, rôles).</li>'
                 .'<li>Écrire au moins cinq tests automatisés.</li><li>Déposer le lien du dépôt Git dans la messagerie.</li></ol></body></html>'
@@ -159,7 +159,7 @@ class DemoSeeder extends Seeder
      */
     private function espacesDemo(Promotion $promo, User $admin, User $f1, User $f2, User $etudiant, $modules): void
     {
-        Document::where('promotion_id', $promo->id)->where('titre', 'Mémo — commandes Git du binôme')->where('espace', 'cours')->update(['espace' => 'exercices']);
+        Document::where('promotion_id', $promo->id)->where('titre', 'Mémo - commandes Git du binôme')->where('espace', 'cours')->update(['espace' => 'exercices']);
 
         $disque = Storage::disk('local');
         $pdf = fn (string $titre, string $corps) => \Barryvdh\DomPDF\Facade\Pdf::loadHTML(
@@ -169,22 +169,22 @@ class DemoSeeder extends Seeder
         )->output();
 
         $documents = [
-            ['pedagogie', $f1, 'Programme de formation — CDA', 'Activités types, modules, volumes horaires et modalités d\'évaluation.', 'programme-cda.pdf', 'application/pdf', fn () => $pdf('Programme de formation — CDA',
+            ['pedagogie', $f1, 'Programme de formation - CDA', 'Activités types, modules, volumes horaires et modalités d\'évaluation.', 'programme-cda.pdf', 'application/pdf', fn () => $pdf('Programme de formation - CDA',
                 '<p>Titre professionnel Concepteur Développeur d\'Applications (RNCP37873), niveau 6.</p><h3>Activités types</h3><ol><li>Développer une application sécurisée</li>'
                 .'<li>Concevoir et développer une application sécurisée organisée en couches</li><li>Préparer le déploiement d\'une application sécurisée</li></ol>'
-                .'<h3>Modules</h3><ul><li>Environnement de développement — 35 h</li><li>Bases de données — 70 h</li><li>Back-end — 105 h</li><li>Interfaces — 70 h</li><li>Conduite de projet — 35 h</li></ul>')],
-            ['exercices', $f2, 'TP 2 — Modéliser les inscriptions', 'À rendre dans « Mes rendus » avant vendredi 17 h.', 'tp2-modelisation.md', 'text/plain', fn () => "# TP 2 — Modéliser les inscriptions\n\n"
+                .'<h3>Modules</h3><ul><li>Environnement de développement - 35 h</li><li>Bases de données - 70 h</li><li>Back-end - 105 h</li><li>Interfaces - 70 h</li><li>Conduite de projet - 35 h</li></ul>')],
+            ['exercices', $f2, 'TP 2 - Modéliser les inscriptions', 'À rendre dans « Mes rendus » avant vendredi 17 h.', 'tp2-modelisation.md', 'text/plain', fn () => "# TP 2 - Modéliser les inscriptions\n\n"
                 ."1. Établir le MCD (promotion, inscription, utilisateur).\n2. Le traduire en MLD en 3e forme normale.\n3. Écrire la migration Laravel.\n\n"
                 ."Rendu : un PDF ou une archive ZIP dans l'espace « Mes rendus ».\n"],
-            ['examens', $admin, 'Convocation — évaluation intermédiaire AT1', 'Date, salle, pièces à présenter et déroulé de l\'épreuve.', 'convocation-at1.pdf', 'application/pdf', fn () => $pdf('Convocation — évaluation intermédiaire AT1',
-                '<p>Vous êtes convoqué(e) à l\'évaluation intermédiaire de l\'activité type 1.</p><ul><li>Lieu : Le Port — Salle 528</li><li>Horaires : 8 h 30 — 12 h</li>'
+            ['examens', $admin, 'Convocation - évaluation intermédiaire AT1', 'Date, salle, pièces à présenter et déroulé de l\'épreuve.', 'convocation-at1.pdf', 'application/pdf', fn () => $pdf('Convocation - évaluation intermédiaire AT1',
+                '<p>Vous êtes convoqué(e) à l\'évaluation intermédiaire de l\'activité type 1.</p><ul><li>Lieu : Le Port - Salle 528</li><li>Horaires : 8 h 30 - 12 h</li>'
                 .'<li>Se munir d\'une pièce d\'identité et de son ordinateur portable chargé.</li></ul>')],
             ['administratif', $admin, 'Règlement intérieur', 'Règles de vie, assiduité, absences et justificatifs.', 'reglement-interieur.pdf', 'application/pdf', fn () => $pdf('Règlement intérieur',
                 '<h3>Assiduité</h3><p>La présence est obligatoire. Toute absence doit être justifiée sous 48 heures (justificatif déposé dans « Mes rendus »).</p>'
                 .'<h3>Émargement</h3><p>L\'émargement numérique se fait par demi-journée, à l\'ouverture de la séance par le formateur.</p>')],
-            ['stage', $f1, 'Offre d\'alternance — développeur web (Saint-Denis)', 'Entreprise partenaire, rythme 3 semaines / 1 semaine.', 'offre-alternance.md', 'text/plain', fn () => "# Offre d'alternance — Développeur web\n\n"
+            ['stage', $f1, 'Offre d\'alternance - développeur web (Saint-Denis)', 'Entreprise partenaire, rythme 3 semaines / 1 semaine.', 'offre-alternance.md', 'text/plain', fn () => "# Offre d'alternance - Développeur web\n\n"
                 ."Entreprise partenaire à Saint-Denis. Stack : Laravel, Vue, PostgreSQL.\nRythme : 3 semaines en entreprise / 1 semaine au campus.\n\nCandidature : CV + lettre à transmettre à la chargée de relations entreprises.\n"],
-            ['rendus', $etudiant, 'Justificatif d\'absence — rendez-vous médical', null, 'justificatif-absence.md', 'text/plain', fn () => "Justificatif d'absence pour la demi-journée du matin (rendez-vous médical).\n"],
+            ['rendus', $etudiant, 'Justificatif d\'absence - rendez-vous médical', null, 'justificatif-absence.md', 'text/plain', fn () => "Justificatif d'absence pour la demi-journée du matin (rendez-vous médical).\n"],
         ];
 
         foreach ($documents as [$espace, $auteur, $titre, $description, $nom, $mime, $contenu]) {
@@ -220,14 +220,14 @@ class DemoSeeder extends Seeder
 
         $css = 'font-family:Helvetica,sans-serif;color:#14202B'; // police standard PDF : fichier léger
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML(
-            '<html><head><meta charset="utf-8"><title>Support — API REST sécurisée</title></head><body>'
+            '<html><head><meta charset="utf-8"><title>Support - API REST sécurisée</title></head><body>'
             ."<div style=\"$css\"><p style=\"color:#009BDD;font-weight:bold;letter-spacing:2px\">EXPERNET CAMPUS · CDA 2026-2028</p>"
-            .'<h1 style="color:#0D5A8A">Développement web back-end</h1><h2>Séance 3 — Concevoir une API REST sécurisée</h2>'
+            .'<h1 style="color:#0D5A8A">Développement web back-end</h1><h2>Séance 3 - Concevoir une API REST sécurisée</h2>'
             .'<h3>1. Principes REST</h3><ul><li>Ressources identifiées par des URI, verbes HTTP explicites (GET, POST, PATCH, DELETE).</li><li>Codes de statut : 200, 201, 204, 401, 403, 404, 422.</li><li>Représentations JSON, pagination et filtres par paramètres.</li></ul>'
             .'<h3>2. Sécurité</h3><ul><li>Authentification par session (Sanctum) et protection CSRF.</li><li>Autorisations par permissions (RBAC) vérifiées côté serveur.</li><li>Validation systématique des entrées, limitation de débit.</li></ul>'
             .'<h3>3. Exercice</h3><p>Exposer la ressource <b>/api/projets</b> (CRUD), documenter le contrat OpenAPI et écrire les tests de bout en bout.</p></div></body></html>'
         )->output();
-        $ajouter('Support — API REST sécurisée', 'support-api-rest.pdf', 'application/pdf', $pdf, $modules[2] ?? null);
+        $ajouter('Support - API REST sécurisée', 'support-api-rest.pdf', 'application/pdf', $pdf, $modules[2] ?? null);
 
         if (function_exists('imagecreatetruecolor')) {
             $img = imagecreatetruecolor(900, 420);
@@ -241,10 +241,10 @@ class DemoSeeder extends Seeder
             imagesetthickness($img, 3); imageline($img, 260, 210, 350, 210, $orange); imageline($img, 550, 210, 640, 210, $orange);
             imagestring($img, 5, 60, 40, 'MCD simplifie - inscriptions (1,n) - (0,n)', $bleu);
             ob_start(); imagepng($img); $png = ob_get_clean(); imagedestroy($img);
-            $ajouter('Schéma MCD — inscriptions', 'schema-mcd-inscriptions.png', 'image/png', $png, $modules[1] ?? null);
+            $ajouter('Schéma MCD - inscriptions', 'schema-mcd-inscriptions.png', 'image/png', $png, $modules[1] ?? null);
         }
 
-        $ajouter('Mémo — commandes Git du binôme', 'memo-git.md', 'text/plain', "# Mémo Git\n\n"
+        $ajouter('Mémo - commandes Git du binôme', 'memo-git.md', 'text/plain', "# Mémo Git\n\n"
             ."git switch develop && git pull          # partir de develop à jour\n"
             ."git switch -c feat/ma-fonctionnalite    # une branche par fonctionnalité\n"
             ."git add -p && git commit                # commits courts et explicites\n"
