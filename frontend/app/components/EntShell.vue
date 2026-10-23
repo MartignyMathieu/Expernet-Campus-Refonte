@@ -53,7 +53,7 @@ watch(() => route.fullPath, majNonLus)
             <Icone nom="deplier" :taille="14" />
           </button>
           <div v-show="menuProfil" id="menu-profil" class="menu-profil">
-            <NuxtLink to="/ent/profil" @click="menuProfil = false"><Icone nom="utilisateur" /> Mon profil et sécurité</NuxtLink>
+            <NuxtLink to="/ent/profil" @click="menuProfil = false"><Icone nom="utilisateur" /> Mon profil</NuxtLink>
             <button @click="deconnexion"><Icone nom="deconnexion" /> Se déconnecter</button>
           </div>
         </div>

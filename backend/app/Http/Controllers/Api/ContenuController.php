@@ -93,10 +93,11 @@ class ContenuController extends Controller
         ]);
     }
 
-    /** Actualités de l'organisme, dans l'ordre du site d'origine. */
+    /** Actualités de l'organisme, de la plus récente à la plus ancienne. */
     public function actualitesFormationContinue()
     {
-        return response()->json(FcActualite::orderBy('ordre')->get(['id', 'slug', 'titre', 'categorie', 'extrait', 'url_source']));
+        return response()->json(FcActualite::orderByDesc('publie_le')->orderBy('ordre')
+            ->get(['id', 'slug', 'titre', 'categorie', 'extrait', 'url_source', 'publie_le', 'image', 'theme']));
     }
 
     /** Planning inter-entreprises : prochaines sessions programmées, de la plus proche à la plus lointaine. */

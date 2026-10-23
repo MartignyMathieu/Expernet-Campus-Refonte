@@ -34,6 +34,8 @@ class PlanningController extends Controller
             'heure_fin' => substr($s->heure_fin, 0, 5),
             'lieu' => $s->lieu,
             'module' => $s->module->intitule,
+            'module_id' => $s->module_id,
+            'promotion_id' => $s->promotion_id,
             'formateur' => $s->formateur->nomComplet(),
             'promotion' => $s->promotion->libelle,
             'emargement' => [

@@ -1814,6 +1814,49 @@
         }
       }
     },
+    "/api/promotions/{promotion}/modules": {
+      "get": {
+        "tags": [
+          "Documents"
+        ],
+        "summary": "Modules de la formation de la promotion (rattachement et filtre des documents)",
+        "responses": {
+          "200": {
+            "description": "Succès"
+          },
+          "401": {
+            "description": "Non authentifié"
+          },
+          "403": {
+            "description": "Accès refusé (rôle, permission ou MFA non activée)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erreur"
+                }
+              }
+            }
+          }
+        },
+        "description": "Permission RBAC requise : `documents.view`.",
+        "parameters": [
+          {
+            "name": "promotion",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la promotion",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieSession": []
+          }
+        ]
+      }
+    },
     "/api/documents/{document}/telechargement": {
       "get": {
         "tags": [

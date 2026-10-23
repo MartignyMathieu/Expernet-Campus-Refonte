@@ -7,6 +7,8 @@ const props = defineProps<{
   afficherEspace?: boolean
   libelleEspace?: (code: string) => string
   recherche?: string
+  modules?: { id: number; intitule: string }[]
+  moduleDefaut?: number | null
 }>()
 const emit = defineEmits<{ maj: [] }>()
 const api = useApi()
@@ -14,6 +16,7 @@ const { user } = useAuth()
 
 const estRendu = computed(() => props.espace?.code === 'rendus')
 const titre = ref(''); const description = ref(''); const fichier = ref<File | null>(null)
+const moduleId = ref<number | null>(props.moduleDefaut ?? null)
 const erreur = ref(''); const ok = ref(''); const envoi = ref(false); const survol = ref(false)
 const champFichier = ref<HTMLInputElement | null>(null)
 const taille = (o: number) => o > 1e6 ? (o / 1e6).toFixed(1).replace('.', ',') + ' Mo' : Math.max(1, Math.ceil(o / 1e3)) + ' Ko'
@@ -30,6 +33,7 @@ async function deposer() {
   const fd = new FormData()
   fd.append('titre', titre.value); fd.append('fichier', fichier.value); fd.append('espace', props.espace!.code)
   if (description.value) fd.append('description', description.value)
+  if (moduleId.value) fd.append('module_id', String(moduleId.value))
   envoi.value = true
   try {
     await csrf(); await api(`/api/promotions/${props.promotionId}/documents`, { method: 'POST', body: fd })
@@ -78,6 +82,8 @@ const libelleVide = computed(() => props.recherche ? 'Aucun document ne correspo
       </label>
       <div class="depot">
         <div class="champ"><label :for="`titre-${espace.code}`">Titre</label><input :id="`titre-${espace.code}`" v-model="titre" required maxlength="150" :placeholder="estRendu ? 'Ex. : TP 2 - Modélisation' : 'Ex. : Support séance 4'"></div>
+        <div v-if="modules?.length" class="champ"><label :for="`module-${espace.code}`">Module <span class="aide">(facultatif)</span></label>
+          <select :id="`module-${espace.code}`" v-model="moduleId"><option :value="null">Aucun module en particulier</option><option v-for="m in modules" :key="m.id" :value="m.id">{{ m.intitule }}</option></select></div>
         <div class="champ"><label :for="`desc-${espace.code}`">{{ estRendu ? 'Message pour le formateur' : 'Description' }} <span class="aide">(facultatif)</span></label><input :id="`desc-${espace.code}`" v-model="description" maxlength="500"></div>
       </div>
       <button class="btn btn-primaire" :disabled="envoi"><span v-if="envoi" class="chargement" aria-hidden="true" />{{ estRendu ? 'Déposer' : 'Publier' }}</button>

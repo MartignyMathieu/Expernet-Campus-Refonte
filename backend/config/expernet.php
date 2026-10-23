@@ -44,6 +44,11 @@ return [
         // Page « À propos » (expernet.re : Notre histoire, L'équipe), reprise le 23/10/2026.
         'a_propos' => [
             'presentation' => 'Expernet est un centre de formation en informatique et marketing digital implanté à La Réunion et à Mayotte. Créé pour accompagner les personnes à l\'ère d\'internet et au début de la transformation digitale, il forme les salariés et les aide à monter en compétences sur l\'informatique et ses solutions, avec l\'humain au centre du projet.',
+            'images' => [
+                'centre' => '/images/formation-continue/centre.webp',
+                'equipe' => '/images/formation-continue/equipe-formation-continue.webp',
+                'qualiopi' => '/images/formation-continue/qualiopi.png',
+            ],
             'chiffre_cle' => ['valeur' => 100000, 'prefixe' => '+ de ', 'libelle' => 'personnes formées depuis 2002'],
             'histoire' => [
                 ['annee' => 2002, 'titre' => 'Création du centre de formation', 'texte' => 'Expernet ouvre ses portes : un projet visionnaire pour l\'époque, qui devient rapidement un acteur majeur de la formation sur le territoire.'],
@@ -52,13 +57,13 @@ return [
                 ['annee' => 2022, 'titre' => 'Ouverture à Mayotte', 'texte' => 'Sur le modèle de La Réunion, Expernet devient à Mayotte le premier centre de formation à proposer un cursus Bac+4 en informatique.'],
             ],
             'equipe' => [
-                ['nom' => 'Marc-Henri Ravaux', 'fonction' => 'Directeur Général'],
-                ['nom' => 'Maxime Courbet', 'fonction' => 'Directeur Exploitation Réunion & Mayotte'],
-                ['nom' => 'Emma Nerina', 'fonction' => 'Conseillère en formation continue'],
-                ['nom' => 'Jérémy Oger', 'fonction' => 'Conseiller en formation continue'],
-                ['nom' => 'Emeline Hubert', 'fonction' => 'Assistante commerciale en formation continue'],
-                ['nom' => 'Laetitia Laurence-Nicosia', 'fonction' => 'Responsable administrative et financière'],
-                ['nom' => 'Murielle Chamand', 'fonction' => 'Assistante administrative et comptable, référente handicap'],
+                ['nom' => 'Marc-Henri Ravaux', 'photo' => '/images/formation-continue/equipe/marc-henri-ravaux.webp', 'fonction' => 'Directeur Général'],
+                ['nom' => 'Maxime Courbet', 'photo' => '/images/formation-continue/equipe/maxime-courbet.webp', 'fonction' => 'Directeur Exploitation Réunion & Mayotte'],
+                ['nom' => 'Emma Nerina', 'photo' => '/images/formation-continue/equipe/emma-nerina.webp', 'fonction' => 'Conseillère en formation continue'],
+                ['nom' => 'Jérémy Oger', 'photo' => '/images/formation-continue/equipe/jeremy-oger.webp', 'fonction' => 'Conseiller en formation continue'],
+                ['nom' => 'Emeline Hubert', 'photo' => '/images/formation-continue/equipe/emeline-hubert.webp', 'fonction' => 'Assistante commerciale en formation continue'],
+                ['nom' => 'Laetitia Laurence-Nicosia', 'photo' => '/images/formation-continue/equipe/laetitia-laurence-nicosia.webp', 'fonction' => 'Responsable administrative et financière'],
+                ['nom' => 'Murielle Chamand', 'photo' => '/images/formation-continue/equipe/murielle-chamand.webp', 'fonction' => 'Assistante administrative et comptable, référente handicap'],
             ],
             'certification' => [
                 'nom' => 'Qualiopi',

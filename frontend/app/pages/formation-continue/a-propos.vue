@@ -20,9 +20,12 @@ const initiales = (nom: string) => nom.split(/[\s-]+/).filter(Boolean).slice(0, 
         <h2 id="t-presentation">Accompagner chacun dans le numérique</h2>
         <p class="intro">{{ data.presentation }}</p>
       </div>
-      <div class="carte chiffre-cle">
-        <span class="chiffre"><span>{{ data.chiffre_cle.prefixe }}</span><Compteur :valeur="data.chiffre_cle.valeur" /></span>
-        <p class="libelle-chiffre">{{ data.chiffre_cle.libelle }}</p>
+      <div class="visuel">
+        <img :src="data.images.centre" alt="Une session de formation dans une salle informatique d'Expernet" width="315" height="315" loading="lazy">
+        <div class="carte chiffre-cle">
+          <span class="chiffre"><span>{{ data.chiffre_cle.prefixe }}</span><Compteur :valeur="data.chiffre_cle.valeur" /></span>
+          <p class="libelle-chiffre">{{ data.chiffre_cle.libelle }}</p>
+        </div>
       </div>
     </section>
 
@@ -38,11 +41,18 @@ const initiales = (nom: string) => nom.split(/[\s-]+/).filter(Boolean).slice(0, 
     </section>
 
     <section class="conteneur bloc" aria-labelledby="t-equipe">
-      <p class="sur-titre">L'équipe</p>
-      <h2 id="t-equipe">Toujours à votre écoute</h2>
+      <div class="equipe-tete">
+        <div>
+          <p class="sur-titre">L'équipe</p>
+          <h2 id="t-equipe">Toujours à votre écoute</h2>
+          <p>Conseillers, assistantes et direction : une équipe locale pour construire votre projet de formation, de la demande de devis à l'attestation de fin de stage.</p>
+        </div>
+        <img :src="data.images.equipe" alt="Trois membres de l'équipe formation continue devant les locaux d'Expernet" width="500" height="500" loading="lazy" class="photo-equipe">
+      </div>
       <ul class="equipe">
         <li v-for="(m, i) in data.equipe" :key="m.nom" v-apparition="i % 4" class="carte membre">
-          <span class="avatar-membre" aria-hidden="true">{{ initiales(m.nom) }}</span>
+          <img v-if="m.photo" :src="m.photo" :alt="m.nom" width="280" height="280" loading="lazy" class="photo-membre">
+          <span v-else class="avatar-membre" aria-hidden="true">{{ initiales(m.nom) }}</span>
           <strong>{{ m.nom }}</strong>
           <span class="aide">{{ m.fonction }}</span>
         </li>
@@ -51,6 +61,7 @@ const initiales = (nom: string) => nom.split(/[\s-]+/).filter(Boolean).slice(0, 
 
     <section class="conteneur bloc engagements" aria-label="Engagements et informations pratiques">
       <div class="carte">
+        <img :src="data.images.qualiopi" alt="Logo Qualiopi, processus certifié, République française" width="500" height="127" loading="lazy" class="logo-qualiopi">
         <h2 class="titre-icone"><Icone nom="certification" :taille="24" poids="duotone" /> Certifié {{ data.certification.nom }}</h2>
         <p>La certification qualité a été délivrée au titre des catégories d'actions suivantes :</p>
         <ul><li v-for="c in data.certification.categories" :key="c">{{ c }}</li></ul>
@@ -69,7 +80,7 @@ const initiales = (nom: string) => nom.split(/[\s-]+/).filter(Boolean).slice(0, 
       </div>
     </section>
 
-    <p class="conteneur source">Informations reprises de <a href="https://expernet.re/notre-histoire" target="_blank" rel="noopener">expernet.re</a> (Notre histoire, L'équipe).</p>
+    <p class="conteneur source">Informations et photos reprises de <a href="https://expernet.re/notre-histoire" target="_blank" rel="noopener">expernet.re</a> (Notre histoire, L'équipe), © Expernet.</p>
   </div>
 </template>
 
@@ -78,6 +89,13 @@ const initiales = (nom: string) => nom.split(/[\s-]+/).filter(Boolean).slice(0, 
 .bloc:first-of-type { margin-top: var(--esp-5); }
 .presentation { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--esp-5); align-items: center; }
 .intro { font-size: 1.1rem; line-height: 1.65; max-width: 65ch; }
+.visuel { position: relative; }
+.visuel img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--rayon); box-shadow: var(--ombre-forte); display: block; }
+.visuel .chiffre-cle { position: absolute; left: -24px; bottom: -28px; padding: var(--esp-3) var(--esp-4); }
+.equipe-tete { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: var(--esp-5); align-items: center; }
+.photo-equipe { width: 100%; max-width: 420px; justify-self: end; aspect-ratio: 1; object-fit: cover; border-radius: 24px; box-shadow: var(--ombre-forte); }
+.photo-membre { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; object-position: top; margin-bottom: 6px; box-shadow: 0 0 0 4px #fff, 0 0 0 5px var(--gris-bord); }
+.logo-qualiopi { width: 100%; max-width: 220px; height: auto; display: block; margin-bottom: 10px; }
 .chiffre-cle { text-align: center; padding: var(--esp-5) var(--esp-4); background: linear-gradient(135deg, #E1F3FB, #fff); }
 .chiffre-cle .chiffre { display: inline-flex; align-items: baseline; gap: 6px; font-size: 2.6rem; }
 .chiffre-cle .chiffre > span:first-child { font-size: 1.3rem; }
@@ -99,6 +117,6 @@ const initiales = (nom: string) => nom.split(/[\s-]+/).filter(Boolean).slice(0, 
 .locaux li { display: grid; }
 .lien-fleche { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
 .source { margin-top: var(--esp-5); color: var(--texte-doux); font-size: .9rem; text-align: center; }
-@media (max-width: 1000px) { .engagements { grid-template-columns: 1fr; } .presentation { grid-template-columns: 1fr; } }
+@media (max-width: 1000px) { .engagements, .presentation, .equipe-tete { grid-template-columns: 1fr; } .visuel .chiffre-cle { position: static; margin-top: var(--esp-3); } .photo-equipe { justify-self: start; } }
 @media (max-width: 600px) { .frise li { grid-template-columns: 72px minmax(0, 1fr); } .frise::before { left: 35px; } }
 </style>

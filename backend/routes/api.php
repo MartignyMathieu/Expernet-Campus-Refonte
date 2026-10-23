@@ -85,6 +85,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // Documents
         Route::get('/documents/espaces', [DocumentController::class, 'espaces'])->middleware('permission:documents.view');
         Route::get('/promotions/{promotion}/documents', [DocumentController::class, 'index'])->middleware('permission:documents.view');
+        Route::get('/promotions/{promotion}/modules', [DocumentController::class, 'modules'])->middleware('permission:documents.view');
         // Droit de dépôt vérifié par espace (documents.upload pour l'équipe, documents.rendre pour les rendus)
         Route::post('/promotions/{promotion}/documents', [DocumentController::class, 'store'])->middleware(['permission:documents.view', 'throttle:30,1']);
         Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])->middleware('permission:documents.view');

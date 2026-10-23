@@ -189,6 +189,7 @@ const dateLongue = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('
           <div v-else><dt><Icone nom="groupe" :taille="16" />Promotion</dt><dd>{{ detail.promotion }}</dd></div>
           <div v-if="etat(detail)"><dt><Icone nom="signature" :taille="16" />Émargement</dt><dd><span class="pastille" :class="etat(detail)![1]">{{ etat(detail)![0] }}</span></dd></div>
         </dl>
+        <NuxtLink v-if="detail.module_id" :to="`/ent/${role}/documents?module=${detail.module_id}`" class="btn btn-secondaire plein bouton-docs"><Icone nom="documents" :taille="18" /> {{ role === 'formateur' ? 'Déposer un cours ou un TP' : 'Cours et TP du module' }}</NuxtLink>
         <NuxtLink v-if="role === 'etudiant' && detail.emargement.ouvert && !detail.emargement.mon_statut" :to="`/ent/etudiant/emargement/${detail.id}`" class="btn btn-primaire plein">Signer ma présence</NuxtLink>
         <NuxtLink v-else-if="role === 'formateur' && detail.date === aujourdHui && !detail.emargement.cloture" :to="`/ent/formateur/seance/${detail.id}`" class="btn btn-primaire plein">{{ detail.emargement.ouvert ? 'Suivre l\'émargement' : 'Ouvrir l\'émargement' }}</NuxtLink>
       </template>
@@ -258,6 +259,7 @@ const dateLongue = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('
 .detail dt { display: flex; align-items: center; gap: 6px; color: var(--texte-doux); font-size: .88rem; }
 .detail dd { margin: 0; color: var(--encre); font-weight: 500; }
 .plein { width: 100%; }
+.bouton-docs { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px; }
 .vue-agenda-enter-active, .vue-agenda-leave-active { transition: opacity .18s ease, transform .18s ease; }
 .vue-agenda-enter-from { opacity: 0; transform: translateY(8px); }
 .vue-agenda-leave-to { opacity: 0; }

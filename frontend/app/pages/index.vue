@@ -56,9 +56,6 @@ const partenaires = [
       </div>
     </section>
 
-    <!-- OCTOBRE ROSE (affiché en octobre uniquement) -->
-    <OctobreRose />
-
     <!-- CHIFFRES -->
     <section class="conteneur chiffres" aria-label="Expernet en chiffres">
       <div><Icone nom="entreprise" :taille="26" poids="duotone" class="ic" /><span class="chiffre">2017</span><span class="libelle-chiffre">création du campus</span></div>

@@ -138,7 +138,7 @@ function choisirDomaine(slug: string) {
 
 <style scoped>
 .cta-entete { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
-.chiffres { animation: monter .7s .2s cubic-bezier(.2,.7,.2,1) both; position: relative; z-index: 2; margin-top: -36px; display: grid; grid-template-columns: repeat(4, 1fr); background: #fff; border-radius: var(--rayon); box-shadow: var(--ombre-forte); overflow: hidden; }
+.chiffres { animation: monter .7s .2s cubic-bezier(.2,.7,.2,1) both; position: relative; z-index: 2; margin-top: var(--esp-5); display: grid; grid-template-columns: repeat(4, 1fr); background: #fff; border-radius: var(--rayon); box-shadow: var(--ombre-forte); overflow: hidden; }
 .chiffres > div { padding: 24px; display: grid; gap: 6px; border-right: 1px solid var(--gris-bord); }
 .chiffres > div:last-child { border-right: 0; }
 .chiffres .chiffre { color: var(--primaire-fonce); }

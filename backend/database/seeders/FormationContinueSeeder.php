@@ -48,6 +48,7 @@ class FormationContinueSeeder extends Seeder
         foreach ($actualites as $i => $a) {
             FcActualite::updateOrCreate(['slug' => $a['slug']], [
                 'titre' => $a['titre'], 'categorie' => $a['categorie'], 'extrait' => $a['extrait'], 'url_source' => $a['url_source'], 'ordre' => $i,
+                'publie_le' => $a['publie_le'] ?? null, 'image' => $a['image'] ?? null, 'theme' => $a['theme'] ?? 'organisme',
             ]);
         }
     }

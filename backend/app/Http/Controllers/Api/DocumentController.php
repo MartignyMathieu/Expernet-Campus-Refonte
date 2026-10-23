@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Document;
+use App\Models\Module;
 use App\Models\Promotion;
 use App\Models\Role;
 use App\Models\User;
@@ -32,6 +33,14 @@ class DocumentController extends Controller
         ])->values());
     }
 
+    /** Modules de la formation suivie par la promotion (rattachement et filtre des documents). */
+    public function modules(Request $request, Promotion $promotion)
+    {
+        abort_unless($request->user()->peutVoirPromotion($promotion), 403);
+
+        return response()->json(Module::where('formation_id', $promotion->formation_id)->orderBy('id')->get(['id', 'code', 'intitule']));
+    }
+
     public function index(Request $request, Promotion $promotion)
     {
         $user = $request->user();
@@ -56,7 +65,7 @@ class DocumentController extends Controller
             'titre' => ['required', 'string', 'max:150'],
             'description' => ['nullable', 'string', 'max:500'],
             'espace' => ['nullable', Rule::in(array_keys(Document::ESPACES))],
-            'module_id' => ['nullable', 'exists:modules,id'],
+            'module_id' => ['nullable', Rule::exists('modules', 'id')->where('formation_id', $promotion->formation_id)],
             'fichier' => ['required', 'file', 'max:10240', 'mimes:pdf,docx,pptx,xlsx,odt,ods,odp,zip,png,jpg,jpeg,txt,md,csv'],
         ]);
         $espace = $donnees['espace'] ?? 'cours';

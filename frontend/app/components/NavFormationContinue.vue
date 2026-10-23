@@ -23,7 +23,7 @@ const actif = (to: string) => route.path === to
 </template>
 
 <style scoped>
-.nav-fc { background: #fff; border-bottom: 1px solid var(--gris-bord); position: sticky; top: 0; z-index: 15; }
+.nav-fc { background: #fff; border-bottom: 1px solid var(--gris-bord); position: relative; z-index: 3; }
 ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
 a { display: inline-flex; align-items: center; gap: 8px; padding: 14px 16px; color: var(--texte); text-decoration: none; font-weight: 600; white-space: nowrap; border-bottom: 3px solid transparent; transition: color .15s, border-color .15s; }
 a:hover { color: var(--primaire-texte); }

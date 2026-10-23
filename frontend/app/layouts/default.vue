@@ -27,7 +27,7 @@ const marketing = [
     <a href="#contenu" class="lien-evitement">Aller au contenu</a>
     <div class="barre-haute">
       <div class="conteneur ligne-haute">
-        <p>Campus informatique et marketing digital · BAC+2 à BAC+5 en alternance</p>
+        <OctobreRose><p>Campus informatique et marketing digital · BAC+2 à BAC+5 en alternance</p></OctobreRose>
         <p class="coord"><a href="tel:+262262219045"><Icone nom="telephone" :taille="15" />02 62 21 90 45</a><a href="mailto:campus@expernet.re"><Icone nom="email" :taille="15" />campus@expernet.re</a></p>
       </div>
     </div>
